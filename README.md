@@ -1,0 +1,49 @@
+# Mabs Technologies — Online Store
+
+An e-commerce web app for Mabs Technologies, selling computers, phones &
+tablets, accessories and electronics. Static HTML/CSS/JS with no build
+step — host it on any static web host (Hostinger, GitHub Pages, Netlify…).
+
+## Pages
+
+- `index.html` — storefront: hero, category tiles, "on sale" rail and the
+  full shop with search, category/brand/price/stock filters and sorting.
+  Filters are kept in the URL, e.g. `index.html?cat=phones&brand=Samsung#shop`.
+- `product.html?id=<product-id>` — product details, specs, quantity,
+  add to cart / buy now, wishlist and related products.
+- `checkout.html` — contact details, courier delivery or in-store
+  collection, payment choice (EFT or pay on delivery/collection), order
+  summary with VAT, and an order confirmation.
+
+The cart drawer, wishlist and header search work on every page. Cart,
+wishlist and placed orders are saved in the browser's `localStorage`.
+
+## Files
+
+- `js/catalog.js` — **edit this to run the shop**: store config (contact
+  details, delivery fee, free-delivery threshold, collection) and the
+  product list (name, brand, category, price, previous price, stock, specs).
+  Products show a drawn illustration until you add a photo with
+  `image: "assets/products/<file>.jpg"`.
+- `js/app.js` — cart, wishlist, header/footer, cart drawer, product cards.
+- `js/shop.js`, `js/product.js`, `js/checkout.js` — page scripts.
+- `css/mabs.css` — all styling.
+
+## Before going live
+
+1. Fill in `email`, `whatsapp`, `phone`, `address` and `hours` in
+   `MABS.store` (`js/catalog.js`). With `whatsapp` and/or `email` set, the
+   confirmation screen lets customers send their order straight to the shop.
+   Without them, orders only exist in the customer's own browser.
+2. Replace the sample catalogue (products, prices, stock) with real stock.
+3. For online card payments and central order storage, replace
+   `submitOrder` in `js/checkout.js` with a call to a backend or payment
+   gateway (e.g. PayFast, Yoco, Ozow).
+
+## Running locally
+
+```bash
+python3 -m http.server 8000
+```
+
+Then open `http://localhost:8000/`.

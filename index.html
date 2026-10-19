@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mabs Technologies — Computers, Phones, Accessories &amp; Electronics</title>
+<meta name="description" content="Shop laptops, desktops, smartphones, tablets, accessories and home electronics at Mabs Technologies. Delivery or free in-store collection.">
+<meta name="theme-color" content="#0f172a">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/mabs.css">
+</head>
+<body class="mabs" data-page="home">
+<div id="site-header"></div>
+
+<main id="main">
+
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow">Mabs Technologies</p>
+        <h1>Tech that keeps up with you.</h1>
+        <p class="lede">Laptops, smartphones, accessories and home electronics from the brands you trust — delivered to your door or ready to collect.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary btn-lg" href="#shop">Shop all products</a>
+          <a class="btn btn-light btn-lg" href="?deals=1#shop">See what's on sale</a>
+        </div>
+      </div>
+      <div class="hero-art" id="hero-art" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <section class="perks" aria-label="Why shop with us">
+    <div class="wrap perks-grid" id="perks"></div>
+  </section>
+
+  <section class="section" aria-labelledby="cats-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="cats-title">Shop by category</h2>
+      </div>
+      <div class="cat-grid" id="cat-grid"></div>
+    </div>
+  </section>
+
+  <section class="section section-alt" aria-labelledby="deals-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="deals-title">On sale now</h2>
+        <a class="more" href="?deals=1#shop">View all deals</a>
+      </div>
+      <div class="rail" id="deal-rail"></div>
+    </div>
+  </section>
+
+  <section class="section shop" id="shop" aria-labelledby="shop-title">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <h2 id="shop-title">All products</h2>
+          <p class="result-count" id="result-count" aria-live="polite"></p>
+        </div>
+        <div class="shop-tools">
+          <button type="button" class="btn btn-ghost filter-toggle" id="filter-toggle" aria-controls="filters" aria-expanded="false"></button>
+          <label class="sort">
+            <span>Sort by</span>
+            <select id="sort">
+              <option value="featured">Featured</option>
+              <option value="price-asc">Price: low to high</option>
+              <option value="price-desc">Price: high to low</option>
+              <option value="discount">Biggest saving</option>
+              <option value="name">Name A–Z</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="shop-layout">
+        <form class="filters" id="filters" aria-label="Filter products">
+          <div class="filters-head">
+            <h3>Filters</h3>
+            <button type="button" class="link-btn" id="clear-filters">Clear all</button>
+          </div>
+          <fieldset>
+            <legend>Category</legend>
+            <div id="f-cats"></div>
+          </fieldset>
+          <fieldset>
+            <legend>Brand</legend>
+            <div id="f-brands"></div>
+          </fieldset>
+          <fieldset>
+            <legend>Price (R)</legend>
+            <div class="price-range">
+              <label><span class="sr-only">Minimum price</span><input type="number" id="f-min" min="0" step="100" placeholder="Min" inputmode="numeric"></label>
+              <span aria-hidden="true">–</span>
+              <label><span class="sr-only">Maximum price</span><input type="number" id="f-max" min="0" step="100" placeholder="Max" inputmode="numeric"></label>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Show</legend>
+            <label class="check"><input type="checkbox" id="f-stock"> In stock only</label>
+            <label class="check"><input type="checkbox" id="f-deals"> On sale</label>
+            <label class="check"><input type="checkbox" id="f-wish"> My wishlist</label>
+          </fieldset>
+          <button type="button" class="btn btn-primary btn-block filters-done" id="filters-done">Show results</button>
+        </form>
+
+        <div class="shop-results">
+          <div class="chips" id="chips"></div>
+          <div class="grid" id="grid"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div id="site-footer"></div>
+
+<script src="js/catalog.js"></script>
+<script src="js/app.js"></script>
+<script src="js/shop.js"></script>
+</body>
+</html>

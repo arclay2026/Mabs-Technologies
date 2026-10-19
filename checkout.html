@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout — Mabs Technologies</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0f172a">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/mabs.css">
+</head>
+<body class="mabs" data-page="checkout">
+<div id="site-header"></div>
+
+<main id="main">
+  <div class="wrap checkout-wrap" id="checkout">
+    <h1 class="page-title">Checkout</h1>
+
+    <form class="checkout" id="checkout-form" novalidate>
+      <div class="checkout-main">
+
+        <section class="panel" aria-labelledby="h-contact">
+          <h2 id="h-contact"><span class="step">1</span>Your details</h2>
+          <div class="field-grid">
+            <div class="field">
+              <label for="c-name">Full name</label>
+              <input id="c-name" name="name" autocomplete="name" required>
+              <p class="err" id="c-name-err"></p>
+            </div>
+            <div class="field">
+              <label for="c-phone">Cellphone number</label>
+              <input id="c-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required pattern="\+?[0-9][0-9 ]{8,}" placeholder="e.g. 082 123 4567">
+              <p class="err" id="c-phone-err"></p>
+            </div>
+            <div class="field field-wide">
+              <label for="c-email">Email address</label>
+              <input id="c-email" name="email" type="email" autocomplete="email" required>
+              <p class="err" id="c-email-err"></p>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="h-fulfil">
+          <h2 id="h-fulfil"><span class="step">2</span>Delivery or collection</h2>
+          <div class="options" id="fulfil-options"></div>
+
+          <div class="field-grid" id="address-fields">
+            <div class="field field-wide">
+              <label for="a-street">Street address</label>
+              <input id="a-street" name="street" autocomplete="address-line1" required>
+              <p class="err" id="a-street-err"></p>
+            </div>
+            <div class="field">
+              <label for="a-suburb">Suburb <span class="opt">(optional)</span></label>
+              <input id="a-suburb" name="suburb" autocomplete="address-line2">
+            </div>
+            <div class="field">
+              <label for="a-city">City / town</label>
+              <input id="a-city" name="city" autocomplete="address-level2" required>
+              <p class="err" id="a-city-err"></p>
+            </div>
+            <div class="field">
+              <label for="a-province">Province</label>
+              <select id="a-province" name="province" autocomplete="address-level1" required>
+                <option value="">Choose a province</option>
+                <option>Eastern Cape</option>
+                <option>Free State</option>
+                <option>Gauteng</option>
+                <option>KwaZulu-Natal</option>
+                <option>Limpopo</option>
+                <option>Mpumalanga</option>
+                <option>North West</option>
+                <option>Northern Cape</option>
+                <option>Western Cape</option>
+              </select>
+              <p class="err" id="a-province-err"></p>
+            </div>
+            <div class="field">
+              <label for="a-postal">Postal code</label>
+              <input id="a-postal" name="postal" autocomplete="postal-code" inputmode="numeric" required pattern="[0-9]{4}" maxlength="4">
+              <p class="err" id="a-postal-err"></p>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="h-pay">
+          <h2 id="h-pay"><span class="step">3</span>Payment</h2>
+          <div class="options">
+            <label class="option">
+              <input type="radio" name="payment" value="eft" checked>
+              <span class="option-body"><b>EFT / bank transfer</b><span>We'll send our banking details with your order confirmation.</span></span>
+            </label>
+            <label class="option">
+              <input type="radio" name="payment" value="on-receipt">
+              <span class="option-body"><b id="pay-on-label">Pay on delivery</b><span>Card or cash when you receive your order.</span></span>
+            </label>
+          </div>
+          <div class="field field-wide">
+            <label for="c-notes">Order notes <span class="opt">(optional)</span></label>
+            <textarea id="c-notes" name="notes" rows="3" placeholder="Delivery instructions, gate codes, questions about your order…"></textarea>
+          </div>
+        </section>
+      </div>
+
+      <aside class="summary panel" aria-labelledby="h-summary">
+        <h2 id="h-summary">Order summary</h2>
+        <div id="summary-body"></div>
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="place-order">Place order</button>
+        <p class="fine center">We'll confirm stock and payment with you before anything is dispatched.</p>
+      </aside>
+    </form>
+  </div>
+</main>
+
+<div id="site-footer"></div>
+
+<script src="js/catalog.js"></script>
+<script src="js/app.js"></script>
+<script src="js/checkout.js"></script>
+</body>
+</html>
