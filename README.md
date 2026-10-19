@@ -40,6 +40,16 @@ wishlist and placed orders are saved in the browser's `localStorage`.
    `submitOrder` in `js/checkout.js` with a call to a backend or payment
    gateway (e.g. PayFast, Yoco, Ozow).
 
+## Hosting on GitHub Pages
+
+The site is published from the `main` branch root. To switch it on, open
+the repo's **Settings → Pages**, set **Source** to *Deploy from a branch*,
+choose `main` and `/ (root)`, and save. It goes live at
+https://arclay2026.github.io/Mabs-Technologies/ a minute or two later and
+updates on every push to `main`. All links are relative, so it also works
+unchanged on a custom domain. The empty `.nojekyll` file tells Pages to
+serve the files as they are, without running them through Jekyll.
+
 ## Running locally
 
 ```bash
