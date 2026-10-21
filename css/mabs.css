@@ -158,15 +158,15 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
 .mini-price .was { font-size: 11px; }
 
 /* actions */
-.actions { display: flex; align-items: center; gap: 6px; }
+.actions { display: flex; align-items: center; gap: 8px; }
 .count { position: absolute; top: -4px; right: -6px; min-width: 19px; height: 19px; padding: 0 5px; border-radius: 999px; background: var(--accent-bright); color: #111; font-size: 11px; font-weight: 700; line-height: 19px; text-align: center; box-shadow: 0 0 0 2px #fff; }
 /* wishlist + cart: matching icon-and-label buttons */
-.act { position: relative; display: inline-flex; align-items: center; gap: 7px; height: 38px; padding: 0 11px; border-radius: 999px; font-size: 13px; font-weight: 500; color: var(--ink); transition: background .15s, transform .18s; }
-.act:hover { background: var(--bg-alt); }
+.act { position: relative; display: inline-flex; align-items: center; gap: 7px; height: 38px; padding: 0 14px 0 12px; border: 1px solid #e3e3e8; border-radius: 999px; font-size: 13px; font-weight: 500; color: var(--ink); transition: background .15s, transform .18s; }
+.act:hover { background: #f5f5f7; border-color: #d6d6dd; } /* soft brand-grey outline, brand grey fill on hover */
 .act-icon { position: relative; display: grid; place-items: center; width: 20px; height: 20px; }
 .act-icon svg { width: 20px; height: 20px; }
 .act .count { position: static; min-width: 20px; height: 20px; padding: 0 6px; line-height: 20px; font-size: 11px; font-weight: 600; background: #0071e3; color: #fff; box-shadow: none; } /* sits after the label */
-.act-sep { width: 1px; height: 22px; background: var(--line); }
+.act-sep { display: none; } /* the outlines separate the two buttons now */
 .cart-btn.bump { animation: bump .45s var(--ease); }
 @keyframes bump { 40% { transform: scale(1.06); } }
 
