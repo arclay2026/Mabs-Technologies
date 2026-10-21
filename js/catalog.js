@@ -40,6 +40,7 @@
     { name: "Lenovo", logo: "assets/brands/lenovo.svg", h: 21 },
     { name: "HP", logo: "assets/brands/hp.svg", h: 30 },
     { name: "Deli", logo: "assets/brands/deli.svg", h: 21 },
+    { name: "Sony", logo: "assets/brands/sony.svg", h: 17 },
     { name: "JBL", logo: "assets/brands/jbl.svg", h: 25 },
     { name: "Dell", logo: "assets/brands/dell.svg", h: 30 }
   ];
