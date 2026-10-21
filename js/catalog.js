@@ -20,6 +20,12 @@
     phone: "",      // as displayed, e.g. "082 123 4567"
     address: "",    // e.g. "12 Main Road, Johannesburg"
     hours: "",      // e.g. "Mon–Sat 9:00–18:00"
+    // Supabase project (Project Settings → API). The publishable key is meant
+    // to be public; never put the secret / service_role key here.
+    supabase: {
+      url: "",        // e.g. "https://abcdxyz.supabase.co"
+      key: "sb_publishable_l-j562qW0HU7BZ2Q-00EoQ_nsyz1gCD"
+    },
     // shown under "Popular searches" when someone opens the search box;
     // swap for real trending searches once searches are logged in a database
     popularSearches: ["Laptops", "Samsung Galaxy", "iPhone", "Gaming", "Smart TV", "Wireless headphones"],

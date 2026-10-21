@@ -95,10 +95,49 @@
       ("000" + (r % 10000)).slice(-4);
   }
 
-  function submitOrder(order) {
+  // keep a copy on this device for the Orders page (until customer accounts exist)
+  function rememberOrder(order) {
     var orders = M.read("mabs.orders.v1", []);
     orders.push(order);
     M.write("mabs.orders.v1", orders);
+  }
+
+  // save the order: to the database when connected (it rechecks stock and
+  // prices), otherwise only on this device
+  function submitOrder(order) {
+    if (!M.db || !M.db.enabled) { rememberOrder(order); return Promise.resolve(order); }
+    return M.db.api("rpc/place_order", {
+      method: "POST",
+      body: {
+        p_items: order.items.map(function (i) { return { id: i.id, qty: i.qty }; }),
+        p_customer: order.customer, p_fulfilment: order.fulfil, p_payment: order.payment,
+        p_address: order.address, p_notes: order.notes
+      }
+    }).then(function (saved) {
+      // the database's numbers win: order number, prices, fee and total
+      order.number = saved.number;
+      order.placed = saved.placed;
+      order.items = saved.items.map(function (i) { return { id: i.id, name: i.name, price: +i.price, qty: i.qty }; });
+      order.subtotal = +saved.subtotal; order.fee = +saved.fee; order.total = +saved.total;
+      rememberOrder(order);
+      M.db.refresh(); // stock changed
+      return order;
+    });
+  }
+
+  function orderError(err) {
+    var msg = String((err && err.message) || "");
+    var m = msg.match(/^(OUT_OF_STOCK|UNKNOWN_PRODUCT):(.+)$/);
+    if (m) {
+      var p = M.byId(m[2]);
+      M.db.refresh();
+      return (p ? "<b>" + esc(p.name) + "</b>" : "One of your items") +
+        (m[1] === "OUT_OF_STOCK" ? " doesn't have enough stock left for your order." : " is no longer available.") +
+        " Please update your cart and try again.";
+    }
+    if (msg === "MISSING_DETAILS") return "Please check your name, cellphone number and email address.";
+    if (msg === "MISSING_ADDRESS") return "Please check your delivery address and postal code.";
+    return "We couldn’t place your order just now. Please check your connection and try again.";
   }
 
   function orderText(o) {
@@ -173,9 +212,19 @@
       } : null,
       notes: f.notes.value.trim()
     };
-    submitOrder(order);
-    M.cart.clear();
-    renderConfirmation(order);
+    var btn = document.getElementById("place-order");
+    var alertEl = document.getElementById("order-alert");
+    alertEl.hidden = true;
+    btn.disabled = true; btn.textContent = "Placing order…";
+    submitOrder(order).then(function (saved) {
+      M.cart.clear();
+      renderConfirmation(saved);
+    }, function (err) {
+      btn.disabled = false; btn.textContent = "Place order";
+      alertEl.innerHTML = orderError(err);
+      alertEl.hidden = false;
+      alertEl.focus();
+    });
   });
 
   document.addEventListener("cart:change", function () { if (document.getElementById("summary-body")) renderSummary(); });

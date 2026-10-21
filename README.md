@@ -30,6 +30,7 @@ wishlist and placed orders are saved in the browser's `localStorage`.
   product list (name, brand, category, price, previous price, stock, specs).
   Products show a drawn illustration until you add a photo with
   `image: "assets/products/<file>.jpg"`.
+- `js/db.js` — database connection (see Database below).
 - `js/app.js` — cart, wishlist, header ("Shop by department" menu, live
   search, mobile menu), footer, cart drawer, product cards.
 - `js/shop.js`, `js/product.js`, `js/checkout.js`, `js/orders.js`,
@@ -73,8 +74,16 @@ any new migration to the production database when it's merged into `main`
   customers can read only their own orders
 - Row-level security is on for every table
 
-Until the site is connected (needs the project URL and anon key), the shop
-still runs from `js/catalog.js`.
+The site connects through `js/db.js`, using `MABS.store.supabase` in
+`js/catalog.js` (project URL + publishable key; never the secret key):
+
+- every page loads the catalogue and delivery settings from the database
+  (cached for 5 minutes per tab), then starts its own scripts — listed in the
+  `data-load` attribute of the `db.js` script tag
+- checkout calls `place_order`; the order number, prices and totals shown on
+  the confirmation come from the database
+- if the URL is empty or the database can't be reached, the shop falls back
+  to the built-in catalogue in `js/catalog.js`
 
 ## Hosting on GitHub Pages
 
