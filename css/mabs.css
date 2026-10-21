@@ -104,8 +104,8 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
 .search input { flex: 1; min-width: 0; height: 40px; border: 0; background: none; padding: 0 8px 0 18px; font-size: 15px; outline: none; }
 .search input::placeholder { color: #94a3b8; }
 .search input:focus-visible { outline: none; } /* the whole pill shows focus */
-.search button { display: grid; place-items: center; width: 32px; height: 32px; margin-right: 4px; border-radius: 999px; background: var(--accent); color: #fff; transition: background .18s; }
-.search button:hover { background: var(--accent-hover); }
+.search button { display: grid; place-items: center; width: 32px; height: 32px; margin-right: 4px; border-radius: 999px; background: #0071e3; color: #fff; transition: background .18s; }
+.search button:hover { background: #005bb8; /* brand blue, a shade darker on hover */ }
 .search button svg { width: 16px; height: 16px; }
 
 /* search panel (drops down under the logo/search row) */
