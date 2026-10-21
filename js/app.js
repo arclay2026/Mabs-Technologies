@@ -161,7 +161,7 @@
 
   function badge(p) {
     if (p.stock < 1) return '<span class="badge badge-out">Sold out</span>';
-    if (p.was && p.was > p.price) return '<span class="badge badge-sale">−' + Math.round((1 - p.price / p.was) * 100) + "%</span>";
+    if (p.was && p.was > p.price) return '<span class="badge badge-sale"><b>' + Math.round((1 - p.price / p.was) * 100) + "%</b> OFF</span>";
     if (p.badge) return '<span class="badge">' + esc(p.badge) + "</span>";
     return "";
   }
@@ -178,21 +178,21 @@
     return '<span class="stock stock-in">In stock</span>';
   };
 
+  // Takealot-style card: big square image on white, two-line name, price;
+  // the whole card opens the product page
   M.card = function (p) {
     var href = "product.html?id=" + encodeURIComponent(p.id);
     var wished = M.wish.has(p.id);
-    return '<article class="card">' +
-      '<a class="card-media" href="' + href + '" style="' + M.tileStyle(p) + '" tabindex="-1" aria-hidden="true">' + M.media(p) + "</a>" +
+    var note = p.stock < 1 ? '<p class="card-note is-out">Sold out</p>' :
+      p.stock <= 5 ? '<p class="card-note">Only ' + p.stock + " left</p>" : "";
+    return '<article class="card' + (p.stock < 1 ? " is-sold-out" : "") + '">' +
+      '<div class="card-media" aria-hidden="true">' + M.media(p) + "</div>" +
       badge(p) +
       '<button type="button" class="wish-btn' + (wished ? " is-on" : "") + '" data-wish="' + esc(p.id) + '" aria-pressed="' + wished + '" aria-label="Save ' + esc(p.name) + ' to wishlist">' + ICON.heart + "</button>" +
       '<div class="card-body">' +
-        '<p class="card-brand">' + esc(p.brand) + " · " + esc(p.type) + "</p>" +
         '<h3 class="card-title"><a href="' + href + '">' + esc(p.name) + "</a></h3>" +
-        '<p class="card-price">' + M.priceHtml(p) + "</p>" +
-        M.stockNote(p) +
+        '<p class="card-price">' + M.priceHtml(p) + "</p>" + note +
       "</div>" +
-      '<button type="button" class="btn btn-primary btn-block card-add" data-add="' + esc(p.id) + '"' + (p.stock < 1 ? " disabled" : "") + ">" +
-        (p.stock < 1 ? "Sold out" : ICON.cart + "Add to cart") + "</button>" +
     "</article>";
   };
 

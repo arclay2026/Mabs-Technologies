@@ -314,24 +314,27 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
 
 /* ---------- product cards ---------- */
 /* 6 products per row on wide screens, stepping down as space runs out */
-.grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+.grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; }
 @media (max-width: 1359px) { .grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
 @media (max-width: 1099px) { .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 @media (max-width: 760px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .rail { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(230px, 1fr); gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 8px; scrollbar-width: thin; }
 .rail > * { scroll-snap-align: start; }
 @media (min-width: 1100px) { .rail { grid-auto-columns: calc((100% - 60px) / 6); gap: 12px; } }
-.card { position: relative; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; transition: box-shadow .25s, border-color .25s; }
-.card:hover { box-shadow: var(--shadow-lg); border-color: transparent; }
-.card-media { display: grid; place-items: center; aspect-ratio: 4 / 3; background: var(--tile); padding: 14px 18px; }
+.card { position: relative; display: flex; flex-direction: column; background: #fff; border-radius: 6px; box-shadow: 0 1px 3px rgba(34, 49, 58, .08), 0 1px 2px rgba(34, 49, 58, .04); overflow: hidden; transition: box-shadow .25s; }
+.card:hover { box-shadow: 0 10px 28px -10px rgba(34, 49, 58, .28); }
+/* same square image frame on every card; pictures fit inside it */
+.card-media { display: grid; place-items: center; aspect-ratio: 1 / 1; background: #fff; padding: 9%; }
 .card-media svg, .card-media img { width: 100%; height: 100%; object-fit: contain; transition: transform .35s var(--ease); }
-.card:hover .card-media svg, .card:hover .card-media img { transform: scale(1.05); }
-.card-body { flex: 1; display: flex; flex-direction: column; gap: 3px; padding: 12px 14px 10px; }
-.card-brand { font-size: 11px; font-weight: 700; color: var(--mute); text-transform: uppercase; letter-spacing: .08em; }
-.card-title { font-size: 14px; font-weight: 700; line-height: 1.35; }
+.card:hover .card-media svg, .card:hover .card-media img { transform: scale(1.04); }
+.card.is-sold-out .card-media { opacity: .45; }
+.card-body { flex: 1; display: flex; flex-direction: column; gap: 4px; padding: 0 16px 16px; }
+.card-title { font-size: 13px; font-weight: 400; line-height: 1.4; color: var(--text); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.8em; }
 .card-title a:hover { color: var(--accent); }
 .card-title a::after { content: ""; position: absolute; inset: 0; z-index: 1; } /* whole card is the link */
-.card-price { margin-top: auto; padding-top: 8px; }
+.card-price { margin-top: 2px; } /* titles always take two lines, so prices line up across a row */
+.card-note { font-size: 11.5px; color: var(--warn); }
+.card-note.is-out { color: var(--mute); }
 .price { font-size: 17px; font-weight: 700; color: var(--ink); }
 .was { font-size: 12.5px; color: var(--mute); margin-left: 4px; }
 .stock { font-size: 11.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
@@ -339,13 +342,17 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
 .stock-in { color: var(--ok); }
 .stock-low { color: var(--warn); }
 .stock-out { color: var(--mute); }
-.card-add { position: relative; z-index: 2; margin: 0 14px 14px; width: auto; min-height: 36px; font-size: 13px; }
-.badge { position: absolute; top: 12px; left: 12px; z-index: 2; padding: 4px 10px; border-radius: 999px; background: var(--ink); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .02em; }
-.badge-sale { background: var(--sale); }
-.badge-out { background: #e2e8f0; color: var(--text); }
-.wish-btn { position: absolute; top: 8px; right: 8px; z-index: 2; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 999px; background: rgba(255, 255, 255, .9); color: var(--ink); box-shadow: var(--shadow); transition: color .18s, transform .18s; }
+.badge { position: absolute; top: 12px; left: 12px; z-index: 2; padding: 4px 9px; border-radius: 4px; background: var(--ink); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .02em; }
+.badge-sale { background: var(--accent); }
+.badge-out { background: #e3e3e8; color: var(--text); }
+/* square "14% OFF" tag on cards */
+.card .badge-sale { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; font-size: 10.5px; line-height: 1.1; text-align: center; }
+.card .badge-sale b { font-size: 13px; font-weight: 700; }
+.wish-btn { position: absolute; top: 8px; right: 8px; z-index: 2; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 999px; background: #fff; color: var(--ink); box-shadow: var(--shadow); transition: color .18s, transform .18s, opacity .2s; }
 .wish-btn:hover { transform: scale(1.08); }
-.wish-btn svg { width: 19px; height: 19px; }
+.wish-btn svg { width: 17px; height: 17px; }
+/* on mouse devices the heart only shows on hover, unless it's already saved */
+@media (hover: hover) { .card .wish-btn:not(.is-on) { opacity: 0; } .card:hover .wish-btn, .card .wish-btn:focus-visible { opacity: 1; } }
 .wish-btn.is-on, .wish-inline.is-on { color: #e11d48; }
 .wish-btn.is-on svg path, .wish-inline.is-on svg path { fill: currentColor; }
 
@@ -384,12 +391,10 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
 }
 @media (max-width: 560px) {
   .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  .card-body { padding: 12px 12px 10px; }
+  .card-body { padding: 2px 12px 12px; }
   .card-title { font-size: 12.5px; }
   .price { font-size: 15.5px; }
-  .card-add { margin: 0 10px 12px; font-size: 12px; padding-inline: 10px; }
-  .card-add svg { display: none; }
-  .wish-btn { width: 36px; height: 36px; }
+  .card .badge-sale { width: 40px; height: 40px; top: 8px; left: 8px; }
   .sort span { display: none; }
   .rail { grid-auto-columns: 62%; }
 }
@@ -410,6 +415,7 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
 .pdp-media { position: sticky; top: 140px; display: grid; place-items: center; aspect-ratio: 5 / 4; padding: 8%; border-radius: var(--radius-lg); background: var(--tile); }
 .pdp-media svg, .pdp-media img { width: 100%; height: 100%; object-fit: contain; }
 .pdp-media .badge { top: 18px; left: 18px; font-size: 12.5px; padding: 6px 14px; }
+.card-brand { font-size: 11px; font-weight: 700; color: var(--mute); text-transform: uppercase; letter-spacing: .08em; } /* brand · type label on the product page */
 .pdp-info { display: flex; flex-direction: column; gap: 12px; }
 .pdp-info h1 { font-size: clamp(22px, 2.3vw, 30px); font-weight: 700; letter-spacing: -.02em; }
 .pdp-price .price { font-size: 29px; }
