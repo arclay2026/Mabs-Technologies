@@ -42,7 +42,10 @@
     { name: "Deli", logo: "assets/brands/deli.svg", h: 21 },
     { name: "Sony", logo: "assets/brands/sony.svg", h: 17 },
     { name: "JBL", logo: "assets/brands/jbl.svg", h: 25 },
-    { name: "Dell", logo: "assets/brands/dell.svg", h: 30 }
+    { name: "Dell", logo: "assets/brands/dell.svg", h: 30 },
+    { name: "Xiaomi", logo: "assets/brands/xiaomi.svg", h: 30 },
+    { name: "ASUS", logo: "assets/brands/asus.svg", h: 18 },
+    { name: "Huawei", logo: "assets/brands/huawei.svg", h: 27 }
   ];
 
   MABS.categories = [
