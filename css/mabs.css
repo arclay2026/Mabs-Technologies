@@ -555,7 +555,7 @@ body.sheet-open::after { content: ""; position: fixed; inset: 0; z-index: 150; b
 
 /* ---------- footer ---------- */
 .site-footer { background: var(--ink); color: #d5dce1; font-size: 13px; }
-.footer-grid { display: grid; grid-template-columns: 1.6fr repeat(3, 1fr); gap: 32px; padding-block: 56px 40px; }
+.footer-grid { display: grid; grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr)); gap: 32px; padding-block: 56px 40px; }
 .footer-brand .logo-img { height: 34px; }
 .footer-brand p { margin-top: 14px; max-width: 30em; }
 .footer-col { display: flex; flex-direction: column; gap: 8px; }

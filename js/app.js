@@ -530,9 +530,6 @@
     host.innerHTML = '<footer class="site-footer"><div class="wrap footer-grid">' +
       '<div class="footer-brand"><a class="logo" href="index.html">' + logoImg(true) + "</a>" +
         "<p>" + esc(s.tagline) + ". Shop online, get it delivered or collect in store.</p></div>" +
-      '<div class="footer-col"><h2>Shop</h2>' + M.categories.map(function (c) {
-        return '<a href="index.html?cat=' + c.id + '#shop">' + esc(c.name) + "</a>";
-      }).join("") + '<a href="index.html?deals=1#shop">On sale</a></div>' +
       '<div class="footer-col"><h2>Your order</h2><a href="orders.html">Orders</a><a href="checkout.html">Checkout</a><a href="wishlist.html">Wishlist</a>' +
         "<p>Courier delivery " + money(s.delivery.courierFee) + ", free over " + money(s.delivery.freeOver) + ".</p></div>" +
       (contact.length ? '<div class="footer-col"><h2>Contact</h2>' + contact.join("") + "</div>" : "") +
