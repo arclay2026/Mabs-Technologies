@@ -138,6 +138,8 @@
     arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
     flame: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c.6 3.2-1.2 4.9-2.6 6.5C8 10.1 7 11.6 7 14a5 5 0 0 0 10 0c0-1.6-.6-3-1.5-4.1-.2 1.3-.9 2.2-1.9 2.6.4-3.4-.5-7.4-1.6-10.5z"/></svg>',
     box: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 7.5L12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5L12 12l9-4.5M12 12v9"/></svg>',
+    share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="M8.2 10.8l7.6-4.1M8.2 13.2l7.6 4.1"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
     card: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></svg>',
     user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.3-3.6 4.2-5.5 7.5-5.5s6.2 1.9 7.5 5.5"/></svg>',
     clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
@@ -275,7 +277,7 @@
         "</div>" +
         '<div class="actions">' +
           '<a class="orders-link" href="orders.html"' + (page === "orders" ? ' aria-current="page"' : "") + ">Orders</a>" +
-          '<a class="act wish-link" href="index.html?wish=1#shop" aria-label="Wishlist">' +
+          '<a class="act wish-link" href="wishlist.html" aria-label="Wishlist"' + (page === "wishlist" ? ' aria-current="page"' : "") + ">" +
             '<span class="act-icon">' + ICON.heart + '</span><span class="act-label">Wishlist</span><span class="count" data-wish-count hidden></span></a>' +
           '<span class="act-sep" aria-hidden="true"></span>' +
           '<button type="button" class="act cart-btn" data-open-cart aria-label="Open cart">' +
@@ -515,7 +517,7 @@
           (dealCount ? '<span class="deals-n">' + dealCount + "</span>" : "") + "</a>" +
         '<div class="menu-extra">' +
           '<a href="orders.html">' + ICON.box + "Orders</a>" +
-          '<a href="index.html?wish=1#shop" data-close-drawer>' + ICON.heart + "Wishlist</a>" +
+          '<a href="wishlist.html">' + ICON.heart + "Wishlist</a>" +
           '<a href="checkout.html">' + ICON.cart + "Checkout</a>" +
           (s.whatsapp ? '<a href="https://wa.me/' + esc(s.whatsapp) + '" target="_blank" rel="noopener">' + ICON.chat + "WhatsApp us</a>" : "") +
           (s.phone ? '<a href="tel:' + esc(s.phone.replace(/\s/g, "")) + '">' + ICON.chat + esc(s.phone) + "</a>" : "") +
@@ -539,7 +541,7 @@
       '<div class="footer-col"><h2>Shop</h2>' + M.categories.map(function (c) {
         return '<a href="index.html?cat=' + c.id + '#shop">' + esc(c.name) + "</a>";
       }).join("") + '<a href="index.html?deals=1#shop">On sale</a></div>' +
-      '<div class="footer-col"><h2>Your order</h2><a href="orders.html">Orders</a><a href="checkout.html">Checkout</a><a href="index.html?wish=1#shop">Wishlist</a>' +
+      '<div class="footer-col"><h2>Your order</h2><a href="orders.html">Orders</a><a href="checkout.html">Checkout</a><a href="wishlist.html">Wishlist</a>' +
         "<p>Courier delivery " + money(s.delivery.courierFee) + ", free over " + money(s.delivery.freeOver) + ".</p></div>" +
       (contact.length ? '<div class="footer-col"><h2>Contact</h2>' + contact.join("") + "</div>" : "") +
       "</div>" +
