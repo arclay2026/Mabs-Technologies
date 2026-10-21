@@ -194,7 +194,6 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
 .dept-panel .dept-title .n { background: rgba(255, 255, 255, .1); color: #c3ccd3; }
 .dept-panel .dept-col li a { color: #c3ccd3; }
 .dept-panel .dept-col li a:hover { color: #fff; }
-.dept-panel .mega-all { color: #6cb2ff; }
 .dept-panel .dept-extra { border-left-color: rgba(255, 255, 255, .12); }
 .dept-panel .deals-link { background: rgba(244, 63, 94, .16); color: #ff9aae; }
 .dept-panel .deals-link:hover { background: rgba(244, 63, 94, .26); }
@@ -221,9 +220,6 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
 .mega { position: absolute; left: 0; right: 0; top: 100%; z-index: 110; background: #fff; border-top: 1px solid var(--line); box-shadow: 0 30px 50px -30px rgba(34, 49, 58, .4); animation: mega-in .22s var(--ease); }
 @keyframes mega-in { from { opacity: 0; transform: translateY(-6px); } }
 .menu-cat .n { font-size: 11px; font-weight: 700; color: var(--mute); background: var(--bg-alt); border-radius: 999px; padding: 1px 8px; }
-.mega-all { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; font-size: 12.5px; font-weight: 700; color: var(--accent); }
-.mega-all svg { width: 16px; height: 16px; transition: transform .2s var(--ease); }
-.mega-all:hover svg { transform: translateX(3px); }
 
 /* mobile / tablet */
 @media (max-width: 900px) {

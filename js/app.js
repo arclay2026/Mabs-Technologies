@@ -240,8 +240,7 @@
           return '<div class="dept-col"><a class="dept-title" href="index.html?cat=' + c.id + '#shop">' + esc(c.name) + '<span class="n">' + n + "</span></a>" +
             "<ul>" + M.typesOf(c.id).map(function (t) {
               return '<li><a href="index.html?cat=' + c.id + "&type=" + encodeURIComponent(t.type) + '#shop">' + esc(M.plural(t.type)) + "</a></li>";
-            }).join("") + "</ul>" +
-            '<a class="mega-all" href="index.html?cat=' + c.id + '#shop">Shop all' + ICON.arrow + "</a></div>";
+            }).join("") + "</ul></div>";
         }).join("") +
         '<div class="dept-col dept-extra"><a class="dept-title" href="index.html#shop">All products<span class="n">' + M.products.length + "</span></a>" +
           '<a class="deals-link" href="index.html?deals=1#shop">' + ICON.flame + "On sale" + (deals ? '<span class="deals-n">' + deals + "</span>" : "") + "</a></div>" +

@@ -22,7 +22,7 @@
     hours: "",      // e.g. "Mon–Sat 9:00–18:00"
     // shown under "Popular searches" when someone opens the search box;
     // swap for real trending searches once searches are logged in a database
-    popularSearches: ["Laptops", "Samsung Galaxy", "iPhone", "Power bank", "Smart TV", "Wireless headphones"],
+    popularSearches: ["Laptops", "Samsung Galaxy", "iPhone", "Gaming", "Smart TV", "Wireless headphones"],
     delivery: {
       courierFee: 120,   // flat courier fee per order
       freeOver: 1500,    // orders at or above this subtotal ship free
@@ -109,13 +109,6 @@
       summary: "Borderless Full HD IPS panel — a great second screen for home or office.",
       specs: [["Size", "24\""], ["Resolution", "1920 × 1080"], ["Panel", "IPS"], ["Refresh rate", "75 Hz"], ["Inputs", "HDMI, VGA"]]
     },
-    {
-      id: "lg-27-ultragear", name: "LG 27\" UltraGear Gaming Monitor", brand: "LG", category: "computers", type: "Monitor",
-      price: 4999, stock: 7,
-      art: { kind: "monitor", color: "#e11d48", body: "dark" },
-      summary: "Fast refresh and low response time for smooth, competitive gaming.",
-      specs: [["Size", "27\""], ["Resolution", "2560 × 1440"], ["Panel", "IPS"], ["Refresh rate", "165 Hz"], ["Inputs", "HDMI, DisplayPort"]]
-    },
 
     /* ---------- phones & tablets ---------- */
     {
@@ -170,41 +163,6 @@
 
     /* ---------- accessories ---------- */
     {
-      id: "anker-20w-usb-c-charger", name: "Anker 20W USB-C Fast Charger", brand: "Anker", category: "accessories", type: "Charger",
-      price: 299, stock: 60,
-      art: { kind: "charger", color: "#0ea5e9", body: "white" },
-      summary: "Compact fast charger for phones and tablets with USB-C Power Delivery.",
-      specs: [["Output", "20 W USB-C PD"], ["Plug", "SA 2-pin adapter included"], ["Compatible", "iPhone, Samsung, iPad & more"]]
-    },
-    {
-      id: "volkano-braided-usb-c-cable", name: "Volkano Braided USB-C Cable 1.8m", brand: "Volkano", category: "accessories", type: "Cable",
-      price: 149, stock: 80,
-      art: { kind: "cable", color: "#f97316" },
-      summary: "Tough nylon-braided cable for charging and data, built to last.",
-      specs: [["Connectors", "USB-C to USB-C"], ["Length", "1.8 m"], ["Jacket", "Braided nylon"]]
-    },
-    {
-      id: "romoss-20000mah-power-bank", name: "Romoss 20000mAh Power Bank", brand: "Romoss", category: "accessories", type: "Power bank",
-      price: 499, was: 599, stock: 35, featured: true,
-      art: { kind: "powerbank", color: "#22c55e", body: "white" },
-      summary: "Several full phone charges — essential for load shedding and travel.",
-      specs: [["Capacity", "20 000 mAh"], ["Ports", "USB-C, 2 × USB-A"], ["Fast charge", "Yes"]]
-    },
-    {
-      id: "logitech-m185-wireless-mouse", name: "Logitech M185 Wireless Mouse", brand: "Logitech", category: "accessories", type: "Mouse",
-      price: 249, stock: 40,
-      art: { kind: "mouse", color: "#2563eb", body: "dark" },
-      summary: "Plug-and-play wireless mouse with a tiny USB receiver.",
-      specs: [["Connection", "2.4 GHz USB receiver"], ["Battery", "1 × AA"], ["Compatible", "Windows, macOS, ChromeOS"]]
-    },
-    {
-      id: "logitech-mk270-combo", name: "Logitech MK270 Keyboard & Mouse", brand: "Logitech", category: "accessories", type: "Keyboard",
-      price: 599, stock: 15,
-      art: { kind: "keyboard", color: "#2563eb", body: "dark" },
-      summary: "Wireless keyboard and mouse combo with one shared receiver.",
-      specs: [["Connection", "2.4 GHz USB receiver"], ["Layout", "US QWERTY"], ["Extras", "8 hotkeys"]]
-    },
-    {
       id: "sony-wh-ch520", name: "Sony WH-CH520 Wireless Headphones", brand: "Sony", category: "accessories", type: "Headphones",
       price: 999, was: 1199, stock: 12, featured: true,
       art: { kind: "headphones", color: "#0d9488", body: "dark" },
@@ -219,20 +177,6 @@
       specs: [["Connection", "Bluetooth 5.3"], ["Noise cancelling", "Active (ANC)"], ["Water resistance", "IP54"]]
     },
     {
-      id: "clear-case-galaxy-a55", name: "Clear Shockproof Case — Galaxy A55", brand: "Volkano", category: "accessories", type: "Case",
-      price: 199, stock: 50,
-      art: { kind: "case", color: "#6366f1" },
-      summary: "Slim clear case with reinforced corners that shows off your phone.",
-      specs: [["Fits", "Samsung Galaxy A55"], ["Material", "TPU"], ["Corners", "Air-cushion reinforced"]]
-    },
-    {
-      id: "sandisk-ultra-128gb-usb", name: "SanDisk Ultra 128GB USB 3.0 Flash Drive", brand: "SanDisk", category: "accessories", type: "Storage",
-      price: 229, stock: 45,
-      art: { kind: "flash", color: "#dc2626" },
-      summary: "Pocket storage for documents, photos and school projects.",
-      specs: [["Capacity", "128 GB"], ["Interface", "USB 3.0"]]
-    },
-    {
       id: "samsung-t7-1tb-ssd", name: "Samsung T7 1TB Portable SSD", brand: "Samsung", category: "accessories", type: "Storage",
       price: 1899, stock: 9,
       art: { kind: "ssd", color: "#0ea5e9" },
@@ -241,13 +185,6 @@
     },
 
     /* ---------- electronics ---------- */
-    {
-      id: "hisense-43-smart-tv", name: "Hisense 43\" Full HD Smart TV", brand: "Hisense", category: "electronics", type: "TV",
-      price: 4999, was: 5799, stock: 10, featured: true,
-      art: { kind: "tv", color: "#ea580c", body: "dark" },
-      summary: "Smart TV with built-in streaming apps — Netflix, YouTube and more.",
-      specs: [["Size", "43\""], ["Resolution", "Full HD"], ["Smart platform", "VIDAA"], ["Inputs", "2 × HDMI, 2 × USB"]]
-    },
     {
       id: "samsung-55-crystal-uhd", name: "Samsung 55\" Crystal UHD 4K Smart TV", brand: "Samsung", category: "electronics", type: "TV",
       price: 9999, stock: 4,
@@ -277,13 +214,6 @@
       specs: [["Storage", "1 TB SSD"], ["Drive", "Ultra HD Blu-ray"], ["Includes", "DualSense wireless controller"]]
     },
     {
-      id: "tp-link-archer-c6", name: "TP-Link Archer C6 Wi-Fi Router", brand: "TP-Link", category: "electronics", type: "Networking",
-      price: 799, stock: 20,
-      art: { kind: "router", color: "#22c55e", body: "dark" },
-      summary: "Dual-band Wi-Fi with four antennas for reliable whole-home coverage.",
-      specs: [["Wi-Fi", "AC1200 dual-band"], ["Ports", "4 × Gigabit LAN, 1 × WAN"], ["Antennas", "4 external"]]
-    },
-    {
       id: "hp-smart-tank-580", name: "HP Smart Tank 580 All-in-One Printer", brand: "HP", category: "electronics", type: "Printer",
       price: 3499, stock: 6,
       art: { kind: "printer", color: "#0284c7", body: "light" },
@@ -292,13 +222,6 @@
     },
 
     /* ---------- more sample stock ---------- */
-    {
-      id: "acer-aspire-3", name: "Acer Aspire 3 15.6\" Laptop", brand: "Acer", category: "computers", type: "Laptop",
-      price: 6999, was: 7999, stock: 16,
-      art: { kind: "laptop", color: "#16a34a", body: "silver" },
-      summary: "Affordable everyday laptop for school, browsing and office apps.",
-      specs: [["Processor", "Intel Core i3"], ["Memory", "8 GB RAM"], ["Storage", "256 GB SSD"], ["Display", "15.6\" Full HD"]]
-    },
     {
       id: "asus-vivobook-15", name: "ASUS Vivobook 15", brand: "ASUS", category: "computers", type: "Laptop",
       price: 8499, was: 9299, stock: 11,
@@ -363,13 +286,6 @@
       specs: [["Storage", "128 GB"], ["Display", "6.74\" 90 Hz"], ["Network", "4G, dual SIM"], ["Battery", "5000 mAh"]]
     },
     {
-      id: "oppo-a78", name: "OPPO A78 128GB", brand: "OPPO", category: "phones", type: "Smartphone",
-      price: 4299, stock: 12,
-      art: { kind: "phone", color: "#0d9488", body: "dark" },
-      summary: "Fast charging and a smooth display in a slim design.",
-      specs: [["Storage", "128 GB"], ["Display", "6.43\" AMOLED"], ["Network", "4G, dual SIM"], ["Charging", "67 W SUPERVOOC"]]
-    },
-    {
       id: "apple-ipad-air-11-m2", name: "Apple iPad Air 11\" (M2) 128GB", brand: "Apple", category: "phones", type: "Tablet",
       price: 14999, stock: 7,
       art: { kind: "tablet", color: "#8b5cf6", body: "silver" },
@@ -398,60 +314,11 @@
       specs: [["Connection", "Bluetooth 5.3"], ["Battery", "Up to 57 hours"], ["Mic", "Built-in for calls"]]
     },
     {
-      id: "logitech-mx-master-3s", name: "Logitech MX Master 3S Mouse", brand: "Logitech", category: "accessories", type: "Mouse",
-      price: 1999, was: 2299, stock: 8,
-      art: { kind: "mouse", color: "#64748b", body: "dark" },
-      summary: "Quiet clicks, MagSpeed scrolling and precise tracking on any surface.",
-      specs: [["Connection", "Bluetooth, Logi Bolt"], ["Sensor", "8000 DPI"], ["Battery", "Rechargeable, USB-C"]]
-    },
-    {
-      id: "logitech-k380", name: "Logitech K380 Bluetooth Keyboard", brand: "Logitech", category: "accessories", type: "Keyboard",
-      price: 799, stock: 13,
-      art: { kind: "keyboard", color: "#ec4899", body: "dark" },
-      summary: "Compact keyboard that switches between three devices.",
-      specs: [["Connection", "Bluetooth"], ["Devices", "Up to 3"], ["Battery", "2 × AAA"]]
-    },
-    {
       id: "samsung-25w-usb-c-charger", name: "Samsung 25W USB-C Fast Charger", brand: "Samsung", category: "accessories", type: "Charger",
       price: 349, stock: 55,
       art: { kind: "charger", color: "#1e293b", body: "white" },
       summary: "Super Fast Charging for Galaxy phones and other USB-C devices.",
       specs: [["Output", "25 W USB-C PD"], ["Plug", "SA 2-pin adapter included"]]
-    },
-    {
-      id: "anker-powercore-10000", name: "Anker PowerCore 10000mAh Power Bank", brand: "Anker", category: "accessories", type: "Power bank",
-      price: 599, was: 699, stock: 30,
-      art: { kind: "powerbank", color: "#0ea5e9", body: "white" },
-      summary: "Pocket-sized power bank with two full phone charges.",
-      specs: [["Capacity", "10 000 mAh"], ["Ports", "USB-C, USB-A"]]
-    },
-    {
-      id: "sandisk-ultra-256gb-microsd", name: "SanDisk Ultra 256GB microSD Card", brand: "SanDisk", category: "accessories", type: "Storage",
-      price: 399, was: 449, stock: 60,
-      art: { kind: "flash", color: "#dc2626" },
-      summary: "Extra space for photos, videos and apps on phones and tablets.",
-      specs: [["Capacity", "256 GB"], ["Speed", "Up to 150 MB/s"], ["Includes", "SD adapter"]]
-    },
-    {
-      id: "volkano-hdmi-cable-2m", name: "Volkano HDMI 2.0 Cable 2m", brand: "Volkano", category: "accessories", type: "Cable",
-      price: 199, stock: 70,
-      art: { kind: "cable", color: "#334155" },
-      summary: "4K-ready HDMI cable for TVs, monitors and consoles.",
-      specs: [["Standard", "HDMI 2.0"], ["Length", "2 m"], ["Supports", "4K at 60 Hz"]]
-    },
-    {
-      id: "hisense-55-uhd-smart-tv", name: "Hisense 55\" 4K UHD Smart TV", brand: "Hisense", category: "electronics", type: "TV",
-      price: 7499, was: 8499, stock: 6,
-      art: { kind: "tv", color: "#0284c7", body: "dark" },
-      summary: "Big-screen 4K with Dolby Vision and built-in streaming apps.",
-      specs: [["Size", "55\""], ["Resolution", "4K UHD"], ["HDR", "Dolby Vision, HDR10"], ["Inputs", "3 × HDMI, 2 × USB"]]
-    },
-    {
-      id: "lg-50-uhd-smart-tv", name: "LG 50\" UHD 4K Smart TV", brand: "LG", category: "electronics", type: "TV",
-      price: 8999, stock: 5,
-      art: { kind: "tv", color: "#be123c", body: "dark" },
-      summary: "Crisp 4K picture with LG's webOS smart platform.",
-      specs: [["Size", "50\""], ["Resolution", "4K UHD"], ["Smart platform", "webOS"], ["Inputs", "3 × HDMI"]]
     },
     {
       id: "jbl-charge-5", name: "JBL Charge 5 Bluetooth Speaker", brand: "JBL", category: "electronics", type: "Speaker",
@@ -466,20 +333,6 @@
       art: { kind: "watch", color: "#0ea5e9", body: "silver" },
       summary: "Fitness, sleep and safety features in a light, comfortable watch.",
       specs: [["Case", "40 mm aluminium"], ["Connectivity", "GPS"], ["Tracking", "Heart rate, sleep, workouts"]]
-    },
-    {
-      id: "xbox-series-s-512gb", name: "Microsoft Xbox Series S 512GB", brand: "Microsoft", category: "electronics", type: "Gaming",
-      price: 7999, was: 8999, stock: 4,
-      art: { kind: "console", color: "#16a34a" },
-      summary: "Next-gen speed and performance in the smallest Xbox ever.",
-      specs: [["Storage", "512 GB SSD"], ["Resolution", "Up to 1440p, 120 fps"], ["Includes", "Xbox Wireless Controller"]]
-    },
-    {
-      id: "tp-link-deco-m4-2-pack", name: "TP-Link Deco M4 Mesh Wi-Fi (2-pack)", brand: "TP-Link", category: "electronics", type: "Networking",
-      price: 1999, was: 2499, stock: 9,
-      art: { kind: "router", color: "#0ea5e9", body: "light" },
-      summary: "Whole-home mesh Wi-Fi that ends dead zones.",
-      specs: [["Wi-Fi", "AC1200 dual-band"], ["Coverage", "Up to 260 m²"], ["Units", "2"]]
     },
     {
       id: "canon-pixma-g3430", name: "Canon PIXMA G3430 Ink Tank Printer", brand: "Canon", category: "electronics", type: "Printer",
