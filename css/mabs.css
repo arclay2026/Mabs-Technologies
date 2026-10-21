@@ -78,11 +78,11 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
 
 /* ---------- header ---------- */
 /* promo strip */
-.promo-bar { background: var(--ink); color: #cbd5e1; font-size: 13px; font-weight: 600; }
+.promo-bar { background: #22313a; color: #ffffff; font-size: 13px; font-weight: 600; }
 .promo-list { display: flex; align-items: center; justify-content: center; gap: 12px 36px; min-height: 36px; }
 .promo-item { display: inline-flex; align-items: center; gap: 8px; }
-.promo-item svg { width: 16px; height: 16px; color: var(--accent-bright); }
-.promo-item svg circle { fill: var(--ink); }
+.promo-item svg { width: 16px; height: 16px; color: #ffffff; }
+.promo-item svg circle { fill: #22313a; /* wheel hubs cut out of the truck */ }
 .promo-help { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; color: #fff; }
 .promo-help svg { width: 16px; height: 16px; }
 .promo-help:hover { text-decoration: underline; }
