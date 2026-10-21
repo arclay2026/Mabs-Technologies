@@ -137,6 +137,7 @@
     chevron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
     arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
     flame: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c.6 3.2-1.2 4.9-2.6 6.5C8 10.1 7 11.6 7 14a5 5 0 0 0 10 0c0-1.6-.6-3-1.5-4.1-.2 1.3-.9 2.2-1.9 2.6.4-3.4-.5-7.4-1.6-10.5z"/></svg>',
+    box: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 7.5L12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5L12 12l9-4.5M12 12v9"/></svg>',
     clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
     trend: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>',
     filter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>'
@@ -271,6 +272,7 @@
           '<div class="suggest" id="suggest" hidden><div class="wrap suggest-body" role="listbox" id="suggest-list" aria-label="Search suggestions"></div></div>' +
         "</div>" +
         '<div class="actions">' +
+          '<a class="orders-link" href="orders.html"' + (page === "orders" ? ' aria-current="page"' : "") + ">Orders</a>" +
           '<a class="act wish-link" href="index.html?wish=1#shop" aria-label="Wishlist">' +
             '<span class="act-icon">' + ICON.heart + '</span><span class="act-label">Wishlist</span><span class="count" data-wish-count hidden></span></a>' +
           '<span class="act-sep" aria-hidden="true"></span>' +
@@ -510,6 +512,7 @@
         '<a class="menu-link menu-deals" href="index.html?deals=1#shop" data-close-drawer>' + ICON.flame + "On sale" +
           (dealCount ? '<span class="deals-n">' + dealCount + "</span>" : "") + "</a>" +
         '<div class="menu-extra">' +
+          '<a href="orders.html">' + ICON.box + "Orders</a>" +
           '<a href="index.html?wish=1#shop" data-close-drawer>' + ICON.heart + "Wishlist</a>" +
           '<a href="checkout.html">' + ICON.cart + "Checkout</a>" +
           (s.whatsapp ? '<a href="https://wa.me/' + esc(s.whatsapp) + '" target="_blank" rel="noopener">' + ICON.chat + "WhatsApp us</a>" : "") +
@@ -534,7 +537,7 @@
       '<div class="footer-col"><h2>Shop</h2>' + M.categories.map(function (c) {
         return '<a href="index.html?cat=' + c.id + '#shop">' + esc(c.name) + "</a>";
       }).join("") + '<a href="index.html?deals=1#shop">On sale</a></div>' +
-      '<div class="footer-col"><h2>Your order</h2><a href="checkout.html">Checkout</a><a href="index.html?wish=1#shop">Wishlist</a>' +
+      '<div class="footer-col"><h2>Your order</h2><a href="orders.html">Orders</a><a href="checkout.html">Checkout</a><a href="index.html?wish=1#shop">Wishlist</a>' +
         "<p>Courier delivery " + money(s.delivery.courierFee) + ", free over " + money(s.delivery.freeOver) + ".</p></div>" +
       (contact.length ? '<div class="footer-col"><h2>Contact</h2>' + contact.join("") + "</div>" : "") +
       "</div>" +

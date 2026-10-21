@@ -140,7 +140,7 @@
           "<div><dt>" + (o.fulfil === "collect" ? "Collection" : "Delivery") + "</dt><dd>" + (o.fee ? money(o.fee) : "Free") + "</dd></div>" +
           '<div class="grand"><dt>Total</dt><dd>' + money(o.total) + "</dd></div>" +
         "</dl>" +
-        '<a class="btn btn-ghost" href="index.html">Continue shopping</a>' +
+        '<div class="confirm-actions"><a class="btn btn-ghost" href="orders.html">View your orders</a><a class="btn btn-ghost" href="index.html">Continue shopping</a></div>' +
       "</div>";
     wrap.querySelector("h1").focus();
     window.scrollTo(0, 0);

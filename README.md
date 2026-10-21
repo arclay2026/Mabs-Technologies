@@ -15,6 +15,9 @@ step — host it on any static web host (Hostinger, GitHub Pages, Netlify…).
   collection, payment choice (EFT or pay on delivery/collection), order
   summary with VAT, and an order confirmation.
 
+- `orders.html` — the orders placed from this browser, newest first, with
+  items, delivery, payment and totals (until accounts and a database exist).
+
 The cart drawer, wishlist and header search work on every page. Cart,
 wishlist and placed orders are saved in the browser's `localStorage`.
 
@@ -27,7 +30,7 @@ wishlist and placed orders are saved in the browser's `localStorage`.
   `image: "assets/products/<file>.jpg"`.
 - `js/app.js` — cart, wishlist, header (category mega menus, live search,
   mobile menu), footer, cart drawer, product cards.
-- `js/shop.js`, `js/product.js`, `js/checkout.js` — page scripts.
+- `js/shop.js`, `js/product.js`, `js/checkout.js`, `js/orders.js` — page scripts.
 - `css/mabs.css` — all styling.
 - `assets/logo.svg` / `assets/logo-light.svg` — the official logo trimmed
   for the site (dark wordmark for light backgrounds, light wordmark for
