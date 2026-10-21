@@ -194,6 +194,7 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
 .act:hover { background: #f5f5f7; border-color: #d6d6dd; } /* soft brand-grey outline, brand grey fill on hover */
 .act-icon { position: relative; display: grid; place-items: center; width: 20px; height: 20px; }
 .act-icon svg { width: 20px; height: 20px; }
+.wish-link .act-icon { color: #e11d48; } /* pink-red heart */
 .act .count { position: static; min-width: 20px; height: 20px; padding: 0 6px; line-height: 20px; font-size: 11px; font-weight: 600; background: #0071e3; color: #fff; box-shadow: none; } /* sits after the label */
 .act-sep { display: none; } /* the outlines separate the two buttons now */
 .cart-btn.bump { animation: bump .45s var(--ease); }
