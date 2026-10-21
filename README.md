@@ -34,7 +34,8 @@ wishlist and placed orders are saved in the browser's `localStorage`.
   dark ones); `assets/favicon.svg` is the three blue strokes on their own.
   The original uploads are kept in `assets/brand/`.
 - `assets/brands/` — partner logos for the "Featured brands" strip,
-  trimmed and recoloured to #22313a (originals in `assets/brands/original/`).
+  trimmed to their edges, in each brand's own colour (originals in
+  `assets/brands/original/`; Apple uses black since its upload was white).
   To add one, drop the SVG in and add it to `MABS.brands` in `js/catalog.js`.
 
 ## Before going live
