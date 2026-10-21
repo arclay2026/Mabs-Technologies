@@ -282,16 +282,6 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
   .marquee-group[aria-hidden="true"], .marquee [aria-hidden="true"] { display: none; }
 }
 
-/* ---------- perks ---------- */
-.perks { border-bottom: 1px solid var(--line); }
-.perks-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding-block: 16px; }
-.perk { display: flex; align-items: center; gap: 12px; }
-.perk svg { width: 34px; height: 34px; flex: none; padding: 8px; border-radius: 12px; background: var(--accent-tint); color: var(--accent); }
-.perk b { display: block; color: var(--ink); font-size: 13.5px; font-weight: 700; }
-.perk span { display: block; color: var(--mute); font-size: 12px; }
-@media (max-width: 960px) { .perks-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 480px) { .perks-grid { grid-template-columns: 1fr; gap: 12px; } }
-
 /* ---------- sections ---------- */
 .section { padding-block: clamp(32px, 4.5vw, 56px); }
 .section-alt { background: var(--bg-alt); }

@@ -1,6 +1,6 @@
 /* =====================================================================
    MABS TECHNOLOGIES — STOREFRONT (index.html)
-   Hero, perks, category tiles, sale rail and the filterable shop grid.
+   Brand strip, category tiles, sale rail and the filterable shop grid.
    Shop filters live in the URL (?cat=&q=&brand=&min=&max=&stock=&deals=
    &wish=&sort=) so results can be bookmarked and shared.
    ===================================================================== */
@@ -45,18 +45,7 @@
     resizeTimer = setTimeout(function () { if (Math.abs(window.innerWidth - lastW) > 80) { lastW = window.innerWidth; renderBrands(); } }, 200);
   });
 
-  /* ---------- perks, categories, deals ---------- */
-  var d = M.store.delivery;
-  var perks = [
-    [M.icon.truck, "Fast delivery", "Free on orders over " + money(d.freeOver)],
-    d.collect ? [M.icon.store, "Collect in store", "Order online, pick up for free"] : null,
-    [M.icon.shield, "Trusted brands", "Samsung, Apple, HP, Lenovo & more"],
-    [M.icon.chat, "Real advice", "Help choosing the right device"]
-  ].filter(Boolean);
-  $("perks").innerHTML = perks.map(function (k) {
-    return '<div class="perk">' + k[0] + "<div><b>" + esc(k[1]) + "</b><span>" + esc(k[2]) + "</span></div></div>";
-  }).join("");
-
+  /* ---------- categories, deals ---------- */
   $("cat-grid").innerHTML = M.categories.map(function (c) {
     var n = M.products.filter(function (p) { return p.category === c.id; }).length;
     return '<a class="cat-tile" href="?cat=' + c.id + '#shop" style="--tile:' + M.tint(c.art.color, 0.88) + '">' +
