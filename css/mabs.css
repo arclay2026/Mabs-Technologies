@@ -313,10 +313,14 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
 @media (max-width: 420px) { .cat-text b { font-size: 14.5px; } .cat-text { padding: 6px 14px 16px; } .cat-art { padding: 12px 14px 0; } }
 
 /* ---------- product cards ---------- */
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+/* 6 products per row on wide screens, stepping down as space runs out */
+.grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 1359px) { .grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+@media (max-width: 1099px) { .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 760px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .rail { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(230px, 1fr); gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 8px; scrollbar-width: thin; }
 .rail > * { scroll-snap-align: start; }
-@media (min-width: 1100px) { .rail { grid-auto-columns: calc((100% - 64px) / 5); } }
+@media (min-width: 1100px) { .rail { grid-auto-columns: calc((100% - 60px) / 6); gap: 12px; } }
 .card { position: relative; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; transition: box-shadow .25s, border-color .25s; }
 .card:hover { box-shadow: var(--shadow-lg); border-color: transparent; }
 .card-media { display: grid; place-items: center; aspect-ratio: 4 / 3; background: var(--tile); padding: 14px 18px; }
