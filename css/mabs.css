@@ -630,13 +630,14 @@ body.sheet-open::after { content: ""; position: fixed; inset: 0; z-index: 150; b
 .empty-box-shadow { transform-box: fill-box; transform-origin: center; opacity: .16; animation: box-shadow 3.2s cubic-bezier(.45, 0, .55, 1) infinite; }
 @keyframes box-float { 50% { transform: translateY(-7px); } }
 @keyframes box-shadow { 50% { transform: scaleX(.84); opacity: .09; } }
-/* beating heart (empty wishlist) */
-.empty-heart { display: grid; place-items: center; width: 168px; height: 168px; border-radius: 50%; background: radial-gradient(circle at 50% 40%, #fff7f9 0%, #ffe8ee 72%); }
-.empty-heart svg { width: 140px; height: 140px; overflow: visible; }
-.empty-heart-body { transform-box: fill-box; transform-origin: 50% 60%; animation: heart-beat 1.8s ease-in-out infinite; filter: drop-shadow(0 8px 10px rgba(190, 18, 60, .22)); }
-.empty-heart-shadow { transform-box: fill-box; transform-origin: center; opacity: .14; animation: heart-shadow 1.8s ease-in-out infinite; }
-@keyframes heart-beat { 0%, 40%, 100% { transform: scale(1); } 12% { transform: scale(1.09); } 24% { transform: scale(.98); } 32% { transform: scale(1.05); } }
-@keyframes heart-shadow { 0%, 40%, 100% { transform: scaleX(1); opacity: .14; } 12% { transform: scaleX(1.12); opacity: .2; } 32% { transform: scaleX(1.06); opacity: .17; } }
+/* outline heart (empty wishlist) */
+.empty-heart { display: grid; place-items: center; width: 104px; height: 104px; border-radius: 50%; background: #fff1f3; }
+.empty-heart svg { width: 46px; height: 46px; overflow: visible; animation: heart-rest 3.6s ease-in-out 1.6s infinite; transform-origin: 50% 55%; }
+.empty-heart-line { fill: none; stroke: #e11d48; stroke-width: 1.6; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 0; animation: heart-draw 1.2s cubic-bezier(.65, 0, .35, 1) both; }
+.empty-heart-fill { fill: #e11d48; opacity: .12; animation: heart-fill .6s ease-out 1s both; }
+@keyframes heart-draw { from { stroke-dashoffset: 100; } }
+@keyframes heart-fill { from { opacity: 0; } }
+@keyframes heart-rest { 50% { transform: scale(1.04); } }
 .empty-icon { display: grid; place-items: center; width: 88px; height: 88px; border-radius: 50%; background: var(--accent-tint); color: var(--accent); }
 .empty-icon svg { width: 36px; height: 36px; stroke-width: 1.5; }
 @media (max-width: 900px) {

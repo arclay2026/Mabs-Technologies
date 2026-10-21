@@ -82,32 +82,15 @@
       "</g></svg></span>";
   };
 
-  /* empty wishlist: a glossy heart that beats softly over a pulsing
-     shadow while small hearts float up from it. Floating hearts use SVG
-     <animate>, left out when the visitor prefers reduced motion. */
+  /* empty wishlist: a clean outline heart that draws itself in once,
+     fills softly, then rests with a very slow pulse (CSS only, so it
+     stays still for visitors who prefer reduced motion). */
   M.emptyHeart = function () {
-    var still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var HEART = "M100 158C42 120 30 84 52 64c18-16 40-10 48 8 8-18 30-24 48-8 22 20 10 56-48 94z";
-    // small hearts start just outside the big one's outline, then drift up and fade
-    function floater(x, y, drift, delay, size) {
-      if (still) return "";
-      var t = ' dur="3s" begin="' + delay + 's" repeatCount="indefinite"';
-      return '<g opacity="0"><animate attributeName="opacity" values="0;.85;0" keyTimes="0;.25;1"' + t + "/>" +
-        '<animateTransform attributeName="transform" type="translate" values="' + x + " " + y + ";" + (x + drift) + " " + (y - 54) + '"' + t + "/>" +
-        '<path d="' + HEART + '" fill="#f43f5e" transform="scale(' + size + ') translate(-100 -110)"/></g>';
-    }
-    return '<span class="empty-heart' + (still ? " is-still" : "") + '" aria-hidden="true"><svg viewBox="0 0 200 200">' +
-      "<defs>" +
-        '<linearGradient id="ht-fill" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff6b87"/><stop offset=".55" stop-color="#e11d48"/><stop offset="1" stop-color="#be123c"/></linearGradient>' +
-        '<radialGradient id="ht-shine" cx=".32" cy=".3" r=".35"><stop offset="0" stop-color="#fff" stop-opacity=".75"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>' +
-      "</defs>" +
-      '<ellipse class="empty-heart-shadow" cx="100" cy="178" rx="42" ry="7" fill="#9f1239"/>' +
-      floater(34, 96, -10, 0, 0.13) + floater(166, 92, 10, 1, 0.1) + floater(100, 56, 6, 2, 0.08) +
-      '<g class="empty-heart-body">' +
-        '<path d="' + HEART + '" fill="url(#ht-fill)"/>' +
-        '<path d="' + HEART + '" fill="url(#ht-shine)"/>' +
-        '<path d="M64 76c4-6 11-9 18-8" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="5" stroke-linecap="round"/>' +
-      "</g></svg></span>";
+    var d = "M12 20.5s-7.8-4.7-9.6-9.7C1.2 7.3 3.5 4 7 4c2.1 0 3.6 1.2 5 3 1.4-1.8 2.9-3 5-3 3.5 0 5.8 3.3 4.6 6.8-1.8 5-9.6 9.7-9.6 9.7z";
+    return '<span class="empty-heart" aria-hidden="true"><svg viewBox="0 0 24 24">' +
+      '<path class="empty-heart-fill" d="' + d + '"/>' +
+      '<path class="empty-heart-line" d="' + d + '" pathLength="100"/>' +
+      "</svg></span>";
   };
 
   // simple line icon on a soft blue disc, for empty states
