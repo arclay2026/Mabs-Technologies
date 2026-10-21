@@ -246,11 +246,31 @@
     "</div></div>";
   }
 
+  // "Shop by department" dropdown used instead of the category row on account pages
+  function deptMenu() {
+    var deals = M.products.filter(function (p) { return p.was && p.was > p.price; }).length;
+    return '<div class="has-mega dept-menu">' +
+      '<button type="button" class="mega-toggle dept-btn" aria-expanded="false" aria-controls="mega-dept">Shop by department' + ICON.chevron + "</button>" +
+      '<div class="mega dept-panel" id="mega-dept" hidden><div class="wrap dept-grid">' +
+        M.categories.map(function (c) {
+          var n = M.products.filter(function (p) { return p.category === c.id; }).length;
+          return '<div class="dept-col"><a class="dept-title" href="index.html?cat=' + c.id + '#shop">' + esc(c.name) + '<span class="n">' + n + "</span></a>" +
+            "<ul>" + M.typesOf(c.id).map(function (t) {
+              return '<li><a href="index.html?cat=' + c.id + "&type=" + encodeURIComponent(t.type) + '#shop">' + esc(M.plural(t.type)) + "</a></li>";
+            }).join("") + "</ul>" +
+            '<a class="mega-all" href="index.html?cat=' + c.id + '#shop">Shop all' + ICON.arrow + "</a></div>";
+        }).join("") +
+        '<div class="dept-col dept-extra"><a class="dept-title" href="index.html#shop">All products<span class="n">' + M.products.length + "</span></a>" +
+          '<a class="deals-link" href="index.html?deals=1#shop">' + ICON.flame + "On sale" + (deals ? '<span class="deals-n">' + deals + "</span>" : "") + "</a></div>" +
+      "</div></div></div>";
+  }
+
   function renderHeader() {
     var host = document.getElementById("site-header");
     if (!host) return;
     var s = M.store, d = s.delivery;
     var dealCount = M.products.filter(function (p) { return p.was && p.was > p.price; }).length;
+    var compact = page === "orders" || page === "wishlist"; // account pages: no category row
     var activeCat = page === "home" ? params.get("cat") : page === "product" ? (M.byId(params.get("id") || "") || {}).category : null;
     var perks = [[ICON.truck, "Free delivery on orders over " + money(d.freeOver)]];
     if (d.collect) perks.push([ICON.store, "Free in-store collection"]);
@@ -263,9 +283,10 @@
       }).join("") +
       (s.whatsapp ? '<a class="promo-help" href="https://wa.me/' + esc(s.whatsapp) + '" target="_blank" rel="noopener">' + ICON.chat + "Need help? WhatsApp us</a>" : "") +
       "</div></div>" +
-      '<header class="masthead"><div class="wrap bar">' +
+      '<header class="masthead"><div class="wrap bar' + (compact ? " bar-compact" : "") + '">' +
         '<button type="button" class="icon-btn menu-btn" data-open-menu aria-controls="menu-drawer" aria-label="Open menu">' + ICON.menu + "</button>" +
         '<a class="logo" href="index.html">' + logoImg() + "</a>" +
+        (compact ? deptMenu() : "") +
         '<div class="search-wrap">' +
           '<form class="search" action="index.html" role="search">' +
             '<label class="sr-only" for="q">Search products</label>' +
@@ -277,6 +298,8 @@
         "</div>" +
         '<div class="actions">' +
           '<a class="orders-link" href="orders.html"' + (page === "orders" ? ' aria-current="page"' : "") + ">Orders</a>" +
+          '<span class="links-sep" aria-hidden="true"></span>' +
+          '<a class="orders-link" href="orders.html">My Account</a>' +
           '<a class="act wish-link" href="wishlist.html" aria-label="Wishlist"' + (page === "wishlist" ? ' aria-current="page"' : "") + ">" +
             '<span class="act-icon">' + ICON.heart + '</span><span class="act-label">Wishlist</span><span class="count" data-wish-count hidden></span></a>' +
           '<span class="act-sep" aria-hidden="true"></span>' +
@@ -284,7 +307,7 @@
             '<span class="act-icon">' + ICON.cart + '</span><span class="act-label">Cart</span><span class="count" data-cart-count hidden></span></button>' +
         "</div>" +
       "</div>" +
-      '<nav class="cat-nav" aria-label="Shop by category"><div class="wrap cat-row"><ul class="cat-list">' +
+      (compact ? "" : '<nav class="cat-nav" aria-label="Shop by category"><div class="wrap cat-row"><ul class="cat-list">' +
         '<li><a class="cat-link" data-nav="all" href="index.html#shop">All products</a></li>' +
         M.categories.map(function (c) {
           return '<li class="has-mega"><a class="cat-link" data-nav="' + c.id + '" href="index.html?cat=' + c.id + '#shop"' +
@@ -295,7 +318,7 @@
         "</ul>" +
         '<a class="deals-link" data-nav="deals" href="index.html?deals=1#shop"' + (page === "home" && params.get("deals") ? ' aria-current="page"' : "") + ">" +
           ICON.flame + "On sale" + (dealCount ? '<span class="deals-n">' + dealCount + "</span>" : "") + "</a>" +
-      "</div></nav></header>" +
+      "</div></nav>") + "</header>" +
       '<div class="search-scrim" hidden></div>';
 
     setupSearch(host);
@@ -516,6 +539,7 @@
         '<a class="menu-link menu-deals" href="index.html?deals=1#shop" data-close-drawer>' + ICON.flame + "On sale" +
           (dealCount ? '<span class="deals-n">' + dealCount + "</span>" : "") + "</a>" +
         '<div class="menu-extra">' +
+          '<a href="orders.html">' + ICON.user + "My Account</a>" +
           '<a href="orders.html">' + ICON.box + "Orders</a>" +
           '<a href="wishlist.html">' + ICON.heart + "Wishlist</a>" +
           '<a href="checkout.html">' + ICON.cart + "Checkout</a>" +
