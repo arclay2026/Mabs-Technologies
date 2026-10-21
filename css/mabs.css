@@ -100,7 +100,7 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
 /* search pill */
 .search { display: flex; align-items: center; background: var(--bg-alt); border: 1.5px solid transparent; border-radius: 999px; transition: border-color .18s, background .18s, box-shadow .18s; }
 .search:hover { border-color: var(--line); }
-.search:focus-within { border-color: var(--ink); background: #fff; box-shadow: 0 0 0 4px rgba(15, 23, 42, .06); }
+.search:focus-within { border-color: #a7b1bc; background: #fff; box-shadow: 0 0 0 4px rgba(34, 49, 58, .06); }
 .search input { flex: 1; min-width: 0; height: 40px; border: 0; background: none; padding: 0 8px 0 18px; font-size: 15px; outline: none; }
 .search input::placeholder { color: #94a3b8; }
 .search input:focus-visible { outline: none; } /* the whole pill shows focus */
