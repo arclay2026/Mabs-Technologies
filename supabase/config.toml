@@ -1,0 +1,4 @@
+# Supabase project settings for the CLI and the GitHub integration.
+# Database changes live in supabase/migrations/ and are applied to the
+# production database when they're merged into main.
+project_id = "mabs-technologies"

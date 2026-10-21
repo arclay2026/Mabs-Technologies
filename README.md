@@ -58,6 +58,24 @@ wishlist and placed orders are saved in the browser's `localStorage`.
    `submitOrder` in `js/checkout.js` with a call to a backend or payment
    gateway (e.g. PayFast, Yoco, Ozow).
 
+## Database (Supabase)
+
+The store's database lives in Supabase. `supabase/migrations/` holds the
+schema and the starting catalogue; the Supabase GitHub integration applies
+any new migration to the production database when it's merged into `main`
+(never edit an applied migration — add a new one).
+
+- `categories`, `brands`, `products`, `store_settings` — the catalogue and
+  delivery settings; anyone can read them, only the dashboard can change them
+- `orders`, `order_items` — created only through `place_order(...)`, which
+  rechecks stock, prices every line from the database, works out the
+  delivery fee, saves the order and reduces stock in one step; signed-in
+  customers can read only their own orders
+- Row-level security is on for every table
+
+Until the site is connected (needs the project URL and anon key), the shop
+still runs from `js/catalog.js`.
+
 ## Hosting on GitHub Pages
 
 The site is published from the `main` branch root. To switch it on, open
