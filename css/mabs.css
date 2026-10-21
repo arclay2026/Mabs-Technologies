@@ -336,13 +336,12 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
 /* square "14% OFF" tag on cards */
 .card .badge-sale { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; font-size: 10.5px; line-height: 1.1; text-align: center; }
 .card .badge-sale b { font-size: 13px; font-weight: 700; }
-.wish-btn { position: absolute; top: 8px; right: 8px; z-index: 2; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 999px; background: #fff; color: var(--ink); box-shadow: var(--shadow); transition: color .18s, transform .18s, opacity .2s; }
-.wish-btn:hover { transform: scale(1.08); }
-.wish-btn svg { width: 17px; height: 17px; }
-/* on mouse devices the heart only shows on hover, unless it's already saved */
-@media (hover: hover) { .card .wish-btn:not(.is-on) { opacity: 0; } .card:hover .wish-btn, .card .wish-btn:focus-visible { opacity: 1; } }
-.wish-btn.is-on, .wish-inline.is-on { color: #e11d48; }
-.wish-btn.is-on svg path, .wish-inline.is-on svg path { fill: currentColor; }
+/* brand logo in the card's top corner */
+.card-brandmark { position: absolute; top: 14px; right: 14px; z-index: 2; display: flex; align-items: center; justify-content: flex-end; height: 22px; max-width: 72px; pointer-events: none; }
+.card-brandmark img { max-width: 72px; width: auto; object-fit: contain; }
+.card-brandmark.is-text { font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wish-inline.is-on { color: #e11d48; }
+.wish-inline.is-on svg path { fill: currentColor; }
 
 /* ---------- shop ---------- */
 .result-count { color: var(--mute); font-size: 12.5px; margin-top: 4px; }

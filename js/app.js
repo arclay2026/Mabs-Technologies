@@ -182,17 +182,24 @@
     return '<span class="stock stock-in">In stock</span>';
   };
 
+  // brand logo for the top corner of a card; brands without a logo file
+  // in MABS.brands show their name as a small wordmark instead
+  function brandMark(name) {
+    var b = (M.brands || []).filter(function (x) { return x.name === name; })[0];
+    if (b) return '<span class="card-brandmark"><img src="' + esc(b.logo) + '" alt="' + esc(name) + '" style="height:' + Math.round(b.h * 0.6) + 'px" loading="lazy"></span>';
+    return '<span class="card-brandmark is-text">' + esc(name) + "</span>";
+  }
+
   // Takealot-style card: big square image on white, two-line name, price;
   // the whole card opens the product page
   M.card = function (p) {
     var href = "product.html?id=" + encodeURIComponent(p.id);
-    var wished = M.wish.has(p.id);
     var note = p.stock < 1 ? '<p class="card-note is-out">Sold out</p>' :
       p.stock <= 5 ? '<p class="card-note">Only ' + p.stock + " left</p>" : "";
     return '<article class="card' + (p.stock < 1 ? " is-sold-out" : "") + '">' +
       '<div class="card-media" aria-hidden="true">' + M.media(p) + "</div>" +
       badge(p) +
-      '<button type="button" class="wish-btn' + (wished ? " is-on" : "") + '" data-wish="' + esc(p.id) + '" aria-pressed="' + wished + '" aria-label="Save ' + esc(p.name) + ' to wishlist">' + ICON.heart + "</button>" +
+      brandMark(p.brand) +
       '<div class="card-body">' +
         '<h3 class="card-title"><a href="' + href + '">' + esc(p.name) + "</a></h3>" +
         '<p class="card-price">' + M.priceHtml(p) + "</p>" + note +
