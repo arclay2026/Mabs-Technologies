@@ -182,11 +182,11 @@
     return '<span class="stock stock-in">In stock</span>';
   };
 
-  // brand logo for the top corner of a card; brands without a logo file
-  // in MABS.brands show their name as a small wordmark instead
+  // brand logo for the top corner of a card, in the site's dark slate
+  // (assets/brands/dark/); brands without a logo show their name instead
   function brandMark(name) {
     var b = (M.brands || []).filter(function (x) { return x.name === name; })[0];
-    if (b) return '<span class="card-brandmark"><img src="' + esc(b.logo) + '" alt="' + esc(name) + '" style="height:' + Math.round(b.h * 0.6) + 'px" loading="lazy"></span>';
+    if (b) return '<span class="card-brandmark"><img src="' + esc(b.logo.replace("assets/brands/", "assets/brands/dark/")) + '" alt="' + esc(name) + '" style="height:' + Math.round(b.h * 0.6) + 'px" loading="lazy"></span>';
     return '<span class="card-brandmark is-text">' + esc(name) + "</span>";
   }
 

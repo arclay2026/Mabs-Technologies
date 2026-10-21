@@ -43,6 +43,8 @@ wishlist and placed orders are saved in the browser's `localStorage`.
   trimmed to their edges, in each brand's own colour (originals in
   `assets/brands/original/`; Apple uses black since its upload was white).
   A logo becomes a link to that brand's products once the catalogue has some.
+  Product cards use the slate (#22313a) copies in `assets/brands/dark/`;
+  when adding a logo, add its dark copy there too.
   To add one, drop the SVG in and add it to `MABS.brands` in `js/catalog.js`.
 
 ## Before going live
