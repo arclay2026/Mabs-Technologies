@@ -616,7 +616,7 @@ body.sheet-open::after { content: ""; position: fixed; inset: 0; z-index: 150; b
 /* outline heart (empty wishlist) */
 .empty-heart { display: grid; place-items: center; width: 104px; height: 104px; border-radius: 50%; background: #fff1f3; }
 .empty-heart svg { width: 46px; height: 46px; overflow: visible; animation: heart-rest 3.6s ease-in-out 1.6s infinite; transform-origin: 50% 55%; }
-.empty-heart-line { fill: none; stroke: #e11d48; stroke-width: 1.6; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 0; animation: heart-draw 1.2s cubic-bezier(.65, 0, .35, 1) both; }
+.empty-heart-line { fill: none; stroke: #e11d48; stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: 0; animation: heart-draw 1.2s cubic-bezier(.65, 0, .35, 1) both; }
 .empty-heart-fill { fill: #e11d48; opacity: .12; animation: heart-fill .6s ease-out 1s both; }
 @keyframes heart-draw { from { stroke-dashoffset: 100; } }
 @keyframes heart-fill { from { opacity: 0; } }

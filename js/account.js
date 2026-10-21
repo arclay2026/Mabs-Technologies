@@ -86,7 +86,8 @@
      fills softly, then rests with a very slow pulse (CSS only, so it
      stays still for visitors who prefer reduced motion). */
   M.emptyHeart = function () {
-    var d = "M12 20.5s-7.8-4.7-9.6-9.7C1.2 7.3 3.5 4 7 4c2.1 0 3.6 1.2 5 3 1.4-1.8 2.9-3 5-3 3.5 0 5.8 3.3 4.6 6.8-1.8 5-9.6 9.7-9.6 9.7z";
+    // starts on the smooth left curve, so the draw-in seam never lands on the tip
+    var d = "M2.4 10.8C1.2 7.3 3.5 4 7 4c2.1 0 3.6 1.2 5 3 1.4-1.8 2.9-3 5-3 3.5 0 5.8 3.3 4.6 6.8C19.8 15.8 12 20.5 12 20.5S4.2 15.8 2.4 10.8z";
     return '<span class="empty-heart" aria-hidden="true"><svg viewBox="0 0 24 24">' +
       '<path class="empty-heart-fill" d="' + d + '"/>' +
       '<path class="empty-heart-line" d="' + d + '" pathLength="100"/>' +
