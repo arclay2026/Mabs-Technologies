@@ -591,7 +591,7 @@ body.sheet-open::after { content: ""; position: fixed; inset: 0; z-index: 150; b
 .account-crumbs ol { padding-block: 18px 16px; }
 .account-crumbs a { color: var(--accent); }
 .account-crumbs a:hover { text-decoration: underline; }
-.account-layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 28px; align-items: start; }
+.account-layout { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 28px; align-items: start; }
 .account-nav { position: sticky; top: 130px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(34, 49, 58, .08); overflow: hidden; }
 .account-user { display: flex; align-items: center; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--line); }
 .account-avatar { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: #f5f5f7; color: var(--ink); flex: none; }
@@ -630,6 +630,13 @@ body.sheet-open::after { content: ""; position: fixed; inset: 0; z-index: 150; b
 .empty-box-shadow { transform-box: fill-box; transform-origin: center; opacity: .16; animation: box-shadow 3.2s cubic-bezier(.45, 0, .55, 1) infinite; }
 @keyframes box-float { 50% { transform: translateY(-7px); } }
 @keyframes box-shadow { 50% { transform: scaleX(.84); opacity: .09; } }
+/* beating heart (empty wishlist) */
+.empty-heart { display: grid; place-items: center; width: 168px; height: 168px; border-radius: 50%; background: radial-gradient(circle at 50% 40%, #fff7f9 0%, #ffe8ee 72%); }
+.empty-heart svg { width: 140px; height: 140px; overflow: visible; }
+.empty-heart-body { transform-box: fill-box; transform-origin: 50% 60%; animation: heart-beat 1.8s ease-in-out infinite; filter: drop-shadow(0 8px 10px rgba(190, 18, 60, .22)); }
+.empty-heart-shadow { transform-box: fill-box; transform-origin: center; opacity: .14; animation: heart-shadow 1.8s ease-in-out infinite; }
+@keyframes heart-beat { 0%, 40%, 100% { transform: scale(1); } 12% { transform: scale(1.09); } 24% { transform: scale(.98); } 32% { transform: scale(1.05); } }
+@keyframes heart-shadow { 0%, 40%, 100% { transform: scaleX(1); opacity: .14; } 12% { transform: scaleX(1.12); opacity: .2; } 32% { transform: scaleX(1.06); opacity: .17; } }
 .empty-icon { display: grid; place-items: center; width: 88px; height: 88px; border-radius: 50%; background: var(--accent-tint); color: var(--accent); }
 .empty-icon svg { width: 36px; height: 36px; stroke-width: 1.5; }
 @media (max-width: 900px) {

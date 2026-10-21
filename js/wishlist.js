@@ -60,7 +60,7 @@
     host.classList.toggle("account-panel-flush", list.length > 0);
     document.getElementById("wl-count").textContent = list.length ? list.length + (list.length === 1 ? " item" : " items") : "";
     if (!list.length) {
-      host.innerHTML = '<div class="account-empty">' + M.emptyIcon(I.heart) +
+      host.innerHTML = '<div class="account-empty">' + M.emptyHeart() +
         '<p class="account-empty-title">Your wishlist is empty</p>' +
         "<p>Tap the heart on any product to save it here for later.</p>" +
         '<a class="btn btn-primary" href="index.html#shop">Start shopping</a></div>';
