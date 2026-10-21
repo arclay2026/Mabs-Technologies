@@ -129,7 +129,7 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
 .actions { display: flex; align-items: center; gap: 6px; }
 .count { position: absolute; top: -4px; right: -6px; min-width: 19px; height: 19px; padding: 0 5px; border-radius: 999px; background: var(--accent-bright); color: #111; font-size: 11px; font-weight: 800; line-height: 19px; text-align: center; box-shadow: 0 0 0 2px #fff; }
 .wish-link .count { top: 4px; right: 2px; }
-.cart-btn { display: inline-flex; align-items: center; gap: 12px; height: 50px; padding: 0 20px 0 14px; border-radius: 999px; background: var(--ink); color: #fff; transition: background .18s, transform .18s; }
+.cart-btn { display: inline-flex; align-items: center; gap: 10px; height: 42px; padding: 0 18px 0 14px; border-radius: 999px; background: var(--ink); color: #fff; transition: background .18s, transform .18s; }
 .cart-btn:hover { background: #1e293b; }
 .cart-btn.bump { animation: bump .45s var(--ease); }
 @keyframes bump { 40% { transform: scale(1.07); } }
@@ -145,7 +145,7 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
 .cat-row { display: flex; align-items: stretch; justify-content: space-between; gap: 16px; }
 .cat-list { display: flex; align-items: stretch; gap: 4px; }
 .cat-list > li { display: flex; align-items: center; }
-.cat-link { position: relative; display: flex; align-items: center; height: 50px; padding: 0 4px 0 12px; font-size: 14.5px; font-weight: 700; color: var(--text); transition: color .15s; }
+.cat-link { position: relative; display: flex; align-items: center; height: 50px; padding: 0 4px 0 12px; font-size: 14.5px; font-weight: 500; color: var(--text); transition: color .15s; }
 .cat-list > li:first-child .cat-link { padding-right: 12px; }
 .cat-link::after { content: ""; position: absolute; left: 12px; right: 0; bottom: -1px; height: 3px; border-radius: 3px 3px 0 0; background: var(--accent-bright); transform: scaleX(0); transform-origin: left; transition: transform .22s var(--ease); }
 .cat-list > li:first-child .cat-link::after { right: 12px; }
@@ -198,7 +198,7 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
   .actions { grid-column: 3; }
   .search input { height: 38px; padding-left: 16px; }
   .cart-label { display: none; }
-  .cart-btn { width: 46px; height: 46px; padding: 0; justify-content: center; }
+  .cart-btn { width: 40px; height: 40px; padding: 0; justify-content: center; }
   .logo-img { height: 26px; }
   html { scroll-padding-top: 150px; }
 }
