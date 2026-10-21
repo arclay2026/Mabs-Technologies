@@ -271,10 +271,11 @@
           '<div class="suggest" id="suggest" hidden><div class="wrap suggest-body" role="listbox" id="suggest-list" aria-label="Search suggestions"></div></div>' +
         "</div>" +
         '<div class="actions">' +
-          '<a class="icon-btn wish-link" href="index.html?wish=1#shop" aria-label="Wishlist">' + ICON.heart + '<span class="count" data-wish-count hidden></span></a>' +
-          '<button type="button" class="cart-btn" data-open-cart aria-label="Open cart">' +
-            '<span class="cart-icon">' + ICON.cart + '<span class="count" data-cart-count hidden></span></span>' +
-            '<span class="cart-label"><small>Cart</small><b data-cart-total>' + money(0) + "</b></span></button>" +
+          '<a class="act wish-link" href="index.html?wish=1#shop" aria-label="Wishlist">' +
+            '<span class="act-icon">' + ICON.heart + '</span><span class="act-label">Wishlist</span><span class="count" data-wish-count hidden></span></a>' +
+          '<span class="act-sep" aria-hidden="true"></span>' +
+          '<button type="button" class="act cart-btn" data-open-cart aria-label="Open cart">' +
+            '<span class="act-icon">' + ICON.cart + '</span><span class="act-label">Cart</span><span class="count" data-cart-count hidden></span></button>' +
         "</div>" +
       "</div>" +
       '<nav class="cat-nav" aria-label="Shop by category"><div class="wrap cat-row"><ul class="cat-list">' +
@@ -618,7 +619,6 @@
     }
     lastCount = n;
     document.querySelectorAll("[data-cart-count]").forEach(function (el) { el.textContent = n; el.hidden = n === 0; });
-    document.querySelectorAll("[data-cart-total]").forEach(function (el) { el.textContent = money(M.cart.subtotal()); });
     var w = M.wish.all().length;
     document.querySelectorAll("[data-wish-count]").forEach(function (el) { el.textContent = w; el.hidden = w === 0; });
     var btn = document.querySelector("[data-open-cart]");
