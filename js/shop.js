@@ -20,9 +20,11 @@
     if (!track || !M.brands) return;
     function logos(copy) {
       return M.brands.map(function (b) {
+        var img = '<img src="' + esc(b.logo) + '" alt="' + (copy ? "" : esc(b.name)) + '" style="height:' + b.h + 'px" draggable="false">';
+        var stocked = M.products.some(function (p) { return p.brand === b.name; });
+        if (!stocked) return '<span class="brand-logo"' + (copy ? ' aria-hidden="true"' : "") + ">" + img + "</span>";
         return '<a class="brand-logo" href="index.html?brand=' + encodeURIComponent(b.name) + '#shop"' +
-          (copy ? ' tabindex="-1" aria-hidden="true"' : ' aria-label="Shop ' + esc(b.name) + '"') + ">" +
-          '<img src="' + esc(b.logo) + '" alt="' + (copy ? "" : esc(b.name)) + '" style="height:' + b.h + 'px" draggable="false"></a>';
+          (copy ? ' tabindex="-1" aria-hidden="true"' : ' aria-label="Shop ' + esc(b.name) + '"') + ">" + img + "</a>";
       }).join("");
     }
     track.innerHTML = '<div class="marquee-group">' + logos(false) + "</div>";

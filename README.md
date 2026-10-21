@@ -36,6 +36,7 @@ wishlist and placed orders are saved in the browser's `localStorage`.
 - `assets/brands/` — partner logos for the "Featured brands" strip,
   trimmed to their edges, in each brand's own colour (originals in
   `assets/brands/original/`; Apple uses black since its upload was white).
+  A logo becomes a link to that brand's products once the catalogue has some.
   To add one, drop the SVG in and add it to `MABS.brands` in `js/catalog.js`.
 
 ## Before going live
