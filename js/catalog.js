@@ -20,6 +20,9 @@
     phone: "",      // as displayed, e.g. "082 123 4567"
     address: "",    // e.g. "12 Main Road, Johannesburg"
     hours: "",      // e.g. "Mon–Sat 9:00–18:00"
+    // shown under "Popular searches" when someone opens the search box;
+    // swap for real trending searches once searches are logged in a database
+    popularSearches: ["Laptops", "Samsung Galaxy", "iPhone", "Power bank", "Smart TV", "Wireless headphones"],
     delivery: {
       courierFee: 120,   // flat courier fee per order
       freeOver: 1500,    // orders at or above this subtotal ship free

@@ -30,7 +30,11 @@
   function matchQuery(p, q) {
     var hay = (p.name + " " + p.brand + " " + p.type + " " + catName(p.category) + " " + p.summary).toLowerCase();
     var words = q.toLowerCase().split(/\s+/).filter(Boolean);
-    for (var i = 0; i < words.length; i++) if (hay.indexOf(words[i]) === -1) return false;
+    for (var i = 0; i < words.length; i++) {
+      var w = words[i];
+      // "laptops" should still find "laptop"
+      if (hay.indexOf(w) === -1 && !(w.length > 3 && /s$/.test(w) && hay.indexOf(w.replace(/e?s$/, "")) !== -1)) return false;
+    }
     return true;
   }
   // product types in a category, in catalogue order, with counts
@@ -133,6 +137,8 @@
     chevron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
     arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
     flame: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c.6 3.2-1.2 4.9-2.6 6.5C8 10.1 7 11.6 7 14a5 5 0 0 0 10 0c0-1.6-.6-3-1.5-4.1-.2 1.3-.9 2.2-1.9 2.6.4-3.4-.5-7.4-1.6-10.5z"/></svg>',
+    clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
+    trend: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>',
     filter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>'
   };
   M.icon = ICON;
@@ -262,7 +268,7 @@
               ' role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggest-list" value="' + esc(params.get("q") || "") + '">' +
             '<button type="submit" aria-label="Search">' + ICON.search + "</button>" +
           "</form>" +
-          '<div class="suggest" id="suggest" hidden><div role="listbox" id="suggest-list" aria-label="Product suggestions"></div><p class="suggest-empty" hidden></p></div>' +
+          '<div class="suggest" id="suggest" hidden><div class="wrap suggest-body" role="listbox" id="suggest-list" aria-label="Search suggestions"></div></div>' +
         "</div>" +
         '<div class="actions">' +
           '<a class="icon-btn wish-link" href="index.html?wish=1#shop" aria-label="Wishlist">' + ICON.heart + '<span class="count" data-wish-count hidden></span></a>' +
@@ -282,7 +288,8 @@
         "</ul>" +
         '<a class="deals-link" data-nav="deals" href="index.html?deals=1#shop"' + (page === "home" && params.get("deals") ? ' aria-current="page"' : "") + ">" +
           ICON.flame + "On sale" + (dealCount ? '<span class="deals-n">' + dealCount + "</span>" : "") + "</a>" +
-      "</div></nav></header>";
+      "</div></nav></header>" +
+      '<div class="search-scrim" hidden></div>';
 
     setupSearch(host);
     setupMega(host);
@@ -292,59 +299,145 @@
     onScroll();
   }
 
-  /* search box: live suggestions as a combobox listbox */
+  /* search panel: drops down under the header when the search box is
+     focused. Empty box → recent + popular searches and departments;
+     typing → live product matches. The input is an ARIA combobox and
+     every row in the panel is an option you can reach with the arrows. */
+  var RECENT_KEY = "mabs.recent.v1";
+  function recentSearches() { return read(RECENT_KEY, []).filter(function (q) { return typeof q === "string" && q; }); }
+  function saveRecent(q) {
+    q = q.trim(); if (!q) return;
+    var list = recentSearches().filter(function (r) { return r.toLowerCase() !== q.toLowerCase(); });
+    list.unshift(q);
+    write(RECENT_KEY, list.slice(0, 5));
+  }
+
   function setupSearch(host) {
+    var wrap = host.querySelector(".search-wrap");
     var form = host.querySelector(".search");
     var input = form.q;
-    var box = host.querySelector("#suggest");
-    var list = host.querySelector("#suggest-list");
-    var empty = box.querySelector(".suggest-empty");
-    var options = [], active = -1;
+    var panel = host.querySelector("#suggest");
+    var body = panel.querySelector(".suggest-body");
+    var bar = host.querySelector(".bar");
+    var scrim = host.querySelector(".search-scrim");
+    var options = [], active = -1, isOpen = false, hideTimer, enterTimer;
 
-    function go(q) { location.href = "index.html" + (q ? "?q=" + encodeURIComponent(q) : "") + "#shop"; }
-    function hide() {
-      box.hidden = true; input.setAttribute("aria-expanded", "false"); input.removeAttribute("aria-activedescendant");
-      options = []; active = -1;
+    function shopUrl(q) { return "index.html" + (q ? "?q=" + encodeURIComponent(q) : "") + "#shop"; }
+    function go(q) { saveRecent(q); location.href = shopUrl(q); }
+
+    function termRow(q, icon, i) {
+      return '<a class="sg-term" role="option" id="sg-t' + i + '" aria-selected="false" tabindex="-1" data-term="' + esc(q) + '" href="' + shopUrl(q) + '">' +
+        icon + "<span>" + esc(q) + "</span></a>";
     }
+
+    function renderIdle() {
+      var recent = recentSearches();
+      var popular = (M.store.popularSearches || []).filter(function (q) {
+        return !recent.some(function (r) { return r.toLowerCase() === q.toLowerCase(); });
+      }).slice(0, 6);
+      var n = 0;
+      var html = '<div class="sg-cols">';
+      if (recent.length) {
+        html += '<section class="sg-group" role="group" aria-labelledby="sg-h-recent"><div class="sg-head"><h2 id="sg-h-recent">Recent searches</h2>' +
+          '<button type="button" class="sg-clear" data-clear-recent>Clear</button></div>' +
+          recent.map(function (q) { return termRow(q, ICON.clock, n++); }).join("") + "</section>";
+      }
+      if (popular.length) {
+        html += '<section class="sg-group" role="group" aria-labelledby="sg-h-pop"><div class="sg-head"><h2 id="sg-h-pop">Popular searches</h2></div>' +
+          popular.map(function (q) { return termRow(q, ICON.trend, n++); }).join("") + "</section>";
+      }
+      html += '<section class="sg-group" role="group" aria-labelledby="sg-h-cat"><div class="sg-head"><h2 id="sg-h-cat">Shop by department</h2></div><div class="sg-cats">' +
+        M.categories.map(function (c, i) {
+          return '<a class="sg-cat" role="option" id="sg-c' + i + '" aria-selected="false" tabindex="-1" href="index.html?cat=' + c.id + '#shop">' +
+            '<span class="sg-cat-art" style="--tile:' + M.tint(c.art.color, 0.86) + '">' + M.art(c.art) + "</span><span>" + esc(c.name) + "</span></a>";
+        }).join("") + "</div></section>";
+      body.innerHTML = html + "</div>";
+    }
+
+    function renderResults(q) {
+      var all = M.products.filter(function (p) { return M.matchQuery(p, q); });
+      if (!all.length) {
+        body.innerHTML = '<div class="sg-none"><p class="sg-none-title">No products match “' + esc(q) + '”</p>' +
+          "<p>Check the spelling, or try a brand or a product type like “laptop” or “charger”.</p></div>";
+        return;
+      }
+      var top = all.slice().sort(function (a, b) { return (b.stock > 0) - (a.stock > 0) || (b.featured ? 1 : 0) - (a.featured ? 1 : 0); }).slice(0, 8);
+      body.innerHTML = '<section class="sg-group" role="group" aria-labelledby="sg-h-prod"><div class="sg-head"><h2 id="sg-h-prod">Products</h2></div>' +
+        '<div class="sg-products">' + top.map(function (p, i) {
+          return mini(p, ' role="option" id="sg-p' + i + '" aria-selected="false" tabindex="-1" data-term="' + esc(q) + '"');
+        }).join("") + "</div>" +
+        '<a class="sg-all" role="option" id="sg-all" aria-selected="false" tabindex="-1" data-term="' + esc(q) + '" href="' + shopUrl(q) + '">' +
+          "See all " + all.length + (all.length === 1 ? " result" : " results") + " for “" + esc(q) + "”" + ICON.arrow + "</a></section>";
+    }
+
+    function render() {
+      var q = input.value.trim();
+      if (q.length >= 2) renderResults(q); else renderIdle();
+      options = Array.prototype.slice.call(body.querySelectorAll('[role="option"]'));
+      setActive(-1);
+    }
+
     function setActive(i) {
       options.forEach(function (o, j) { o.classList.toggle("is-active", j === i); o.setAttribute("aria-selected", j === i); });
       active = i;
       if (i >= 0) { input.setAttribute("aria-activedescendant", options[i].id); options[i].scrollIntoView({ block: "nearest" }); }
       else input.removeAttribute("aria-activedescendant");
     }
-    function render() {
-      var q = input.value.trim();
-      if (q.length < 2) return hide();
-      var all = M.products.filter(function (p) { return M.matchQuery(p, q); });
-      var top = all.slice().sort(function (a, b) { return (b.stock > 0) - (a.stock > 0) || (b.featured ? 1 : 0) - (a.featured ? 1 : 0); }).slice(0, 6);
-      list.innerHTML = top.map(function (p, i) { return mini(p, ' role="option" id="sg-' + i + '" aria-selected="false" tabindex="-1"'); }).join("") +
-        (all.length ? '<a class="sg-all" role="option" id="sg-all" aria-selected="false" tabindex="-1" href="index.html?q=' + encodeURIComponent(q) + '#shop">' +
-          "See all " + all.length + (all.length === 1 ? " result" : " results") + " for “" + esc(q) + "”" + ICON.arrow + "</a>" : "");
-      empty.hidden = !!all.length;
-      empty.textContent = all.length ? "" : "No products match “" + q + "”. Try a brand or product type.";
-      options = Array.prototype.slice.call(list.querySelectorAll('[role="option"]'));
-      active = -1;
-      box.hidden = false; input.setAttribute("aria-expanded", options.length ? "true" : "false");
-    }
 
-    input.addEventListener("input", render);
-    input.addEventListener("focus", function () { if (input.value.trim().length >= 2) render(); });
+    function open() {
+      clearTimeout(hideTimer);
+      render();
+      if (isOpen) return;
+      isOpen = true;
+      panel.style.top = (bar.offsetTop + bar.offsetHeight) + "px"; // sit right under the logo/search row
+      panel.hidden = false; scrim.hidden = false;
+      input.setAttribute("aria-expanded", "true");
+      document.body.classList.add("search-open");
+      panel.classList.add("is-entering");
+      clearTimeout(enterTimer);
+      enterTimer = setTimeout(function () { panel.classList.remove("is-entering"); }, 450);
+      requestAnimationFrame(function () { requestAnimationFrame(function () { panel.classList.add("is-open"); scrim.classList.add("is-on"); }); });
+    }
+    function close() {
+      if (!isOpen) return;
+      isOpen = false;
+      panel.classList.remove("is-open"); scrim.classList.remove("is-on");
+      input.setAttribute("aria-expanded", "false");
+      document.body.classList.remove("search-open");
+      setActive(-1);
+      hideTimer = setTimeout(function () { panel.hidden = true; scrim.hidden = true; }, 260);
+    }
+    M.closeSearch = close;
+
+    input.addEventListener("focus", open);
+    input.addEventListener("click", open);
+    input.addEventListener("input", function () { if (isOpen) render(); else open(); });
     input.addEventListener("keydown", function (e) {
       if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-        if (box.hidden) render();
+        if (!isOpen) open();
         if (!options.length) return;
         e.preventDefault();
         var n = options.length;
         setActive(e.key === "ArrowDown" ? (active + 1) % n : (active <= 0 ? n - 1 : active - 1));
       } else if (e.key === "Enter" && active >= 0) {
-        e.preventDefault(); location.href = options[active].href;
-      } else if (e.key === "Escape" && !box.hidden) {
-        e.preventDefault(); e.stopPropagation(); hide();
+        e.preventDefault(); options[active].click();
+      } else if (e.key === "Escape" && isOpen) {
+        e.preventDefault(); e.stopPropagation(); close();
       }
     });
-    // keep focus in the input while clicking a suggestion
-    box.addEventListener("mousedown", function (e) { e.preventDefault(); });
-    input.addEventListener("blur", hide);
+    // close once focus leaves the search box and its panel
+    wrap.addEventListener("focusout", function (e) { if (!wrap.contains(e.relatedTarget)) close(); });
+    // clicks inside the panel shouldn't steal focus from the input
+    panel.addEventListener("mousedown", function (e) { if (!e.target.closest("button")) e.preventDefault(); });
+    panel.addEventListener("click", function (e) {
+      if (e.target.closest("[data-clear-recent]")) {
+        write(RECENT_KEY, []); render(); input.focus(); return;
+      }
+      var opt = e.target.closest("[data-term]");
+      if (opt) saveRecent(opt.getAttribute("data-term"));
+    });
+    scrim.addEventListener("click", function () { close(); input.blur(); });
+    window.addEventListener("resize", function () { if (isOpen) panel.style.top = (bar.offsetTop + bar.offsetHeight) + "px"; });
     form.addEventListener("submit", function (e) { e.preventDefault(); go(input.value.trim()); });
   }
 
