@@ -137,10 +137,11 @@
   };
   M.icon = ICON;
 
-  var LOGO = '<svg class="logo-mark" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="10" fill="#0f172a"/>' +
-    '<path d="M10 28V13l10 9 10-9v15" fill="none" stroke="#fff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>' +
-    '<circle cx="30" cy="28" r="3" fill="#f97316"/></svg>';
-  M.logo = LOGO;
+  // official logo; logo-light.svg is for dark backgrounds
+  function logoImg(light) {
+    return '<img class="logo-img" src="assets/' + (light ? "logo-light" : "logo") + '.svg" alt="' + esc(M.store.name) + '" width="173" height="40">';
+  }
+  M.logo = logoImg;
 
   /* ---------- product media & cards ---------- */
   M.media = function (p, eager) {
@@ -253,8 +254,7 @@
       "</div></div>" +
       '<header class="masthead"><div class="wrap bar">' +
         '<button type="button" class="icon-btn menu-btn" data-open-menu aria-controls="menu-drawer" aria-label="Open menu">' + ICON.menu + "</button>" +
-        '<a class="logo" href="index.html" aria-label="' + esc(s.name) + ' home">' + LOGO +
-          '<span class="logo-text"><b>Mabs</b><small>Technologies</small></span></a>' +
+        '<a class="logo" href="index.html">' + logoImg() + "</a>" +
         '<div class="search-wrap">' +
           '<form class="search" action="index.html" role="search">' +
             '<label class="sr-only" for="q">Search products</label>' +
@@ -397,7 +397,7 @@
     var s = M.store;
     var dealCount = M.products.filter(function (p) { return p.was && p.was > p.price; }).length;
     return '<aside class="drawer drawer-left" id="menu-drawer" role="dialog" aria-modal="true" aria-labelledby="menu-title" hidden>' +
-      '<div class="drawer-head"><a class="logo" href="index.html">' + LOGO + '<span class="logo-text"><b>Mabs</b><small>Technologies</small></span></a>' +
+      '<div class="drawer-head"><a class="logo" href="index.html">' + logoImg() + "</a>" +
         '<h2 id="menu-title" class="sr-only">Menu</h2>' +
         '<button type="button" class="icon-btn" data-close-drawer aria-label="Close menu">' + ICON.close + "</button></div>" +
       '<div class="drawer-body menu-body">' +
@@ -433,7 +433,7 @@
     if (s.address) contact.push("<p>" + esc(s.address) + "</p>");
     if (s.hours) contact.push("<p>" + esc(s.hours) + "</p>");
     host.innerHTML = '<footer class="site-footer"><div class="wrap footer-grid">' +
-      '<div class="footer-brand"><a class="logo" href="index.html">' + LOGO + '<span class="logo-text"><b>Mabs</b><small>Technologies</small></span></a>' +
+      '<div class="footer-brand"><a class="logo" href="index.html">' + logoImg(true) + "</a>" +
         "<p>" + esc(s.tagline) + ". Shop online, get it delivered or collect in store.</p></div>" +
       '<div class="footer-col"><h2>Shop</h2>' + M.categories.map(function (c) {
         return '<a href="index.html?cat=' + c.id + '#shop">' + esc(c.name) + "</a>";

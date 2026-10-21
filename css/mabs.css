@@ -94,12 +94,8 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
 .masthead.is-scrolled { box-shadow: 0 10px 30px -18px rgba(15, 23, 42, .35); }
 .bar { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 28px; min-height: 76px; }
 .menu-btn { display: none; }
-.logo { display: inline-flex; align-items: center; gap: 10px; }
-.logo-mark { width: 42px; height: 42px; flex: none; transition: transform .3s var(--ease); }
-.logo:hover .logo-mark { transform: rotate(-6deg); }
-.logo-text { display: flex; flex-direction: column; line-height: 1; }
-.logo-text b { font-size: 22px; font-weight: 800; color: var(--ink); letter-spacing: -.03em; }
-.logo-text small { font-size: 10px; font-weight: 700; color: var(--mute); text-transform: uppercase; letter-spacing: .2em; margin-top: 4px; }
+.logo { display: inline-flex; align-items: center; flex: none; }
+.logo-img { height: 40px; width: auto; }
 
 /* search with suggestions */
 .search-wrap { position: relative; width: 100%; max-width: 660px; justify-self: center; }
@@ -203,7 +199,7 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
   .search input { height: 44px; padding-left: 18px; }
   .cart-label { display: none; }
   .cart-btn { width: 46px; height: 46px; padding: 0; justify-content: center; }
-  .logo-mark { width: 38px; height: 38px; }
+  .logo-img { height: 34px; }
   html { scroll-padding-top: 150px; }
 }
 
@@ -512,9 +508,7 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
 /* ---------- footer ---------- */
 .site-footer { background: var(--ink); color: #cbd5e1; font-size: 14.5px; }
 .footer-grid { display: grid; grid-template-columns: 1.6fr repeat(3, 1fr); gap: 32px; padding-block: 56px 40px; }
-.footer-brand .logo-text b { color: #fff; }
-.footer-brand .logo-text small { color: #94a3b8; }
-.footer-brand .logo-mark rect { fill: #1e293b; }
+.footer-brand .logo-img { height: 44px; }
 .footer-brand p { margin-top: 14px; max-width: 30em; }
 .footer-col { display: flex; flex-direction: column; gap: 8px; }
 .footer-col h2 { color: #fff; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 4px; }

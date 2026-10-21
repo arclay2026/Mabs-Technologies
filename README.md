@@ -29,6 +29,10 @@ wishlist and placed orders are saved in the browser's `localStorage`.
   mobile menu), footer, cart drawer, product cards.
 - `js/shop.js`, `js/product.js`, `js/checkout.js` — page scripts.
 - `css/mabs.css` — all styling.
+- `assets/logo.svg` / `assets/logo-light.svg` — the official logo trimmed
+  for the site (dark wordmark for light backgrounds, light wordmark for
+  dark ones); `assets/favicon.svg` is the three blue strokes on their own.
+  The original uploads are kept in `assets/brand/`.
 
 ## Before going live
 
