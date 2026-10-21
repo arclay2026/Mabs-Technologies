@@ -261,6 +261,27 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
 /* empty brand-grey band holding the space for the carousel */
 .carousel-slot { background: #f5f5f7; height: clamp(220px, 26vw, 420px); }
 
+/* ---------- featured brands strip ---------- */
+.brands { padding-block: 22px 26px; border-bottom: 1px solid var(--line); }
+.brands-title { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 16px; }
+.marquee { overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); }
+.marquee-track { display: flex; width: max-content; animation: marquee var(--marquee-time, 40s) linear infinite; will-change: transform; }
+.marquee:hover .marquee-track, .marquee:focus-within .marquee-track { animation-play-state: paused; }
+@keyframes marquee { to { transform: translate3d(-50%, 0, 0); } }
+.marquee-group { display: flex; align-items: center; gap: 88px; padding-right: 88px; }
+.brand-logo { display: flex; align-items: center; justify-content: center; height: 44px; flex: none; transition: opacity .2s; }
+.brand-logo img { width: auto; max-width: none; user-select: none; }
+.marquee:hover .brand-logo { opacity: .55; }
+.marquee:hover .brand-logo:hover, .brand-logo:focus-visible { opacity: 1; }
+@media (max-width: 760px) { .marquee-group { gap: 56px; padding-right: 56px; } .brands { padding-block: 18px 20px; } }
+/* no motion wanted: show one still, centred row */
+@media (prefers-reduced-motion: reduce) {
+  .marquee { -webkit-mask-image: none; mask-image: none; }
+  .marquee-track { width: auto; justify-content: center; }
+  .marquee-group { flex-wrap: wrap; justify-content: center; row-gap: 20px; padding-right: 0; }
+  .marquee-group[aria-hidden="true"], .marquee [aria-hidden="true"] { display: none; }
+}
+
 /* ---------- perks ---------- */
 .perks { border-bottom: 1px solid var(--line); }
 .perks-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding-block: 16px; }

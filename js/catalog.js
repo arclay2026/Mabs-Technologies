@@ -30,6 +30,17 @@
     }
   };
 
+  // logo strip under the homepage carousel; `h` is the display height in px,
+  // set per logo so wide wordmarks and square marks look the same size
+  MABS.brands = [
+    { name: "Samsung", logo: "assets/brands/samsung.svg", h: 16 },
+    { name: "Apple", logo: "assets/brands/apple.svg", h: 30 },
+    { name: "Lenovo", logo: "assets/brands/lenovo.svg", h: 21 },
+    { name: "HP", logo: "assets/brands/hp.svg", h: 30 },
+    { name: "JBL", logo: "assets/brands/jbl.svg", h: 25 },
+    { name: "Dell", logo: "assets/brands/dell.svg", h: 30 }
+  ];
+
   MABS.categories = [
     { id: "computers", name: "Computers", blurb: "Laptops, desktops & monitors", art: { kind: "laptop", color: "#2563eb", body: "silver" } },
     { id: "phones", name: "Phones & Tablets", blurb: "Smartphones & tablets", art: { kind: "phone", color: "#7c3aed" } },

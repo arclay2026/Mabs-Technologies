@@ -10,6 +10,39 @@
   var esc = M.esc, money = M.money;
   var $ = function (id) { return document.getElementById(id); };
 
+  /* ---------- brand logo strip ----------
+     One group holds the logos repeated until it is wider than the screen;
+     a second identical group follows, and the track slides left by exactly
+     one group (-50%) on a loop, so the motion never jumps. Only the first
+     set of logos is exposed to keyboards and screen readers. */
+  function renderBrands() {
+    var track = $("brand-track");
+    if (!track || !M.brands) return;
+    function logos(copy) {
+      return M.brands.map(function (b) {
+        return '<a class="brand-logo" href="index.html?brand=' + encodeURIComponent(b.name) + '#shop"' +
+          (copy ? ' tabindex="-1" aria-hidden="true"' : ' aria-label="Shop ' + esc(b.name) + '"') + ">" +
+          '<img src="' + esc(b.logo) + '" alt="' + (copy ? "" : esc(b.name)) + '" style="height:' + b.h + 'px" draggable="false"></a>';
+      }).join("");
+    }
+    track.innerHTML = '<div class="marquee-group">' + logos(false) + "</div>";
+    var setWidth = track.firstChild.getBoundingClientRect().width;
+    if (setWidth < 200) setWidth = 900; // logos not decoded yet; brandsReady() re-measures
+    var reps = Math.max(1, Math.ceil(window.innerWidth / setWidth));
+    var group = logos(false);
+    for (var i = 1; i < reps; i++) group += logos(true);
+    var copy = "";
+    for (var j = 0; j < reps; j++) copy += logos(true);
+    track.innerHTML = '<div class="marquee-group">' + group + '</div><div class="marquee-group" aria-hidden="true">' + copy + "</div>";
+    // constant speed whatever the screen size: ~45px per second
+    track.style.setProperty("--marquee-time", (setWidth * reps / 45).toFixed(1) + "s");
+  }
+  var lastW = window.innerWidth, resizeTimer;
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () { if (Math.abs(window.innerWidth - lastW) > 80) { lastW = window.innerWidth; renderBrands(); } }, 200);
+  });
+
   /* ---------- perks, categories, deals ---------- */
   var d = M.store.delivery;
   var perks = [
@@ -235,6 +268,14 @@
   // wishlist view updates live when hearts are toggled
   document.addEventListener("wish:change", function () { if (state.wish) render(); });
 
+  // measure once the logo files are in, so the loop and speed are exact
+  (function brandsReady() {
+    if (!M.brands) return;
+    var left = M.brands.length;
+    var done = function () { if (--left === 0) renderBrands(); };
+    M.brands.forEach(function (b) { var img = new Image(); img.onload = img.onerror = done; img.src = b.logo; });
+  })();
+  renderBrands();
   renderDeals();
   render();
 })();
