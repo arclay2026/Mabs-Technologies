@@ -160,7 +160,10 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
 /* actions */
 .actions { display: flex; align-items: center; gap: 6px; }
 .count { position: absolute; top: -4px; right: -6px; min-width: 19px; height: 19px; padding: 0 5px; border-radius: 999px; background: var(--accent-bright); color: #111; font-size: 11px; font-weight: 800; line-height: 19px; text-align: center; box-shadow: 0 0 0 2px #fff; }
-.wish-link .count { top: 4px; right: 2px; }
+.wish-link { width: 42px; min-width: 42px; height: 42px; background: var(--bg-alt); } /* same height and grey as the search pill */
+.wish-link:hover { background: #eceef2; }
+.wish-link svg { width: 20px; height: 20px; }
+.wish-link .count { top: -4px; right: -4px; }
 .cart-btn { display: inline-flex; align-items: center; gap: 10px; height: 42px; padding: 0 18px 0 14px; border-radius: 999px; background: var(--ink); color: #fff; transition: background .18s, transform .18s; }
 .cart-btn:hover { background: #1e293b; }
 .cart-btn.bump { animation: bump .45s var(--ease); }
@@ -231,6 +234,7 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
   .search input { height: 38px; padding-left: 16px; }
   .cart-label { display: none; }
   .cart-btn { width: 40px; height: 40px; padding: 0; justify-content: center; }
+  .wish-link { width: 40px; min-width: 40px; height: 40px; }
   .logo-img { height: 26px; }
   html { scroll-padding-top: 150px; }
 }
