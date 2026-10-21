@@ -346,11 +346,13 @@
         html += '<section class="sg-group" role="group" aria-labelledby="sg-h-pop"><div class="sg-head"><h2 id="sg-h-pop">Popular searches</h2></div>' +
           popular.map(function (q) { return termRow(q, ICON.trend, n++); }).join("") + "</section>";
       }
-      html += '<section class="sg-group" role="group" aria-labelledby="sg-h-cat"><div class="sg-head"><h2 id="sg-h-cat">Shop by department</h2></div><div class="sg-cats">' +
+      html += '<section class="sg-group" role="group" aria-labelledby="sg-h-cat"><div class="sg-head"><h2 id="sg-h-cat">Shop by department</h2></div>' +
         M.categories.map(function (c, i) {
-          return '<a class="sg-cat" role="option" id="sg-c' + i + '" aria-selected="false" tabindex="-1" href="index.html?cat=' + c.id + '#shop">' +
-            '<span class="sg-cat-art" style="--tile:' + M.tint(c.art.color, 0.86) + '">' + M.art(c.art) + "</span><span>" + esc(c.name) + "</span></a>";
-        }).join("") + "</div></section>";
+          var n = M.products.filter(function (p) { return p.category === c.id; }).length;
+          return '<a class="sg-dept" role="option" id="sg-c' + i + '" aria-selected="false" tabindex="-1" href="index.html?cat=' + c.id + '#shop">' +
+            '<span class="sg-dept-text"><span class="sg-dept-name">' + esc(c.name) + '</span><span class="sg-dept-blurb">' + esc(c.blurb) + "</span></span>" +
+            '<span class="sg-dept-n">' + n + "</span>" + ICON.arrow + "</a>";
+        }).join("") + "</section>";
       body.innerHTML = html + "</div>";
     }
 

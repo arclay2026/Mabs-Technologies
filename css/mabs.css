@@ -129,10 +129,14 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
 .sg-term { display: flex; align-items: center; gap: 14px; padding: 12px 10px; border-bottom: 1px solid var(--line); font-size: 15px; color: var(--text); transition: background .15s, padding .15s; }
 .sg-term svg { width: 18px; height: 18px; flex: none; color: var(--mute); }
 .sg-term:hover, .sg-term.is-active { background: var(--bg-alt); padding-left: 14px; }
-.sg-cats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding-top: 6px; }
-.sg-cat { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 12px; font-size: 14px; font-weight: 600; color: var(--ink); border: 1px solid var(--line); transition: border-color .15s, background .15s; }
-.sg-cat:hover, .sg-cat.is-active { border-color: var(--ink); background: var(--bg-alt); }
-.sg-cat-art { flex: none; display: grid; place-items: center; width: 44px; height: 44px; padding: 4px; border-radius: 10px; background: var(--tile); }
+.sg-dept { display: flex; align-items: center; gap: 14px; padding: 11px 10px; border-bottom: 1px solid var(--line); color: var(--text); transition: background .15s, padding .15s; }
+.sg-dept:hover, .sg-dept.is-active { background: var(--bg-alt); padding-left: 14px; }
+.sg-dept-text { flex: 1; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.sg-dept-name { font-size: 15px; font-weight: 500; color: var(--ink); }
+.sg-dept-blurb { font-size: 13px; color: var(--mute); }
+.sg-dept-n { font-size: 13px; color: var(--mute); font-variant-numeric: tabular-nums; }
+.sg-dept svg { width: 16px; height: 16px; flex: none; color: var(--mute); transition: transform .2s var(--ease), color .15s; }
+.sg-dept:hover svg, .sg-dept.is-active svg { transform: translateX(3px); color: var(--ink); }
 .sg-products { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2px 24px; padding-top: 6px; }
 .sg-products .mini { border-radius: 12px; }
 .sg-products .mini:hover, .sg-products .mini.is-active { background: var(--bg-alt); }
