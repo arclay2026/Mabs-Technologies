@@ -258,23 +258,9 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
 .menu-extra a + a { border-top: 1px solid var(--line); }
 .menu-extra svg { width: 20px; height: 20px; color: var(--accent); }
 
-/* ---------- hero ---------- */
-.hero { background: radial-gradient(circle at 85% 20%, #1e3a8a 0%, transparent 45%), radial-gradient(circle at 70% 90%, #7c2d12 0%, transparent 40%), var(--ink); color: #cbd5e1; overflow: hidden; }
-.hero-grid { display: grid; grid-template-columns: 1.05fr 1fr; align-items: center; gap: 40px; padding-block: clamp(48px, 7vw, 96px); }
-.eyebrow { font-size: 13px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--accent-bright); margin-bottom: 14px; }
-.hero h1 { color: #fff; font-size: clamp(38px, 5.6vw, 66px); font-weight: 800; letter-spacing: -.03em; line-height: 1.04; }
-.hero .lede { font-size: clamp(16px, 1.5vw, 19px); margin-top: 18px; max-width: 34em; }
-.hero-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
-.hero-art { position: relative; aspect-ratio: 5 / 4; }
-.hero-tile { position: absolute; border-radius: var(--radius-lg); background: var(--tile); box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .55); display: grid; place-items: center; padding: 6%; }
-.hero-tile svg { width: 100%; height: 100%; }
-.ht-1 { inset: 4% 4% 22% 14%; }
-.ht-2 { width: 36%; height: 48%; left: 0; bottom: 0; }
-.ht-3 { width: 32%; height: 36%; right: 0; bottom: 2%; }
-@media (max-width: 860px) {
-  .hero-grid { grid-template-columns: 1fr; }
-  .hero-art { max-width: 520px; width: 100%; margin-inline: auto; }
-}
+/* ---------- homepage carousel slot ---------- */
+/* empty brand-grey band holding the space for the carousel */
+.carousel-slot { background: #f5f5f7; height: clamp(220px, 26vw, 420px); }
 
 /* ---------- perks ---------- */
 .perks { border-bottom: 1px solid var(--line); }

@@ -10,15 +10,7 @@
   var esc = M.esc, money = M.money;
   var $ = function (id) { return document.getElementById(id); };
 
-  /* ---------- hero, perks, categories, deals ---------- */
-  function tile(p, cls) {
-    return '<div class="hero-tile ' + cls + '" style="' + M.tileStyle(p) + '">' + M.art(p.art) + "</div>";
-  }
-  $("hero-art").innerHTML =
-    tile({ art: { kind: "laptop", color: "#2563eb", body: "silver" } }, "ht-1") +
-    tile({ art: { kind: "phone", color: "#a855f7", body: "dark" } }, "ht-2") +
-    tile({ art: { kind: "headphones", color: "#f97316", body: "dark" } }, "ht-3");
-
+  /* ---------- perks, categories, deals ---------- */
   var d = M.store.delivery;
   var perks = [
     [M.icon.truck, "Fast delivery", "Free on orders over " + money(d.freeOver)],
