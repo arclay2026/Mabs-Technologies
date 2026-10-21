@@ -80,8 +80,9 @@ The site connects through `js/db.js`, using `MABS.store.supabase` in
 - every page loads the catalogue and delivery settings from the database
   (cached for 5 minutes per tab), then starts its own scripts — listed in the
   `data-load` attribute of the `db.js` script tag
-- checkout calls `place_order`; the order number, prices and totals shown on
-  the confirmation come from the database
+- checkout calls `place_order` whenever the page's catalogue came from the
+  database; the order number, prices and totals shown on the confirmation
+  come from it
 - if the URL is empty or the database can't be reached, the shop falls back
   to the built-in catalogue in `js/catalog.js`
 

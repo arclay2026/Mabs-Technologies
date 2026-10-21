@@ -23,7 +23,7 @@
     // Supabase project (Project Settings → API). The publishable key is meant
     // to be public; never put the secret / service_role key here.
     supabase: {
-      url: "",        // e.g. "https://abcdxyz.supabase.co"
+      url: "https://jxxradpjdqqckgrmrjyf.supabase.co",
       key: "sb_publishable_l-j562qW0HU7BZ2Q-00EoQ_nsyz1gCD"
     },
     // shown under "Popular searches" when someone opens the search box;

@@ -102,10 +102,11 @@
     M.write("mabs.orders.v1", orders);
   }
 
-  // save the order: to the database when connected (it rechecks stock and
-  // prices), otherwise only on this device
+  // save the order: to the database when this page's catalogue came from it
+  // (it rechecks stock and prices); otherwise only on this device, so
+  // checkout keeps working if the database can't be reached
   function submitOrder(order) {
-    if (!M.db || !M.db.enabled) { rememberOrder(order); return Promise.resolve(order); }
+    if (!M.db || M.db.source !== "database") { rememberOrder(order); return Promise.resolve(order); }
     return M.db.api("rpc/place_order", {
       method: "POST",
       body: {
