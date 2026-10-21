@@ -214,7 +214,7 @@
   var page = document.body.getAttribute("data-page");
   var params = new URLSearchParams(location.search);
 
-  // a compact product row, used in the mega menu and search suggestions
+  // a compact product row, used in the search suggestions
   function mini(p, attrs) {
     return '<a class="mini" href="product.html?id=' + encodeURIComponent(p.id) + '"' + (attrs || "") + ">" +
       '<span class="mini-media" style="' + M.tileStyle(p) + '">' + M.media(p) + "</span>" +
@@ -222,31 +222,7 @@
       '<span class="mini-price">' + M.priceHtml(p) + "</span></span></a>";
   }
 
-  function picksFor(catId, n) {
-    return M.products.filter(function (p) { return p.category === catId && p.stock > 0; })
-      .sort(function (a, b) { return (b.featured ? 1 : 0) - (a.featured ? 1 : 0) || ((b.was || b.price) - b.price) - ((a.was || a.price) - a.price); })
-      .slice(0, n);
-  }
-
-  function megaPanel(c) {
-    var types = M.typesOf(c.id);
-    return '<div class="mega" id="mega-' + c.id + '" hidden><div class="wrap mega-grid">' +
-      '<div class="mega-col"><p class="mega-title">' + esc(c.name) + "</p><ul class=\"mega-types\">" +
-        types.map(function (t) {
-          return '<li><a href="index.html?cat=' + c.id + "&type=" + encodeURIComponent(t.type) + '#shop">' + esc(M.plural(t.type)) +
-            '<span class="n">' + t.count + "</span></a></li>";
-        }).join("") + "</ul>" +
-        '<a class="mega-all" href="index.html?cat=' + c.id + '#shop">Shop all ' + esc(c.name) + ICON.arrow + "</a></div>" +
-      '<div class="mega-col"><p class="mega-title">Popular right now</p><div class="mega-picks">' +
-        picksFor(c.id, 4).map(function (p) { return mini(p); }).join("") + "</div></div>" +
-      '<a class="mega-feature" href="index.html?cat=' + c.id + '#shop" style="--tile:' + M.tint(c.art.color, 0.86) + '">' +
-        '<span class="mega-art">' + M.art(c.art) + "</span>" +
-        "<b>" + esc(c.name) + "</b><span>" + esc(c.blurb) + "</span>" +
-        '<span class="mega-cta">Browse ' + M.products.filter(function (p) { return p.category === c.id; }).length + " products" + ICON.arrow + "</span></a>" +
-    "</div></div>";
-  }
-
-  // "Shop by department" dropdown used instead of the category row on account pages
+  // "Shop by department" dropdown beside the logo
   function deptMenu() {
     var deals = M.products.filter(function (p) { return p.was && p.was > p.price; }).length;
     return '<div class="has-mega dept-menu">' +
@@ -269,9 +245,6 @@
     var host = document.getElementById("site-header");
     if (!host) return;
     var s = M.store, d = s.delivery;
-    var dealCount = M.products.filter(function (p) { return p.was && p.was > p.price; }).length;
-    var compact = page === "orders" || page === "wishlist"; // account pages: no category row
-    var activeCat = page === "home" ? params.get("cat") : page === "product" ? (M.byId(params.get("id") || "") || {}).category : null;
     var perks = [[ICON.truck, "Free delivery on orders over " + money(d.freeOver)]];
     if (d.collect) perks.push([ICON.store, "Free in-store collection"]);
     perks.push([ICON.shield, "Genuine brands you can trust"]);
@@ -283,10 +256,10 @@
       }).join("") +
       (s.whatsapp ? '<a class="promo-help" href="https://wa.me/' + esc(s.whatsapp) + '" target="_blank" rel="noopener">' + ICON.chat + "Need help? WhatsApp us</a>" : "") +
       "</div></div>" +
-      '<header class="masthead"><div class="wrap bar' + (compact ? " bar-compact" : "") + '">' +
+      '<header class="masthead"><div class="wrap bar">' +
         '<button type="button" class="icon-btn menu-btn" data-open-menu aria-controls="menu-drawer" aria-label="Open menu">' + ICON.menu + "</button>" +
         '<a class="logo" href="index.html">' + logoImg() + "</a>" +
-        (compact ? deptMenu() : "") +
+        deptMenu() +
         '<div class="search-wrap">' +
           '<form class="search" action="index.html" role="search">' +
             '<label class="sr-only" for="q">Search products</label>' +
@@ -307,18 +280,7 @@
             '<span class="act-icon">' + ICON.cart + '</span><span class="act-label">Cart</span><span class="count" data-cart-count hidden></span></button>' +
         "</div>" +
       "</div>" +
-      (compact ? "" : '<nav class="cat-nav" aria-label="Shop by category"><div class="wrap cat-row"><ul class="cat-list">' +
-        '<li><a class="cat-link" data-nav="all" href="index.html#shop">All products</a></li>' +
-        M.categories.map(function (c) {
-          return '<li class="has-mega"><a class="cat-link" data-nav="' + c.id + '" href="index.html?cat=' + c.id + '#shop"' +
-            (activeCat === c.id ? ' aria-current="page"' : "") + ">" + esc(c.name) + "</a>" +
-            '<button type="button" class="mega-toggle" aria-expanded="false" aria-controls="mega-' + c.id + '" aria-label="' + esc(c.name) + ' menu">' + ICON.chevron + "</button>" +
-            megaPanel(c) + "</li>";
-        }).join("") +
-        "</ul>" +
-        '<a class="deals-link" data-nav="deals" href="index.html?deals=1#shop"' + (page === "home" && params.get("deals") ? ' aria-current="page"' : "") + ">" +
-          ICON.flame + "On sale" + (dealCount ? '<span class="deals-n">' + dealCount + "</span>" : "") + "</a>" +
-      "</div></nav>") + "</header>" +
+      "</header>" +
       '<div class="search-scrim" hidden></div>';
 
     setupSearch(host);

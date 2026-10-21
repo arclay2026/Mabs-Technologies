@@ -93,12 +93,6 @@
     // only jump the page to the shop once someone has actually used it
     var hash = qs || touched ? "#shop" : location.hash;
     history.replaceState(null, "", location.pathname + (qs ? "?" + qs : "") + hash);
-    // keep the header category links in step with the shop
-    var current = state.q || state.wish ? "" : state.deals && !state.cat ? "deals" :
-      state.cat && !state.deals ? state.cat : !state.cat && !state.deals && hash === "#shop" ? "all" : "";
-    document.querySelectorAll(".cat-nav [data-nav]").forEach(function (a) {
-      if (a.getAttribute("data-nav") === current) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
-    });
   }
 
   function matches(p, skipBrand) {

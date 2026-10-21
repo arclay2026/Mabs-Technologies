@@ -30,8 +30,8 @@ wishlist and placed orders are saved in the browser's `localStorage`.
   product list (name, brand, category, price, previous price, stock, specs).
   Products show a drawn illustration until you add a photo with
   `image: "assets/products/<file>.jpg"`.
-- `js/app.js` — cart, wishlist, header (category mega menus, live search,
-  mobile menu), footer, cart drawer, product cards.
+- `js/app.js` — cart, wishlist, header ("Shop by department" menu, live
+  search, mobile menu), footer, cart drawer, product cards.
 - `js/shop.js`, `js/product.js`, `js/checkout.js`, `js/orders.js`,
   `js/wishlist.js` — page scripts; `js/account.js` — the shared My Account menu.
 - `css/mabs.css` — all styling.
