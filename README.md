@@ -8,7 +8,7 @@ step — host it on any static web host (Hostinger, GitHub Pages, Netlify…).
 
 - `index.html` — storefront: hero, category tiles, "on sale" rail and the
   full shop with search, category/brand/price/stock filters and sorting.
-  Filters are kept in the URL, e.g. `index.html?cat=phones&brand=Samsung#shop`.
+  Filters are kept in the URL, e.g. `index.html?cat=computers&type=Laptop&brand=HP#shop`.
 - `product.html?id=<product-id>` — product details, specs, quantity,
   add to cart / buy now, wishlist and related products.
 - `checkout.html` — contact details, courier delivery or in-store
@@ -25,7 +25,8 @@ wishlist and placed orders are saved in the browser's `localStorage`.
   product list (name, brand, category, price, previous price, stock, specs).
   Products show a drawn illustration until you add a photo with
   `image: "assets/products/<file>.jpg"`.
-- `js/app.js` — cart, wishlist, header/footer, cart drawer, product cards.
+- `js/app.js` — cart, wishlist, header (category mega menus, live search,
+  mobile menu), footer, cart drawer, product cards.
 - `js/shop.js`, `js/product.js`, `js/checkout.js` — page scripts.
 - `css/mabs.css` — all styling.
 

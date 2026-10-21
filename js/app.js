@@ -26,6 +26,25 @@
     for (var i = 0; i < M.categories.length; i++) if (M.categories[i].id === id) return M.categories[i].name;
     return id;
   }
+  // every word of the query must appear somewhere in the product
+  function matchQuery(p, q) {
+    var hay = (p.name + " " + p.brand + " " + p.type + " " + catName(p.category) + " " + p.summary).toLowerCase();
+    var words = q.toLowerCase().split(/\s+/).filter(Boolean);
+    for (var i = 0; i < words.length; i++) if (hay.indexOf(words[i]) === -1) return false;
+    return true;
+  }
+  // product types in a category, in catalogue order, with counts
+  function typesOf(catId) {
+    var seen = {}, out = [];
+    M.products.forEach(function (p) {
+      if (p.category !== catId) return;
+      if (!seen[p.type]) { seen[p.type] = { type: p.type, count: 0 }; out.push(seen[p.type]); }
+      seen[p.type].count++;
+    });
+    return out;
+  }
+  var PLURAL = { Mouse: "Mice", Smartwatch: "Smartwatches", TV: "TVs", Headphones: "Headphones", Earbuds: "Earbuds", Storage: "Storage", Gaming: "Gaming", Networking: "Networking" };
+  function plural(t) { return PLURAL[t] || t + "s"; }
   function read(key, fallback) {
     try { var v = JSON.parse(localStorage.getItem(key)); return v == null ? fallback : v; } catch (e) { return fallback; }
   }
@@ -33,7 +52,8 @@
     try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* storage unavailable: keep in memory only */ }
   }
   function emit(name) { document.dispatchEvent(new CustomEvent(name)); }
-  M.esc = esc; M.money = money; M.byId = byId; M.catName = catName; M.read = read; M.write = write;
+  M.esc = esc; M.money = money; M.byId = byId; M.catName = catName;
+  M.matchQuery = matchQuery; M.typesOf = typesOf; M.plural = plural; M.read = read; M.write = write;
 
   /* ---------- cart ---------- */
   var CART_KEY = "mabs.cart.v1";
@@ -109,6 +129,10 @@
     minus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 12h12"/></svg>',
     plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 6v12M6 12h12"/></svg>',
     trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
+    menu: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>',
+    chevron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
+    arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+    flame: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c.6 3.2-1.2 4.9-2.6 6.5C8 10.1 7 11.6 7 14a5 5 0 0 0 10 0c0-1.6-.6-3-1.5-4.1-.2 1.3-.9 2.2-1.9 2.6.4-3.4-.5-7.4-1.6-10.5z"/></svg>',
     filter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>'
   };
   M.icon = ICON;
@@ -174,45 +198,228 @@
     toastTimer = setTimeout(function () { toastEl.classList.remove("is-on"); }, 2600);
   };
 
-  /* ---------- header / footer / drawer ---------- */
+  /* ---------- header / footer / drawers ---------- */
   var page = document.body.getAttribute("data-page");
   var params = new URLSearchParams(location.search);
+
+  // a compact product row, used in the mega menu and search suggestions
+  function mini(p, attrs) {
+    return '<a class="mini" href="product.html?id=' + encodeURIComponent(p.id) + '"' + (attrs || "") + ">" +
+      '<span class="mini-media" style="' + M.tileStyle(p) + '">' + M.media(p) + "</span>" +
+      '<span class="mini-text"><span class="mini-name">' + esc(p.name) + "</span>" +
+      '<span class="mini-price">' + M.priceHtml(p) + "</span></span></a>";
+  }
+
+  function picksFor(catId, n) {
+    return M.products.filter(function (p) { return p.category === catId && p.stock > 0; })
+      .sort(function (a, b) { return (b.featured ? 1 : 0) - (a.featured ? 1 : 0) || ((b.was || b.price) - b.price) - ((a.was || a.price) - a.price); })
+      .slice(0, n);
+  }
+
+  function megaPanel(c) {
+    var types = M.typesOf(c.id);
+    return '<div class="mega" id="mega-' + c.id + '" hidden><div class="wrap mega-grid">' +
+      '<div class="mega-col"><p class="mega-title">' + esc(c.name) + "</p><ul class=\"mega-types\">" +
+        types.map(function (t) {
+          return '<li><a href="index.html?cat=' + c.id + "&type=" + encodeURIComponent(t.type) + '#shop">' + esc(M.plural(t.type)) +
+            '<span class="n">' + t.count + "</span></a></li>";
+        }).join("") + "</ul>" +
+        '<a class="mega-all" href="index.html?cat=' + c.id + '#shop">Shop all ' + esc(c.name) + ICON.arrow + "</a></div>" +
+      '<div class="mega-col"><p class="mega-title">Popular right now</p><div class="mega-picks">' +
+        picksFor(c.id, 4).map(function (p) { return mini(p); }).join("") + "</div></div>" +
+      '<a class="mega-feature" href="index.html?cat=' + c.id + '#shop" style="--tile:' + M.tint(c.art.color, 0.86) + '">' +
+        '<span class="mega-art">' + M.art(c.art) + "</span>" +
+        "<b>" + esc(c.name) + "</b><span>" + esc(c.blurb) + "</span>" +
+        '<span class="mega-cta">Browse ' + M.products.filter(function (p) { return p.category === c.id; }).length + " products" + ICON.arrow + "</span></a>" +
+    "</div></div>";
+  }
 
   function renderHeader() {
     var host = document.getElementById("site-header");
     if (!host) return;
-    var d = M.store.delivery;
-    var promo = "Free delivery on orders over " + money(d.freeOver) + (d.collect ? " · Free in-store collection" : "");
-    var activeCat = page === "home" ? params.get("cat") : null;
-    var cats = M.categories.map(function (c) {
-      return '<a href="index.html?cat=' + c.id + '#shop"' + (activeCat === c.id ? ' aria-current="page"' : "") + ">" + esc(c.name) + "</a>";
-    }).join("");
+    var s = M.store, d = s.delivery;
+    var dealCount = M.products.filter(function (p) { return p.was && p.was > p.price; }).length;
+    var activeCat = page === "home" ? params.get("cat") : page === "product" ? (M.byId(params.get("id") || "") || {}).category : null;
+    var perks = [[ICON.truck, "Free delivery on orders over " + money(d.freeOver)]];
+    if (d.collect) perks.push([ICON.store, "Free in-store collection"]);
+    perks.push([ICON.shield, "Genuine brands you can trust"]);
+
     host.innerHTML =
       '<a class="skip" href="#main">Skip to content</a>' +
-      '<div class="promo-bar"><div class="wrap">' + esc(promo) + "</div></div>" +
+      '<div class="promo-bar"><div class="wrap promo-list">' + perks.map(function (k) {
+        return '<p class="promo-item">' + k[0] + "<span>" + esc(k[1]) + "</span></p>";
+      }).join("") +
+      (s.whatsapp ? '<a class="promo-help" href="https://wa.me/' + esc(s.whatsapp) + '" target="_blank" rel="noopener">' + ICON.chat + "Need help? WhatsApp us</a>" : "") +
+      "</div></div>" +
       '<header class="masthead"><div class="wrap bar">' +
-        '<a class="logo" href="index.html" aria-label="' + esc(M.store.name) + ' home">' + LOGO +
+        '<button type="button" class="icon-btn menu-btn" data-open-menu aria-controls="menu-drawer" aria-label="Open menu">' + ICON.menu + "</button>" +
+        '<a class="logo" href="index.html" aria-label="' + esc(s.name) + ' home">' + LOGO +
           '<span class="logo-text"><b>Mabs</b><small>Technologies</small></span></a>' +
-        '<form class="search" action="index.html" role="search">' +
-          '<label class="sr-only" for="q">Search products</label>' +
-          '<input id="q" name="q" type="search" placeholder="Search laptops, phones, chargers…" autocomplete="off" value="' + esc(params.get("q") || "") + '">' +
-          '<button type="submit" aria-label="Search">' + ICON.search + "</button>" +
-        "</form>" +
+        '<div class="search-wrap">' +
+          '<form class="search" action="index.html" role="search">' +
+            '<label class="sr-only" for="q">Search products</label>' +
+            '<input id="q" name="q" type="search" placeholder="Search laptops, phones, chargers…" autocomplete="off" spellcheck="false"' +
+              ' role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggest-list" value="' + esc(params.get("q") || "") + '">' +
+            '<button type="submit" aria-label="Search">' + ICON.search + "</button>" +
+          "</form>" +
+          '<div class="suggest" id="suggest" hidden><div role="listbox" id="suggest-list" aria-label="Product suggestions"></div><p class="suggest-empty" hidden></p></div>' +
+        "</div>" +
         '<div class="actions">' +
-          '<a class="icon-btn" href="index.html?wish=1#shop" aria-label="Wishlist">' + ICON.heart + '<span class="count" data-wish-count hidden></span></a>' +
-          '<button type="button" class="icon-btn cart-btn" data-open-cart aria-label="Open cart">' + ICON.cart + '<span class="count" data-cart-count hidden></span><span class="cart-label">Cart</span></button>' +
+          '<a class="icon-btn wish-link" href="index.html?wish=1#shop" aria-label="Wishlist">' + ICON.heart + '<span class="count" data-wish-count hidden></span></a>' +
+          '<button type="button" class="cart-btn" data-open-cart aria-label="Open cart">' +
+            '<span class="cart-icon">' + ICON.cart + '<span class="count" data-cart-count hidden></span></span>' +
+            '<span class="cart-label"><small>Cart</small><b data-cart-total>' + money(0) + "</b></span></button>" +
         "</div>" +
       "</div>" +
-      '<nav class="cat-nav" aria-label="Categories"><div class="wrap">' +
-        '<a href="index.html#shop"' + (page === "home" && !activeCat && !params.get("deals") && !params.get("wish") && !params.get("q") && location.hash === "#shop" ? ' aria-current="page"' : "") + ">All products</a>" + cats +
-        '<a href="index.html?deals=1#shop" class="deals-link"' + (page === "home" && params.get("deals") ? ' aria-current="page"' : "") + ">On sale</a>" +
+      '<nav class="cat-nav" aria-label="Shop by category"><div class="wrap cat-row"><ul class="cat-list">' +
+        '<li><a class="cat-link" data-nav="all" href="index.html#shop">All products</a></li>' +
+        M.categories.map(function (c) {
+          return '<li class="has-mega"><a class="cat-link" data-nav="' + c.id + '" href="index.html?cat=' + c.id + '#shop"' +
+            (activeCat === c.id ? ' aria-current="page"' : "") + ">" + esc(c.name) + "</a>" +
+            '<button type="button" class="mega-toggle" aria-expanded="false" aria-controls="mega-' + c.id + '" aria-label="' + esc(c.name) + ' menu">' + ICON.chevron + "</button>" +
+            megaPanel(c) + "</li>";
+        }).join("") +
+        "</ul>" +
+        '<a class="deals-link" data-nav="deals" href="index.html?deals=1#shop"' + (page === "home" && params.get("deals") ? ' aria-current="page"' : "") + ">" +
+          ICON.flame + "On sale" + (dealCount ? '<span class="deals-n">' + dealCount + "</span>" : "") + "</a>" +
       "</div></nav></header>";
-    // search submits to the shop section
-    host.querySelector(".search").addEventListener("submit", function (e) {
-      e.preventDefault();
-      var q = this.q.value.trim();
-      location.href = "index.html" + (q ? "?q=" + encodeURIComponent(q) : "") + "#shop";
+
+    setupSearch(host);
+    setupMega(host);
+    var mast = host.querySelector(".masthead");
+    var onScroll = function () { mast.classList.toggle("is-scrolled", window.scrollY > 40); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+  }
+
+  /* search box: live suggestions as a combobox listbox */
+  function setupSearch(host) {
+    var form = host.querySelector(".search");
+    var input = form.q;
+    var box = host.querySelector("#suggest");
+    var list = host.querySelector("#suggest-list");
+    var empty = box.querySelector(".suggest-empty");
+    var options = [], active = -1;
+
+    function go(q) { location.href = "index.html" + (q ? "?q=" + encodeURIComponent(q) : "") + "#shop"; }
+    function hide() {
+      box.hidden = true; input.setAttribute("aria-expanded", "false"); input.removeAttribute("aria-activedescendant");
+      options = []; active = -1;
+    }
+    function setActive(i) {
+      options.forEach(function (o, j) { o.classList.toggle("is-active", j === i); o.setAttribute("aria-selected", j === i); });
+      active = i;
+      if (i >= 0) { input.setAttribute("aria-activedescendant", options[i].id); options[i].scrollIntoView({ block: "nearest" }); }
+      else input.removeAttribute("aria-activedescendant");
+    }
+    function render() {
+      var q = input.value.trim();
+      if (q.length < 2) return hide();
+      var all = M.products.filter(function (p) { return M.matchQuery(p, q); });
+      var top = all.slice().sort(function (a, b) { return (b.stock > 0) - (a.stock > 0) || (b.featured ? 1 : 0) - (a.featured ? 1 : 0); }).slice(0, 6);
+      list.innerHTML = top.map(function (p, i) { return mini(p, ' role="option" id="sg-' + i + '" aria-selected="false" tabindex="-1"'); }).join("") +
+        (all.length ? '<a class="sg-all" role="option" id="sg-all" aria-selected="false" tabindex="-1" href="index.html?q=' + encodeURIComponent(q) + '#shop">' +
+          "See all " + all.length + (all.length === 1 ? " result" : " results") + " for “" + esc(q) + "”" + ICON.arrow + "</a>" : "");
+      empty.hidden = !!all.length;
+      empty.textContent = all.length ? "" : "No products match “" + q + "”. Try a brand or product type.";
+      options = Array.prototype.slice.call(list.querySelectorAll('[role="option"]'));
+      active = -1;
+      box.hidden = false; input.setAttribute("aria-expanded", options.length ? "true" : "false");
+    }
+
+    input.addEventListener("input", render);
+    input.addEventListener("focus", function () { if (input.value.trim().length >= 2) render(); });
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        if (box.hidden) render();
+        if (!options.length) return;
+        e.preventDefault();
+        var n = options.length;
+        setActive(e.key === "ArrowDown" ? (active + 1) % n : (active <= 0 ? n - 1 : active - 1));
+      } else if (e.key === "Enter" && active >= 0) {
+        e.preventDefault(); location.href = options[active].href;
+      } else if (e.key === "Escape" && !box.hidden) {
+        e.preventDefault(); e.stopPropagation(); hide();
+      }
     });
+    // keep focus in the input while clicking a suggestion
+    box.addEventListener("mousedown", function (e) { e.preventDefault(); });
+    input.addEventListener("blur", hide);
+    form.addEventListener("submit", function (e) { e.preventDefault(); go(input.value.trim()); });
+  }
+
+  /* category mega menus: hover on desktop, toggle button for touch & keyboard */
+  function setupMega(host) {
+    var items = host.querySelectorAll(".has-mega");
+    var hover = window.matchMedia("(hover: hover) and (min-width: 901px)");
+    var current = null, timer;
+    function open(li) {
+      if (current === li) return;
+      close();
+      current = li;
+      li.classList.add("is-open");
+      li.querySelector(".mega").hidden = false;
+      li.querySelector(".mega-toggle").setAttribute("aria-expanded", "true");
+    }
+    function close(refocus) {
+      if (!current) return;
+      var li = current; current = null;
+      li.classList.remove("is-open");
+      li.querySelector(".mega").hidden = true;
+      var btn = li.querySelector(".mega-toggle");
+      btn.setAttribute("aria-expanded", "false");
+      if (refocus) btn.focus();
+    }
+    items.forEach(function (li) {
+      li.addEventListener("mouseenter", function () {
+        if (!hover.matches) return;
+        clearTimeout(timer);
+        timer = setTimeout(function () { open(li); }, current ? 0 : 140);
+      });
+      li.addEventListener("mouseleave", function () {
+        if (!hover.matches) return;
+        clearTimeout(timer);
+        timer = setTimeout(close, 200);
+      });
+      li.querySelector(".mega-toggle").addEventListener("click", function () {
+        clearTimeout(timer);
+        if (current === li) close(); else open(li);
+      });
+      li.addEventListener("focusout", function (e) {
+        if (current === li && !li.contains(e.relatedTarget)) close();
+      });
+    });
+    document.addEventListener("click", function (e) { if (current && !current.contains(e.target)) close(); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && current) close(true); });
+  }
+
+  function renderMenu() {
+    var s = M.store;
+    var dealCount = M.products.filter(function (p) { return p.was && p.was > p.price; }).length;
+    return '<aside class="drawer drawer-left" id="menu-drawer" role="dialog" aria-modal="true" aria-labelledby="menu-title" hidden>' +
+      '<div class="drawer-head"><a class="logo" href="index.html">' + LOGO + '<span class="logo-text"><b>Mabs</b><small>Technologies</small></span></a>' +
+        '<h2 id="menu-title" class="sr-only">Menu</h2>' +
+        '<button type="button" class="icon-btn" data-close-drawer aria-label="Close menu">' + ICON.close + "</button></div>" +
+      '<div class="drawer-body menu-body">' +
+        '<a class="menu-link" href="index.html#shop" data-close-drawer>All products' + ICON.arrow + "</a>" +
+        M.categories.map(function (c) {
+          return '<details class="menu-cat"><summary>' +
+            '<span class="menu-art" style="--tile:' + M.tint(c.art.color, 0.86) + '">' + M.art(c.art) + "</span>" +
+            '<span class="menu-cat-name">' + esc(c.name) + "<small>" + esc(c.blurb) + "</small></span>" + ICON.chevron + "</summary>" +
+            "<ul>" + M.typesOf(c.id).map(function (t) {
+              return '<li><a href="index.html?cat=' + c.id + "&type=" + encodeURIComponent(t.type) + '#shop" data-close-drawer>' + esc(M.plural(t.type)) + '<span class="n">' + t.count + "</span></a></li>";
+            }).join("") +
+            '<li><a class="menu-all" href="index.html?cat=' + c.id + '#shop" data-close-drawer>Shop all ' + esc(c.name) + "</a></li></ul></details>";
+        }).join("") +
+        '<a class="menu-link menu-deals" href="index.html?deals=1#shop" data-close-drawer>' + ICON.flame + "On sale" +
+          (dealCount ? '<span class="deals-n">' + dealCount + "</span>" : "") + "</a>" +
+        '<div class="menu-extra">' +
+          '<a href="index.html?wish=1#shop" data-close-drawer>' + ICON.heart + "Wishlist</a>" +
+          '<a href="checkout.html">' + ICON.cart + "Checkout</a>" +
+          (s.whatsapp ? '<a href="https://wa.me/' + esc(s.whatsapp) + '" target="_blank" rel="noopener">' + ICON.chat + "WhatsApp us</a>" : "") +
+          (s.phone ? '<a href="tel:' + esc(s.phone.replace(/\s/g, "")) + '">' + ICON.chat + esc(s.phone) + "</a>" : "") +
+        "</div>" +
+      "</div></aside>";
   }
 
   function renderFooter() {
@@ -240,19 +447,21 @@
       "</footer>";
   }
 
+  var scrim;
   function renderDrawer() {
     var el = document.createElement("div");
     el.innerHTML =
-      '<div class="drawer-scrim" data-close-cart hidden></div>' +
+      '<div class="drawer-scrim" data-close-drawer hidden></div>' + renderMenu() +
       '<aside class="drawer" id="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-title" hidden>' +
         '<div class="drawer-head"><h2 id="cart-title">Your cart</h2>' +
-        '<button type="button" class="icon-btn" data-close-cart aria-label="Close cart">' + ICON.close + "</button></div>" +
+        '<button type="button" class="icon-btn" data-close-drawer aria-label="Close cart">' + ICON.close + "</button></div>" +
         '<div class="drawer-body" id="drawer-body"></div>' +
         '<div class="drawer-foot" id="drawer-foot"></div>' +
       "</aside>" +
       '<div class="toast" role="status" aria-live="polite"></div>';
     while (el.firstChild) document.body.appendChild(el.firstChild);
     toastEl = document.querySelector(".toast");
+    scrim = document.querySelector(".drawer-scrim");
   }
 
   M.lineHtml = function (l, compact) {
@@ -293,7 +502,7 @@
     var lines = M.cart.lines();
     if (!lines.length) {
       body.innerHTML = '<div class="empty"><p class="empty-title">Your cart is empty</p><p>Find something you like and it will show up here.</p>' +
-        '<a class="btn btn-primary" href="index.html#shop" data-close-cart>Start shopping</a></div>';
+        '<a class="btn btn-primary" href="index.html#shop" data-close-drawer>Start shopping</a></div>';
       foot.innerHTML = "";
       return;
     }
@@ -302,39 +511,58 @@
     foot.innerHTML = '<div class="sum-row"><span>Subtotal</span><b>' + money(sub) + "</b></div>" +
       '<p class="fine">Delivery is worked out at checkout.</p>' +
       '<a class="btn btn-primary btn-block btn-lg" href="checkout.html">Checkout</a>' +
-      '<button type="button" class="btn btn-ghost btn-block" data-close-cart>Continue shopping</button>';
+      '<button type="button" class="btn btn-ghost btn-block" data-close-drawer>Continue shopping</button>';
   }
 
+  var lastCount = M.cart.count();
   function updateCounts() {
     var n = M.cart.count();
+    var cartBtn = document.querySelector(".cart-btn");
+    if (cartBtn && n > lastCount) { // little bump when something is added
+      cartBtn.classList.remove("bump"); void cartBtn.offsetWidth; cartBtn.classList.add("bump");
+    }
+    lastCount = n;
     document.querySelectorAll("[data-cart-count]").forEach(function (el) { el.textContent = n; el.hidden = n === 0; });
+    document.querySelectorAll("[data-cart-total]").forEach(function (el) { el.textContent = money(M.cart.subtotal()); });
     var w = M.wish.all().length;
     document.querySelectorAll("[data-wish-count]").forEach(function (el) { el.textContent = w; el.hidden = w === 0; });
     var btn = document.querySelector("[data-open-cart]");
-    if (btn) btn.setAttribute("aria-label", "Open cart, " + n + (n === 1 ? " item" : " items"));
+    if (btn) btn.setAttribute("aria-label", "Open cart, " + n + (n === 1 ? " item" : " items") + ", " + money(M.cart.subtotal()));
   }
 
-  var lastFocus = null;
-  M.openCart = function () {
-    var d = document.getElementById("cart-drawer");
-    if (!d || !d.hidden) return;
+  /* drawers (cart on the right, menu on the left) share one open/close */
+  var openDrawerEl = null, lastFocus = null;
+  function openDrawer(id) {
+    var d = document.getElementById(id);
+    if (!d || openDrawerEl === d) return;
+    if (openDrawerEl) closeDrawer(true);
     lastFocus = document.activeElement;
-    updateDrawer();
-    d.hidden = false; document.querySelector(".drawer-scrim").hidden = false;
-    requestAnimationFrame(function () { document.body.classList.add("cart-open"); });
-    d.querySelector("[data-close-cart]").focus();
-  };
-  M.closeCart = function () {
-    var d = document.getElementById("cart-drawer");
-    if (!d || d.hidden) return;
-    document.body.classList.remove("cart-open");
-    setTimeout(function () { d.hidden = true; document.querySelector(".drawer-scrim").hidden = true; }, 220);
-    if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
-  };
+    openDrawerEl = d;
+    d.hidden = false; scrim.hidden = false;
+    document.body.classList.add("drawer-open");
+    requestAnimationFrame(function () { requestAnimationFrame(function () { d.classList.add("is-open"); scrim.classList.add("is-on"); }); });
+    var opener = document.querySelector('[aria-controls="' + id + '"]');
+    if (opener) opener.setAttribute("aria-expanded", "true");
+    d.querySelector("[data-close-drawer]").focus();
+  }
+  function closeDrawer(instant) {
+    var d = openDrawerEl;
+    if (!d) return;
+    openDrawerEl = null;
+    d.classList.remove("is-open"); scrim.classList.remove("is-on");
+    document.body.classList.remove("drawer-open");
+    var opener = document.querySelector('[aria-controls="' + d.id + '"]');
+    if (opener) opener.setAttribute("aria-expanded", "false");
+    var finish = function () { if (openDrawerEl !== d) { d.hidden = true; if (!openDrawerEl) scrim.hidden = true; } };
+    if (instant) finish(); else setTimeout(finish, 240);
+    if (!instant && lastFocus && document.contains(lastFocus)) lastFocus.focus();
+  }
+  M.openCart = function () { updateDrawer(); openDrawer("cart-drawer"); };
+  M.closeCart = function () { if (openDrawerEl && openDrawerEl.id === "cart-drawer") closeDrawer(); };
 
   /* ---------- delegated actions ---------- */
   document.addEventListener("click", function (e) {
-    var t = e.target.closest("[data-add],[data-wish],[data-qty],[data-remove],[data-open-cart],[data-close-cart]");
+    var t = e.target.closest("[data-add],[data-wish],[data-qty],[data-remove],[data-open-cart],[data-open-menu],[data-close-drawer]");
     if (!t) return;
     if (t.hasAttribute("data-add")) {
       var id = t.getAttribute("data-add");
@@ -357,17 +585,19 @@
       M.cart.set(t.getAttribute("data-remove"), 0);
     } else if (t.hasAttribute("data-open-cart")) {
       M.openCart();
-    } else if (t.hasAttribute("data-close-cart")) {
-      M.closeCart();
+    } else if (t.hasAttribute("data-open-menu")) {
+      openDrawer("menu-drawer");
+    } else if (t.hasAttribute("data-close-drawer")) {
+      closeDrawer();
     }
   });
 
   document.addEventListener("keydown", function (e) {
-    var d = document.getElementById("cart-drawer");
-    if (!d || d.hidden) return;
-    if (e.key === "Escape") { M.closeCart(); return; }
+    var d = openDrawerEl;
+    if (!d) return;
+    if (e.key === "Escape") { closeDrawer(); return; }
     if (e.key === "Tab") { // keep focus inside the open drawer
-      var f = d.querySelectorAll("a[href],button:not([disabled])");
+      var f = Array.prototype.filter.call(d.querySelectorAll("a[href],button:not([disabled]),summary"), function (el) { return el.offsetParent !== null; });
       if (!f.length) return;
       var first = f[0], last = f[f.length - 1];
       if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
@@ -378,7 +608,7 @@
   document.addEventListener("cart:change", function () {
     updateCounts();
     var d = document.getElementById("cart-drawer");
-    if (d && !d.hidden) {
+    if (d && openDrawerEl === d) {
       // re-render, then return focus to the control the user just pressed
       var active = document.activeElement;
       var sel = active && active.getAttribute("data-qty") ?
@@ -386,7 +616,7 @@
       updateDrawer();
       var again = sel && d.querySelector(sel);
       if (again && !again.disabled) again.focus();
-      else if (!d.contains(document.activeElement)) d.querySelector("[data-close-cart]").focus();
+      else if (!d.contains(document.activeElement)) d.querySelector("[data-close-drawer]").focus();
     }
   });
   document.addEventListener("wish:change", updateCounts);

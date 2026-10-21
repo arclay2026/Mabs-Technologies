@@ -48,6 +48,7 @@
   var params = new URLSearchParams(location.search);
   var state = {
     cat: params.get("cat") || "",
+    type: params.get("type") || "",
     q: (params.get("q") || "").trim(),
     brands: (params.get("brand") || "").split(",").filter(Boolean),
     min: params.get("min") || "",
@@ -58,10 +59,12 @@
     sort: params.get("sort") || "featured"
   };
   if (!M.categories.some(function (c) { return c.id === state.cat; })) state.cat = "";
+  if (!state.cat || !M.typesOf(state.cat).some(function (t) { return t.type === state.type; })) state.type = "";
 
   function syncUrl() {
     var p = new URLSearchParams();
     if (state.cat) p.set("cat", state.cat);
+    if (state.type) p.set("type", state.type);
     if (state.q) p.set("q", state.q);
     if (state.brands.length) p.set("brand", state.brands.join(","));
     if (state.min) p.set("min", state.min);
@@ -75,28 +78,23 @@
     var hash = qs || touched ? "#shop" : location.hash;
     history.replaceState(null, "", location.pathname + (qs ? "?" + qs : "") + hash);
     // keep the header category links in step with the shop
-    document.querySelectorAll(".cat-nav a").forEach(function (a) {
-      var u = new URL(a.href);
-      var match = u.searchParams.get("deals") ? state.deals && !state.cat :
-        (u.searchParams.get("cat") || "") === state.cat && !state.deals;
-      if (match && hash === "#shop" && !state.q && !state.wish) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+    var current = state.q || state.wish ? "" : state.deals && !state.cat ? "deals" :
+      state.cat && !state.deals ? state.cat : !state.cat && !state.deals && hash === "#shop" ? "all" : "";
+    document.querySelectorAll(".cat-nav [data-nav]").forEach(function (a) {
+      if (a.getAttribute("data-nav") === current) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
     });
   }
 
   function matches(p, skipBrand) {
     if (state.cat && p.category !== state.cat) return false;
+    if (state.type && p.type !== state.type) return false;
     if (!skipBrand && state.brands.length && state.brands.indexOf(p.brand) === -1) return false;
     if (state.min !== "" && p.price < +state.min) return false;
     if (state.max !== "" && p.price > +state.max) return false;
     if (state.stock && p.stock < 1) return false;
     if (state.deals && !(p.was && p.was > p.price)) return false;
     if (state.wish && !M.wish.has(p.id)) return false;
-    if (state.q) {
-      var hay = (p.name + " " + p.brand + " " + p.type + " " + M.catName(p.category) + " " + p.summary).toLowerCase();
-      var words = state.q.toLowerCase().split(/\s+/);
-      for (var i = 0; i < words.length; i++) if (hay.indexOf(words[i]) === -1) return false;
-    }
-    return true;
+    return !state.q || M.matchQuery(p, state.q);
   }
 
   var SORTS = {
@@ -113,6 +111,12 @@
   function renderFilters() {
     $("f-cats").innerHTML = [{ id: "", name: "All categories" }].concat(M.categories).map(function (c) {
       return '<label class="check"><input type="radio" name="cat" value="' + c.id + '"' + (state.cat === c.id ? " checked" : "") + "> " + esc(c.name) + "</label>";
+    }).join("");
+    var types = state.cat ? M.typesOf(state.cat) : [];
+    $("f-types-set").hidden = types.length < 2;
+    $("f-types").innerHTML = types.length < 2 ? "" : [{ type: "", count: types.reduce(function (n, t) { return n + t.count; }, 0) }].concat(types).map(function (t) {
+      return '<label class="check"><input type="radio" name="type" value="' + esc(t.type) + '"' + (state.type === t.type ? " checked" : "") + "> " +
+        esc(t.type ? M.plural(t.type) : "All " + M.catName(state.cat)) + ' <span class="n">' + t.count + "</span></label>";
     }).join("");
     // brands available given every other filter, plus any already ticked
     var counts = {};
@@ -135,6 +139,7 @@
     var chips = [];
     if (state.q) chips.push(["q", "“" + state.q + "”"]);
     if (state.cat) chips.push(["cat", M.catName(state.cat)]);
+    if (state.type) chips.push(["type", M.plural(state.type)]);
     state.brands.forEach(function (b) { chips.push(["brand:" + b, b]); });
     if (state.min !== "" || state.max !== "") {
       chips.push(["price", state.min !== "" && state.max !== "" ? money(state.min) + " – " + money(state.max) :
@@ -150,6 +155,7 @@
     if (state.wish) return "Your wishlist";
     if (state.q) return "Search results";
     if (state.deals && !state.cat) return "On sale";
+    if (state.type) return M.plural(state.type);
     return state.cat ? M.catName(state.cat) : "All products";
   }
 
@@ -176,7 +182,7 @@
   }
 
   function reset() {
-    state.cat = ""; state.q = ""; state.brands = []; state.min = ""; state.max = "";
+    state.cat = ""; state.type = ""; state.q = ""; state.brands = []; state.min = ""; state.max = "";
     state.stock = false; state.deals = false; state.wish = false;
     var q = document.getElementById("q"); if (q) q.value = "";
     render();
@@ -187,7 +193,8 @@
   document.querySelector(".shop").addEventListener("click", function () { touched = true; }, true);
   filters.addEventListener("change", function (e) {
     var t = e.target;
-    if (t.name === "cat") { state.cat = t.value; state.brands = []; }
+    if (t.name === "cat") { state.cat = t.value; state.type = ""; state.brands = []; }
+    else if (t.name === "type") { state.type = t.value; state.brands = []; }
     else if (t.name === "brand") {
       state.brands = Array.prototype.map.call(filters.querySelectorAll('input[name="brand"]:checked'), function (i) { return i.value; });
     }
@@ -208,7 +215,8 @@
     var c = e.target.closest("[data-chip]"); if (!c) return;
     var k = c.getAttribute("data-chip");
     if (k === "q") { state.q = ""; var q = document.getElementById("q"); if (q) q.value = ""; }
-    else if (k === "cat") { state.cat = ""; }
+    else if (k === "cat") { state.cat = ""; state.type = ""; }
+    else if (k === "type") { state.type = ""; }
     else if (k.indexOf("brand:") === 0) { var b = k.slice(6); state.brands = state.brands.filter(function (x) { return x !== b; }); }
     else if (k === "price") { state.min = ""; state.max = ""; }
     else state[k] = false;
