@@ -94,7 +94,7 @@
     var list = all.filter(function (o) { return days === Infinity || new Date(o.placed).getTime() >= since; });
     host.classList.toggle("account-panel-flush", list.length > 0);
     if (!list.length) {
-      host.innerHTML = '<div class="account-empty">' + M.emptyIcon(I.box) +
+      host.innerHTML = '<div class="account-empty">' + M.emptyBox() +
         '<p class="account-empty-title">No orders' + (all.length || period.value !== "all" ? periodLabel() : " yet") + "</p>" +
         "<p>When you place an order, you can follow it here.</p>" +
         '<a class="btn btn-primary" href="index.html#shop">Start shopping</a></div>';

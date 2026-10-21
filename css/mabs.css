@@ -622,6 +622,13 @@ body.sheet-open::after { content: ""; position: fixed; inset: 0; z-index: 150; b
 .account-empty { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 64px 16px 72px; text-align: center; color: var(--mute); }
 .account-empty-title { font-size: 16px; font-weight: 600; color: var(--ink); margin-top: 10px; }
 .account-empty .btn { margin-top: 14px; min-width: 170px; }
+/* animated cardboard box (empty orders) */
+.empty-box { display: grid; place-items: center; width: 168px; height: 168px; border-radius: 50%; background: radial-gradient(circle at 50% 40%, #f4f9ff 0%, #eaf3fd 70%); }
+.empty-box svg { width: 150px; height: 150px; overflow: visible; }
+.empty-box-body { animation: box-float 3.2s cubic-bezier(.45, 0, .55, 1) infinite; }
+.empty-box-shadow { transform-box: fill-box; transform-origin: center; opacity: .16; animation: box-shadow 3.2s cubic-bezier(.45, 0, .55, 1) infinite; }
+@keyframes box-float { 50% { transform: translateY(-7px); } }
+@keyframes box-shadow { 50% { transform: scaleX(.84); opacity: .09; } }
 .empty-icon { display: grid; place-items: center; width: 88px; height: 88px; border-radius: 50%; background: var(--accent-tint); color: var(--accent); }
 .empty-icon svg { width: 36px; height: 36px; stroke-width: 1.5; }
 @media (max-width: 900px) {
