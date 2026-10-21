@@ -242,16 +242,21 @@
   $("grid").addEventListener("click", function (e) { if (e.target.closest("[data-clear]")) reset(); });
   $("shop-title").setAttribute("tabindex", "-1");
 
-  // mobile filter sheet
+  // filter panel (slides in from the left; a bottom sheet on phones)
   var toggle = $("filter-toggle");
   function setSheet(open) {
     filters.classList.toggle("is-open", open);
     toggle.setAttribute("aria-expanded", open);
     document.body.classList.toggle("sheet-open", open);
-    if (open) filters.querySelector("input").focus(); else toggle.focus();
+    if (open) filters.querySelector("input").focus({ preventScroll: true }); else toggle.focus({ preventScroll: true });
   }
   toggle.addEventListener("click", function () { setSheet(!filters.classList.contains("is-open")); });
   $("filters-done").addEventListener("click", function () { setSheet(false); });
+  $("filters-close").addEventListener("click", function () { setSheet(false); });
+  // clicking the dimmed page closes the panel
+  document.addEventListener("click", function (e) {
+    if (filters.classList.contains("is-open") && !filters.contains(e.target) && !toggle.contains(e.target)) setSheet(false);
+  });
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape" && filters.classList.contains("is-open")) setSheet(false);
   });
