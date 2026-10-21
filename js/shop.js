@@ -57,7 +57,7 @@
   function renderDeals() {
     var deals = M.products.filter(function (p) { return p.was && p.was > p.price && p.stock > 0; })
       .sort(function (a, b) { return (b.was - b.price) - (a.was - a.price); });
-    $("deal-rail").innerHTML = deals.map(M.card).join("");
+    $("deal-rail").innerHTML = deals.slice(0, 12).map(M.card).join(""); // two rows; "View all deals" shows the rest
   }
 
   /* ---------- shop state ---------- */

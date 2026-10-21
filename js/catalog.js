@@ -285,6 +285,211 @@
       art: { kind: "printer", color: "#0284c7", body: "light" },
       summary: "Refillable ink tanks for low-cost printing, scanning and copying.",
       specs: [["Functions", "Print, scan, copy"], ["Connectivity", "Wi-Fi, USB"], ["Ink", "Refillable tanks"]]
+    },
+
+    /* ---------- more sample stock ---------- */
+    {
+      id: "acer-aspire-3", name: "Acer Aspire 3 15.6\" Laptop", brand: "Acer", category: "computers", type: "Laptop",
+      price: 6999, was: 7999, stock: 16,
+      art: { kind: "laptop", color: "#16a34a", body: "silver" },
+      summary: "Affordable everyday laptop for school, browsing and office apps.",
+      specs: [["Processor", "Intel Core i3"], ["Memory", "8 GB RAM"], ["Storage", "256 GB SSD"], ["Display", "15.6\" Full HD"]]
+    },
+    {
+      id: "asus-vivobook-15", name: "ASUS Vivobook 15", brand: "ASUS", category: "computers", type: "Laptop",
+      price: 8499, was: 9299, stock: 11,
+      art: { kind: "laptop", color: "#0891b2", body: "silver" },
+      summary: "Slim 15-inch laptop with a full-size keyboard and fast SSD.",
+      specs: [["Processor", "Intel Core i5"], ["Memory", "8 GB RAM"], ["Storage", "512 GB SSD"], ["Display", "15.6\" Full HD"]]
+    },
+    {
+      id: "lenovo-legion-5", name: "Lenovo Legion 5 Gaming Laptop", brand: "Lenovo", category: "computers", type: "Laptop",
+      price: 24999, was: 27999, stock: 3, badge: "Gaming",
+      art: { kind: "laptop", color: "#7c3aed", body: "dark" },
+      summary: "Serious gaming and creative power with a high-refresh screen.",
+      specs: [["Processor", "AMD Ryzen 7"], ["Graphics", "NVIDIA GeForce RTX 4060"], ["Memory", "16 GB RAM"], ["Storage", "1 TB SSD"]]
+    },
+    {
+      id: "apple-macbook-pro-14-m3", name: "Apple MacBook Pro 14\" (M3)", brand: "Apple", category: "computers", type: "Laptop",
+      price: 32999, stock: 4, badge: "New",
+      art: { kind: "laptop", color: "#475569", body: "dark" },
+      summary: "Pro performance and a stunning Liquid Retina XDR display.",
+      specs: [["Chip", "Apple M3"], ["Memory", "8 GB unified"], ["Storage", "512 GB SSD"], ["Display", "14.2\" Liquid Retina XDR"]]
+    },
+    {
+      id: "lenovo-ideacentre-3", name: "Lenovo IdeaCentre 3 Desktop", brand: "Lenovo", category: "computers", type: "Desktop",
+      price: 8999, was: 9999, stock: 6,
+      art: { kind: "desktop", color: "#dc2626", body: "dark" },
+      summary: "Compact home desktop with plenty of ports for the whole family.",
+      specs: [["Processor", "Intel Core i5"], ["Memory", "8 GB RAM"], ["Storage", "512 GB SSD"], ["OS", "Windows 11 Home"]]
+    },
+    {
+      id: "dell-24-fhd-monitor", name: "Dell 24\" Full HD Monitor", brand: "Dell", category: "computers", type: "Monitor",
+      price: 2499, was: 2899, stock: 14,
+      art: { kind: "monitor", color: "#2563eb", body: "dark" },
+      summary: "Thin-bezel IPS monitor with comfortable, flicker-free viewing.",
+      specs: [["Size", "24\""], ["Resolution", "1920 × 1080"], ["Panel", "IPS"], ["Inputs", "HDMI, VGA"]]
+    },
+    {
+      id: "apple-iphone-15-pro", name: "Apple iPhone 15 Pro 256GB", brand: "Apple", category: "phones", type: "Smartphone",
+      price: 25999, stock: 5, featured: true,
+      art: { kind: "phone", color: "#64748b", body: "silver" },
+      summary: "Titanium design, the A17 Pro chip and a pro camera system.",
+      specs: [["Storage", "256 GB"], ["Display", "6.1\" Super Retina XDR"], ["Network", "5G"], ["Port", "USB-C"]]
+    },
+    {
+      id: "samsung-galaxy-s24-ultra", name: "Samsung Galaxy S24 Ultra 256GB", brand: "Samsung", category: "phones", type: "Smartphone",
+      price: 24999, was: 27999, stock: 4, featured: true,
+      art: { kind: "phone", color: "#334155", body: "dark" },
+      summary: "Built-in S Pen, a 200 MP camera and Galaxy AI.",
+      specs: [["Storage", "256 GB"], ["Display", "6.8\" Dynamic AMOLED 2X"], ["Network", "5G"], ["Main camera", "200 MP"]]
+    },
+    {
+      id: "samsung-galaxy-a35", name: "Samsung Galaxy A35 5G 128GB", brand: "Samsung", category: "phones", type: "Smartphone",
+      price: 6499, was: 7299, stock: 18,
+      art: { kind: "phone", color: "#38bdf8", body: "silver" },
+      summary: "Bright AMOLED screen and dependable cameras for everyday use.",
+      specs: [["Storage", "128 GB"], ["Display", "6.6\" Super AMOLED"], ["Network", "5G, dual SIM"], ["Battery", "5000 mAh"]]
+    },
+    {
+      id: "xiaomi-redmi-13c", name: "Xiaomi Redmi 13C 128GB", brand: "Xiaomi", category: "phones", type: "Smartphone",
+      price: 2299, was: 2599, stock: 40,
+      art: { kind: "phone", color: "#22c55e", body: "dark" },
+      summary: "Big-screen budget phone with a long-lasting battery.",
+      specs: [["Storage", "128 GB"], ["Display", "6.74\" 90 Hz"], ["Network", "4G, dual SIM"], ["Battery", "5000 mAh"]]
+    },
+    {
+      id: "oppo-a78", name: "OPPO A78 128GB", brand: "OPPO", category: "phones", type: "Smartphone",
+      price: 4299, stock: 12,
+      art: { kind: "phone", color: "#0d9488", body: "dark" },
+      summary: "Fast charging and a smooth display in a slim design.",
+      specs: [["Storage", "128 GB"], ["Display", "6.43\" AMOLED"], ["Network", "4G, dual SIM"], ["Charging", "67 W SUPERVOOC"]]
+    },
+    {
+      id: "apple-ipad-air-11-m2", name: "Apple iPad Air 11\" (M2) 128GB", brand: "Apple", category: "phones", type: "Tablet",
+      price: 14999, stock: 7,
+      art: { kind: "tablet", color: "#8b5cf6", body: "silver" },
+      summary: "Powerful, light and ready for Apple Pencil Pro.",
+      specs: [["Chip", "Apple M2"], ["Storage", "128 GB"], ["Display", "11\" Liquid Retina"], ["Connectivity", "Wi-Fi"]]
+    },
+    {
+      id: "lenovo-tab-m10", name: "Lenovo Tab M10 (3rd Gen) 64GB", brand: "Lenovo", category: "phones", type: "Tablet",
+      price: 2999, was: 3499, stock: 15,
+      art: { kind: "tablet", color: "#64748b", body: "dark" },
+      summary: "Family-friendly 10-inch tablet for streaming and homework.",
+      specs: [["Storage", "64 GB"], ["Display", "10.1\" WUXGA"], ["Connectivity", "Wi-Fi"]]
+    },
+    {
+      id: "apple-airpods-pro-2", name: "Apple AirPods Pro (2nd gen)", brand: "Apple", category: "accessories", type: "Earbuds",
+      price: 4999, was: 5499, stock: 9, featured: true,
+      art: { kind: "earbuds", color: "#0ea5e9", body: "white" },
+      summary: "Active noise cancellation and personalised spatial audio.",
+      specs: [["Noise cancelling", "Active (ANC)"], ["Case", "MagSafe, USB-C"], ["Water resistance", "IP54"]]
+    },
+    {
+      id: "jbl-tune-520bt", name: "JBL Tune 520BT Headphones", brand: "JBL", category: "accessories", type: "Headphones",
+      price: 899, was: 1099, stock: 20,
+      art: { kind: "headphones", color: "#f97316", body: "dark" },
+      summary: "Pure Bass sound with up to 57 hours of playtime.",
+      specs: [["Connection", "Bluetooth 5.3"], ["Battery", "Up to 57 hours"], ["Mic", "Built-in for calls"]]
+    },
+    {
+      id: "logitech-mx-master-3s", name: "Logitech MX Master 3S Mouse", brand: "Logitech", category: "accessories", type: "Mouse",
+      price: 1999, was: 2299, stock: 8,
+      art: { kind: "mouse", color: "#64748b", body: "dark" },
+      summary: "Quiet clicks, MagSpeed scrolling and precise tracking on any surface.",
+      specs: [["Connection", "Bluetooth, Logi Bolt"], ["Sensor", "8000 DPI"], ["Battery", "Rechargeable, USB-C"]]
+    },
+    {
+      id: "logitech-k380", name: "Logitech K380 Bluetooth Keyboard", brand: "Logitech", category: "accessories", type: "Keyboard",
+      price: 799, stock: 13,
+      art: { kind: "keyboard", color: "#ec4899", body: "dark" },
+      summary: "Compact keyboard that switches between three devices.",
+      specs: [["Connection", "Bluetooth"], ["Devices", "Up to 3"], ["Battery", "2 × AAA"]]
+    },
+    {
+      id: "samsung-25w-usb-c-charger", name: "Samsung 25W USB-C Fast Charger", brand: "Samsung", category: "accessories", type: "Charger",
+      price: 349, stock: 55,
+      art: { kind: "charger", color: "#1e293b", body: "white" },
+      summary: "Super Fast Charging for Galaxy phones and other USB-C devices.",
+      specs: [["Output", "25 W USB-C PD"], ["Plug", "SA 2-pin adapter included"]]
+    },
+    {
+      id: "anker-powercore-10000", name: "Anker PowerCore 10000mAh Power Bank", brand: "Anker", category: "accessories", type: "Power bank",
+      price: 599, was: 699, stock: 30,
+      art: { kind: "powerbank", color: "#0ea5e9", body: "white" },
+      summary: "Pocket-sized power bank with two full phone charges.",
+      specs: [["Capacity", "10 000 mAh"], ["Ports", "USB-C, USB-A"]]
+    },
+    {
+      id: "sandisk-ultra-256gb-microsd", name: "SanDisk Ultra 256GB microSD Card", brand: "SanDisk", category: "accessories", type: "Storage",
+      price: 399, was: 449, stock: 60,
+      art: { kind: "flash", color: "#dc2626" },
+      summary: "Extra space for photos, videos and apps on phones and tablets.",
+      specs: [["Capacity", "256 GB"], ["Speed", "Up to 150 MB/s"], ["Includes", "SD adapter"]]
+    },
+    {
+      id: "volkano-hdmi-cable-2m", name: "Volkano HDMI 2.0 Cable 2m", brand: "Volkano", category: "accessories", type: "Cable",
+      price: 199, stock: 70,
+      art: { kind: "cable", color: "#334155" },
+      summary: "4K-ready HDMI cable for TVs, monitors and consoles.",
+      specs: [["Standard", "HDMI 2.0"], ["Length", "2 m"], ["Supports", "4K at 60 Hz"]]
+    },
+    {
+      id: "hisense-55-uhd-smart-tv", name: "Hisense 55\" 4K UHD Smart TV", brand: "Hisense", category: "electronics", type: "TV",
+      price: 7499, was: 8499, stock: 6,
+      art: { kind: "tv", color: "#0284c7", body: "dark" },
+      summary: "Big-screen 4K with Dolby Vision and built-in streaming apps.",
+      specs: [["Size", "55\""], ["Resolution", "4K UHD"], ["HDR", "Dolby Vision, HDR10"], ["Inputs", "3 × HDMI, 2 × USB"]]
+    },
+    {
+      id: "lg-50-uhd-smart-tv", name: "LG 50\" UHD 4K Smart TV", brand: "LG", category: "electronics", type: "TV",
+      price: 8999, stock: 5,
+      art: { kind: "tv", color: "#be123c", body: "dark" },
+      summary: "Crisp 4K picture with LG's webOS smart platform.",
+      specs: [["Size", "50\""], ["Resolution", "4K UHD"], ["Smart platform", "webOS"], ["Inputs", "3 × HDMI"]]
+    },
+    {
+      id: "jbl-charge-5", name: "JBL Charge 5 Bluetooth Speaker", brand: "JBL", category: "electronics", type: "Speaker",
+      price: 2999, was: 3499, stock: 10,
+      art: { kind: "speaker", color: "#f97316" },
+      summary: "Powerful, waterproof sound that also charges your phone.",
+      specs: [["Connection", "Bluetooth"], ["Battery", "Up to 20 hours"], ["Water resistance", "IP67"]]
+    },
+    {
+      id: "apple-watch-se-40mm", name: "Apple Watch SE (2nd gen) 40mm", brand: "Apple", category: "electronics", type: "Smartwatch",
+      price: 5499, was: 5999, stock: 8,
+      art: { kind: "watch", color: "#0ea5e9", body: "silver" },
+      summary: "Fitness, sleep and safety features in a light, comfortable watch.",
+      specs: [["Case", "40 mm aluminium"], ["Connectivity", "GPS"], ["Tracking", "Heart rate, sleep, workouts"]]
+    },
+    {
+      id: "xbox-series-s-512gb", name: "Microsoft Xbox Series S 512GB", brand: "Microsoft", category: "electronics", type: "Gaming",
+      price: 7999, was: 8999, stock: 4,
+      art: { kind: "console", color: "#16a34a" },
+      summary: "Next-gen speed and performance in the smallest Xbox ever.",
+      specs: [["Storage", "512 GB SSD"], ["Resolution", "Up to 1440p, 120 fps"], ["Includes", "Xbox Wireless Controller"]]
+    },
+    {
+      id: "tp-link-deco-m4-2-pack", name: "TP-Link Deco M4 Mesh Wi-Fi (2-pack)", brand: "TP-Link", category: "electronics", type: "Networking",
+      price: 1999, was: 2499, stock: 9,
+      art: { kind: "router", color: "#0ea5e9", body: "light" },
+      summary: "Whole-home mesh Wi-Fi that ends dead zones.",
+      specs: [["Wi-Fi", "AC1200 dual-band"], ["Coverage", "Up to 260 m²"], ["Units", "2"]]
+    },
+    {
+      id: "canon-pixma-g3430", name: "Canon PIXMA G3430 Ink Tank Printer", brand: "Canon", category: "electronics", type: "Printer",
+      price: 3299, was: 3699, stock: 7,
+      art: { kind: "printer", color: "#dc2626", body: "light" },
+      summary: "Refillable MegaTank printing, scanning and copying over Wi-Fi.",
+      specs: [["Functions", "Print, scan, copy"], ["Connectivity", "Wi-Fi, USB"], ["Ink", "Refillable MegaTank"]]
+    },
+    {
+      id: "deli-scientific-calculator", name: "Deli Scientific Calculator (240 functions)", brand: "Deli", category: "accessories", type: "Calculator",
+      price: 229, stock: 45,
+      art: { kind: "calculator", color: "#cb0a3d", body: "dark" },
+      summary: "Exam-friendly scientific calculator for high school and university.",
+      specs: [["Functions", "240"], ["Display", "2-line"], ["Power", "Battery"]]
     }
   ];
 
@@ -429,6 +634,16 @@
       return '<path d="M84 124L72 40M128 124L124 34M192 124L196 34M236 124L248 40" stroke="' + b + '" stroke-width="10" stroke-linecap="round"/>' +
         '<rect x="52" y="118" width="216" height="58" rx="12" fill="' + b + '"/>' +
         '<circle cx="100" cy="148" r="5" fill="' + c + '"/><circle cx="120" cy="148" r="5" fill="' + c + '"/><circle cx="140" cy="148" r="5" fill="' + c + '"/><circle cx="160" cy="148" r="5" fill="' + c + '" opacity=".35"/>';
+    },
+    calculator: function (c, b, s) {
+      var keys = "";
+      for (var r = 0; r < 5; r++) {
+        for (var k = 0; k < 4; k++) {
+          keys += '<rect x="' + (120 + k * 22) + '" y="' + (98 + r * 22) + '" width="16" height="15" rx="3" fill="' + (k === 3 && r > 2 ? c : "#fff") + '" opacity="' + (k === 3 && r > 2 ? 1 : 0.22) + '"/>';
+        }
+      }
+      return '<rect x="106" y="22" width="108" height="196" rx="14" fill="' + b + '"/>' +
+        '<rect x="118" y="36" width="84" height="44" rx="6" fill="' + s + '"/>' + keys;
     },
     printer: function (c, b) {
       return '<path d="M104 92V36H216V92" fill="#fff" stroke="#0f172a" stroke-opacity=".15" stroke-width="2"/>' +

@@ -318,9 +318,6 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
 @media (max-width: 1359px) { .grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
 @media (max-width: 1099px) { .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 @media (max-width: 760px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-.rail { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(230px, 1fr); gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 8px; scrollbar-width: thin; }
-.rail > * { scroll-snap-align: start; }
-@media (min-width: 1100px) { .rail { grid-auto-columns: calc((100% - 60px) / 6); gap: 12px; } }
 .card { position: relative; display: flex; flex-direction: column; background: #fff; border-radius: 6px; box-shadow: 0 1px 3px rgba(34, 49, 58, .08), 0 1px 2px rgba(34, 49, 58, .04); overflow: hidden; transition: box-shadow .25s; }
 .card:hover { box-shadow: 0 10px 28px -10px rgba(34, 49, 58, .28); }
 /* same square image frame on every card; pictures fit inside it */
@@ -397,7 +394,6 @@ body.sheet-open::after { content: ""; position: fixed; inset: 0; z-index: 150; b
   .price { font-size: 15.5px; }
   .card .badge-sale { width: 40px; height: 40px; top: 8px; left: 8px; }
   .sort span { display: none; }
-  .rail { grid-auto-columns: 62%; }
 }
 
 /* ---------- empty states ---------- */

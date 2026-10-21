@@ -99,7 +99,7 @@
   /* ---------- related ---------- */
   var related = M.products.filter(function (x) { return x.id !== p.id && x.category === p.category && x.stock > 0; })
     .sort(function (a, b) { return (b.type === p.type) - (a.type === p.type) || Math.abs(a.price - p.price) - Math.abs(b.price - p.price); })
-    .slice(0, 8);
+    .slice(0, 6); // one row of the grid
   if (related.length) {
     document.getElementById("related").innerHTML = related.map(M.card).join("");
     document.getElementById("related-section").hidden = false;
