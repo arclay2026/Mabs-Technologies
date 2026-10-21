@@ -139,7 +139,7 @@
 
   // official logo; logo-light.svg is for dark backgrounds
   function logoImg(light) {
-    return '<img class="logo-img" src="assets/' + (light ? "logo-light" : "logo") + '.svg" alt="' + esc(M.store.name) + '" width="173" height="40">';
+    return '<img class="logo-img" src="assets/' + (light ? "logo-light" : "logo") + '.svg" alt="' + esc(M.store.name) + '" width="130" height="30">';
   }
   M.logo = logoImg;
 
