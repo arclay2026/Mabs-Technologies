@@ -45,13 +45,93 @@
     resizeTimer = setTimeout(function () { if (Math.abs(window.innerWidth - lastW) > 80) { lastW = window.innerWidth; renderBrands(); } }, 200);
   });
 
+  /* ---------- homepage carousel ---------- */
+  function renderHero() {
+    var hero = $("hero");
+    var slides = (M.slides || []).filter(function (s) { return s && s.image; });
+    if (!slides.length) { // welcome banner until real slides are added
+      var pick = function (id) { return M.byId(id) || M.products[0]; };
+      hero.classList.add("hero-welcome");
+      hero.insertAdjacentHTML("beforeend",
+        '<div class="wrap hero-in">' +
+          '<div class="hero-copy">' +
+            '<p class="hero-kicker">' + esc(M.store.name) + "</p>" +
+            '<p class="hero-title">Technology you can count on.</p>' +
+            '<p class="hero-text">Laptops, phones, audio and electronics from the brands you trust. Delivered across South Africa, or collect in store.</p>' +
+            '<div class="hero-cta"><a class="btn btn-primary btn-lg" href="#deals">Shop the deals</a>' +
+              '<a class="btn btn-outline-light btn-lg" href="?cat=computers#shop">Browse computers</a></div>' +
+          "</div>" +
+          '<div class="hero-art" aria-hidden="true">' +
+            '<span class="hero-a1">' + M.art(pick("apple-macbook-air-13-m2").art) + "</span>" +
+            '<span class="hero-a2">' + M.art(pick("samsung-galaxy-s24-ultra").art) + "</span>" +
+            '<span class="hero-a3">' + M.art(pick("sony-wh-ch520").art) + "</span>" +
+          "</div>" +
+        "</div>");
+      return;
+    }
+    hero.classList.add("hero-slides");
+    hero.setAttribute("aria-roledescription", "carousel");
+    hero.insertAdjacentHTML("beforeend",
+      '<div class="hero-track" id="hero-track" aria-live="off">' + slides.map(function (s, i) {
+        var img = '<picture>' + (s.mobile ? '<source media="(max-width: 640px)" srcset="' + esc(s.mobile) + '">' : "") +
+          '<img src="' + esc(s.image) + '" alt="' + esc(s.alt || "") + '"' + (i ? ' loading="lazy"' : ' fetchpriority="high"') + "></picture>";
+        return '<div class="hero-slide" role="group" aria-roledescription="slide" aria-label="' + (i + 1) + " of " + slides.length + '"' + (i ? ' aria-hidden="true"' : "") + ">" +
+          (s.href ? '<a href="' + esc(s.href) + '"' + (i ? ' tabindex="-1"' : "") + ">" + img + "</a>" : img) + "</div>";
+      }).join("") + "</div>" +
+      (slides.length > 1 ?
+        '<button type="button" class="hero-nav hero-prev" data-hero="-1" aria-label="Previous slide">' + M.icon.chevron + "</button>" +
+        '<button type="button" class="hero-nav hero-next" data-hero="1" aria-label="Next slide">' + M.icon.chevron + "</button>" +
+        '<div class="hero-dots">' + slides.map(function (s, i) {
+          return '<button type="button" data-dot="' + i + '" aria-label="Show slide ' + (i + 1) + '"' + (i ? "" : ' aria-current="true"') + "></button>";
+        }).join("") + "</div>" : ""));
+    if (slides.length < 2) return;
+
+    var track = $("hero-track"), at = 0, timer = null;
+    var still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    function go(i) {
+      at = (i + slides.length) % slides.length;
+      track.style.transform = "translateX(" + (-100 * at) + "%)";
+      track.querySelectorAll(".hero-slide").forEach(function (el, n) {
+        if (n === at) el.removeAttribute("aria-hidden"); else el.setAttribute("aria-hidden", "true");
+        var a = el.querySelector("a"); if (a) { if (n === at) a.removeAttribute("tabindex"); else a.setAttribute("tabindex", "-1"); }
+      });
+      hero.querySelectorAll("[data-dot]").forEach(function (d, n) { if (n === at) d.setAttribute("aria-current", "true"); else d.removeAttribute("aria-current"); });
+    }
+    function play() { if (!still && !timer) timer = setInterval(function () { go(at + 1); }, 6000); }
+    function pause() { clearInterval(timer); timer = null; }
+    hero.addEventListener("click", function (e) {
+      var n = e.target.closest("[data-hero]"), d = e.target.closest("[data-dot]");
+      if (n) go(at + +n.getAttribute("data-hero"));
+      if (d) go(+d.getAttribute("data-dot"));
+    });
+    hero.addEventListener("mouseenter", pause);
+    hero.addEventListener("mouseleave", play);
+    hero.addEventListener("focusin", pause);
+    hero.addEventListener("focusout", play);
+    hero.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault(); go(at + (e.key === "ArrowLeft" ? -1 : 1)); }
+    });
+    var x0 = null;
+    hero.addEventListener("touchstart", function (e) { x0 = e.touches[0].clientX; pause(); }, { passive: true });
+    hero.addEventListener("touchend", function (e) {
+      if (x0 === null) return;
+      var dx = e.changedTouches[0].clientX - x0;
+      if (Math.abs(dx) > 40) go(at + (dx < 0 ? 1 : -1));
+      x0 = null; play();
+    });
+    document.addEventListener("visibilitychange", function () { if (document.hidden) pause(); else play(); });
+    play();
+  }
+  renderHero();
+
   /* ---------- categories, deals ---------- */
   $("cat-grid").innerHTML = M.categories.map(function (c) {
     var n = M.products.filter(function (p) { return p.category === c.id; }).length;
-    return '<a class="cat-tile" href="?cat=' + c.id + '#shop" style="--tile:' + M.tint(c.art.color, 0.88) + '">' +
-      '<span class="cat-art">' + M.art(c.art) + "</span>" +
+    return '<a class="cat-tile" href="?cat=' + c.id + '#shop">' +
+      '<span class="cat-art" aria-hidden="true">' + M.art(c.art) + "</span>" +
       '<span class="cat-text"><b>' + esc(c.name) + "</b><span>" + esc(c.blurb) + "</span>" +
-      '<span class="cat-count">' + n + " products</span></span></a>";
+      '<span class="cat-count">' + n + " products</span>" +
+      '<span class="cat-go" aria-hidden="true">' + M.icon.arrow + "</span></span></a>";
   }).join("");
 
   function renderDeals() {
@@ -170,7 +250,9 @@
   }
 
   var touched = false;
-  function render() {
+  var PAGE = 24, shown = PAGE; // products shown before "Show more"
+  function render(keepShown) {
+    if (!keepShown) shown = PAGE;
     var list = M.products.filter(function (p) { return matches(p); }).sort(SORTS[state.sort] || SORTS.featured);
     $("shop-title").textContent = title();
     $("result-count").textContent = list.length + (list.length === 1 ? " product" : " products");
@@ -179,8 +261,16 @@
       return '<button type="button" class="chip" data-chip="' + esc(c[0]) + '" aria-label="Remove filter: ' + esc(c[1]) + '">' + esc(c[1]) + M.icon.close + "</button>";
     }).join("");
     $("filter-toggle").innerHTML = M.icon.filter + "Filters" + (chips.length ? " (" + chips.length + ")" : "");
+    var bar = $("more-bar");
+    bar.innerHTML = "";
     if (list.length) {
-      $("grid").innerHTML = list.map(M.card).join("");
+      $("grid").innerHTML = list.slice(0, shown).map(M.card).join("");
+      if (list.length > PAGE) {
+        var n = Math.min(shown, list.length);
+        bar.innerHTML = '<p>Showing ' + n + " of " + list.length + " products</p>" +
+          '<span class="more-progress" aria-hidden="true"><span style="width:' + Math.round(n / list.length * 100) + '%"></span></span>' +
+          (n < list.length ? '<button type="button" class="btn btn-ghost" id="show-more">Show more</button>' : "");
+      }
     } else {
       $("grid").innerHTML = '<div class="empty empty-wide"><p class="empty-title">' +
         (state.wish && chips.length === 1 ? "Your wishlist is empty" : "No products match") + "</p>" +
@@ -234,6 +324,14 @@
     ($("chips").querySelector(".chip") || $("shop-title")).focus();
   });
   $("grid").addEventListener("click", function (e) { if (e.target.closest("[data-clear]")) reset(); });
+  $("more-bar").addEventListener("click", function (e) {
+    if (!e.target.closest("#show-more")) return;
+    var first = shown;
+    shown += PAGE;
+    render(true);
+    var next = $("grid").children[first]; // keep the keyboard on the first new product
+    if (next) { var a = next.querySelector("a"); if (a) a.focus({ preventScroll: true }); }
+  });
   $("shop-title").setAttribute("tabindex", "-1");
 
   // filter panel (slides in from the left; a bottom sheet on phones)

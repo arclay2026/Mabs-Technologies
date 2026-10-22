@@ -42,6 +42,14 @@
     }
   };
 
+  // Homepage carousel, in order. Each slide is one image made at
+  //   desktop: 3840 × 1000 px (artboard 1920 × 500 exported at 2x), text inside the middle 1520 × 440
+  //   mobile:  1080 × 720 px, text at least 60 px from the edges
+  // e.g. { image: "assets/slides/back-to-school.jpg", mobile: "assets/slides/back-to-school-mobile.jpg",
+  //        href: "index.html?cat=computers#shop", alt: "Back to school: laptops up to 20% off" }
+  // While this list is empty, a built-in welcome banner shows instead.
+  MABS.slides = [];
+
   // logo strip under the homepage carousel; `h` is the display height in px,
   // set per logo so wide wordmarks and square marks look the same size.
   // A logo links to the shop filtered by that brand once a product has it as `brand`.
