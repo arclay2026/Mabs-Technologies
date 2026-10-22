@@ -663,6 +663,27 @@
   M.openCart = function () { updateDrawer(); openDrawer("cart-drawer"); };
   M.closeCart = function () { if (openDrawerEl && openDrawerEl.id === "cart-drawer") closeDrawer(); };
 
+  /* ---------- "open products in new tab" (switch above the homepage carousel) ---------- */
+  var NEWTAB_KEY = "mabs.newtab.v1";
+  M.newTab = !!read(NEWTAB_KEY, false);
+  var newTabSwitch = document.getElementById("newtab-switch");
+  if (newTabSwitch) {
+    newTabSwitch.setAttribute("aria-checked", M.newTab);
+    newTabSwitch.addEventListener("click", function () {
+      M.newTab = !M.newTab;
+      write(NEWTAB_KEY, M.newTab);
+      newTabSwitch.setAttribute("aria-checked", M.newTab);
+      M.toast(M.newTab ? "Products will open in a new tab." : "Products will open in this tab.");
+    });
+  }
+  // applied when a product link is clicked, so it covers every card on every page
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest('a[href^="product.html"]');
+    if (!a) return;
+    if (M.newTab) { a.target = "_blank"; a.rel = "noopener"; }
+    else if (a.target === "_blank") { a.removeAttribute("target"); a.removeAttribute("rel"); }
+  }, true);
+
   /* ---------- delegated actions ---------- */
   document.addEventListener("click", function (e) {
     var t = e.target.closest("[data-add],[data-wish],[data-qty],[data-remove],[data-open-cart],[data-open-menu],[data-close-drawer]");
