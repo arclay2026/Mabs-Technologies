@@ -16,6 +16,12 @@ Pages) the shop still runs from its built-in catalogue.
   `index.html?cat=computers&type=Laptop&brand=HP#shop`.
 - `product.html?id=<product-id>` — photo gallery, details, delivery
   estimate, buy box, description and specs, reviews and related products.
+- `cart.html` — shopping cart: each item with its delivery estimate,
+  savings and stock, quantity, Remove (with Undo) and Move to wishlist; an
+  order summary with savings, delivery and VAT; suggestions. Quantities
+  above what's in stock are lowered, and sold-out items must be removed
+  before checkout. The header's Cart button opens it; adding to cart still
+  shows the quick side cart.
 - `checkout.html` — contact details, courier delivery or in-store
   collection, payment choice (EFT or pay on delivery/collection), order
   summary with VAT, and an order confirmation.

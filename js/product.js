@@ -39,19 +39,8 @@
   var ICON_CAL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>';
   var ICON_RETURN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 010 10h-3"/></svg>';
 
-  /* ---------- delivery estimate: working days, Mon–Fri ---------- */
-  var DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  function addWorkingDays(from, n) {
-    var t = new Date(from.getFullYear(), from.getMonth(), from.getDate());
-    while (n > 0) { t.setDate(t.getDate() + 1); if (t.getDay() % 6) n--; }
-    return t;
-  }
-  function day(t) { return DAYS[t.getDay()] + " " + t.getDate() + " " + MONTHS[t.getMonth()]; }
-  var span = svc.deliveryDays || [2, 4];
-  var start = new Date();
-  if (start.getHours() >= 15) start.setDate(start.getDate() + 1); // late orders go out the next day
-  var eta = day(addWorkingDays(start, span[0])) + " – " + day(addWorkingDays(start, span[1]));
+  var MONTHS = M.MONTHS;
+  var eta = M.deliveryEta();
 
   /* ---------- pieces ---------- */
   function brandLink() {

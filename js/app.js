@@ -297,8 +297,8 @@
           '<a class="act wish-link" href="wishlist.html" aria-label="Wishlist"' + (page === "wishlist" ? ' aria-current="page"' : "") + ">" +
             '<span class="act-icon">' + ICON.heart + '</span><span class="act-label">Wishlist</span><span class="count" data-wish-count hidden></span></a>' +
           '<span class="act-sep" aria-hidden="true"></span>' +
-          '<button type="button" class="act cart-btn" data-open-cart aria-label="Open cart">' +
-            '<span class="act-icon">' + ICON.cart + '</span><span class="act-label">Cart</span><span class="count" data-cart-count hidden></span></button>' +
+          '<a class="act cart-btn" href="cart.html" aria-label="Cart"' + (page === "cart" ? ' aria-current="page"' : "") + ">" +
+            '<span class="act-icon">' + ICON.cart + '</span><span class="act-label">Cart</span><span class="count" data-cart-count hidden></span></a>' +
         "</div>" +
       "</div>" +
       "</header>" +
@@ -607,6 +607,23 @@
     "</div>";
   };
 
+  /* ---------- courier delivery estimate, in working days (Mon–Fri) ---------- */
+  var DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  M.MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  function addWorkingDays(from, n) {
+    var t = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+    while (n > 0) { t.setDate(t.getDate() + 1); if (t.getDay() % 6) n--; }
+    return t;
+  }
+  function shortDay(t) { return DAYS[t.getDay()] + " " + t.getDate() + " " + M.MONTHS[t.getMonth()]; }
+  // e.g. "Mon 26 Oct – Wed 28 Oct"; orders after 15:00 go out the next day
+  M.deliveryEta = function () {
+    var span = (M.store.service && M.store.service.deliveryDays) || [2, 4];
+    var start = new Date();
+    if (start.getHours() >= 15) start.setDate(start.getDate() + 1);
+    return shortDay(addWorkingDays(start, span[0])) + " – " + shortDay(addWorkingDays(start, span[1]));
+  };
+
   M.freeDeliveryNote = function (subtotal) {
     var d = M.store.delivery;
     var pct = Math.min(100, Math.round(subtotal / d.freeOver * 100));
@@ -631,7 +648,7 @@
     foot.innerHTML = '<div class="sum-row"><span>Subtotal</span><b>' + money(sub) + "</b></div>" +
       '<p class="fine">Delivery is worked out at checkout.</p>' +
       '<a class="btn btn-primary btn-block btn-lg" href="checkout.html">Checkout</a>' +
-      '<button type="button" class="btn btn-ghost btn-block" data-close-drawer>Continue shopping</button>';
+      '<a class="btn btn-ghost btn-block" href="cart.html">View cart</a>';
   }
 
   var lastCount = M.cart.count();
@@ -645,8 +662,8 @@
     document.querySelectorAll("[data-cart-count]").forEach(function (el) { el.textContent = n; el.hidden = n === 0; });
     var w = M.wish.all().length;
     document.querySelectorAll("[data-wish-count]").forEach(function (el) { el.textContent = w; el.hidden = w === 0; });
-    var btn = document.querySelector("[data-open-cart]");
-    if (btn) btn.setAttribute("aria-label", "Open cart, " + n + (n === 1 ? " item" : " items") + ", " + money(M.cart.subtotal()));
+    var btn = document.querySelector(".cart-btn");
+    if (btn) btn.setAttribute("aria-label", "Cart, " + n + (n === 1 ? " item" : " items") + ", " + money(M.cart.subtotal()));
   }
 
   /* drawers (cart on the right, menu on the left) share one open/close */
