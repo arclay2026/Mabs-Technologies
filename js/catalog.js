@@ -82,7 +82,10 @@
   MABS.products = [
     /* ---------- computers ---------- */
     {
-      id: "lenovo-ideapad-slim-3", name: "Lenovo IdeaPad Slim 3 15\"", brand: "Lenovo", category: "computers", type: "Laptop",
+      id: "lenovo-ideapad-slim-3",
+      // demo gallery made from the drawing — replace with real photos
+      image: "assets/products/demo/lenovo-ideapad-slim-3-1.jpg", images: ["assets/products/demo/lenovo-ideapad-slim-3-1.jpg", "assets/products/demo/lenovo-ideapad-slim-3-2.jpg", "assets/products/demo/lenovo-ideapad-slim-3-3.jpg", "assets/products/demo/lenovo-ideapad-slim-3-4.jpg"],
+      name: "Lenovo IdeaPad Slim 3 15\"", brand: "Lenovo", category: "computers", type: "Laptop",
       price: 8999, was: 10499, stock: 14, featured: true,
       art: { kind: "laptop", color: "#2563eb", body: "silver" },
       summary: "A thin, light everyday laptop for study, office work and streaming.",
@@ -103,7 +106,10 @@
       specs: [["Processor", "Intel Core i7"], ["Memory", "16 GB RAM"], ["Storage", "512 GB SSD"], ["Display", "14\" FHD+"], ["OS", "Windows 11 Home"]]
     },
     {
-      id: "apple-macbook-air-13-m2", name: "Apple MacBook Air 13\" (M2)", brand: "Apple", category: "computers", type: "Laptop",
+      id: "apple-macbook-air-13-m2",
+      // demo gallery made from the drawing — replace with real photos
+      image: "assets/products/demo/apple-macbook-air-13-m2-1.jpg", images: ["assets/products/demo/apple-macbook-air-13-m2-1.jpg", "assets/products/demo/apple-macbook-air-13-m2-2.jpg", "assets/products/demo/apple-macbook-air-13-m2-3.jpg", "assets/products/demo/apple-macbook-air-13-m2-4.jpg", "assets/products/demo/apple-macbook-air-13-m2-5.jpg"],
+      name: "Apple MacBook Air 13\" (M2)", brand: "Apple", category: "computers", type: "Laptop",
       price: 18999, was: 20999, stock: 4, featured: true,
       art: { kind: "laptop", color: "#64748b", body: "silver" },
       summary: "Silent, fanless and all-day battery — the go-anywhere Mac.",
@@ -214,7 +220,10 @@
       specs: [["Size", "55\""], ["Resolution", "4K UHD"], ["HDR", "HDR10+"], ["Inputs", "3 × HDMI, USB"]]
     },
     {
-      id: "jbl-flip-6", name: "JBL Flip 6 Bluetooth Speaker", brand: "JBL", category: "electronics", type: "Speaker",
+      id: "jbl-flip-6",
+      // demo gallery made from the drawing — replace with real photos
+      image: "assets/products/demo/jbl-flip-6-1.jpg", images: ["assets/products/demo/jbl-flip-6-1.jpg", "assets/products/demo/jbl-flip-6-2.jpg", "assets/products/demo/jbl-flip-6-3.jpg"],
+      name: "JBL Flip 6 Bluetooth Speaker", brand: "JBL", category: "electronics", type: "Speaker",
       price: 1999, stock: 16,
       art: { kind: "speaker", color: "#0d9488" },
       summary: "Bold, waterproof sound you can take anywhere.",
@@ -286,7 +295,10 @@
       specs: [["Storage", "256 GB"], ["Display", "6.1\" Super Retina XDR"], ["Network", "5G"], ["Port", "USB-C"]]
     },
     {
-      id: "samsung-galaxy-s24-ultra", name: "Samsung Galaxy S24 Ultra 256GB", brand: "Samsung", category: "phones", type: "Smartphone",
+      id: "samsung-galaxy-s24-ultra",
+      // demo gallery made from the drawing — replace with real photos
+      image: "assets/products/demo/samsung-galaxy-s24-ultra-1.jpg", images: ["assets/products/demo/samsung-galaxy-s24-ultra-1.jpg", "assets/products/demo/samsung-galaxy-s24-ultra-2.jpg", "assets/products/demo/samsung-galaxy-s24-ultra-3.jpg", "assets/products/demo/samsung-galaxy-s24-ultra-4.jpg", "assets/products/demo/samsung-galaxy-s24-ultra-5.jpg", "assets/products/demo/samsung-galaxy-s24-ultra-6.jpg", "assets/products/demo/samsung-galaxy-s24-ultra-7.jpg"],
+      name: "Samsung Galaxy S24 Ultra 256GB", brand: "Samsung", category: "phones", type: "Smartphone",
       price: 24999, was: 27999, stock: 4, featured: true,
       art: { kind: "phone", color: "#334155", body: "dark" },
       summary: "Built-in S Pen, a 200 MP camera and Galaxy AI.",

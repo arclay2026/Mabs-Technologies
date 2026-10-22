@@ -537,6 +537,7 @@ body.sheet-open::after { content: ""; position: fixed; inset: 0; z-index: 150; b
 .pdp-stage { position: relative; aspect-ratio: 1; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
 .pdp-stage-img { position: absolute; inset: 0; display: grid; place-items: center; padding: 10%; cursor: zoom-in; }
 .pdp-stage-img svg, .pdp-stage-img img { width: 100%; height: 100%; object-fit: contain; }
+.pdp-stage-img:has(img) { padding: 3%; } /* photos bring their own white space */
 .pdp-stage .badge { top: 14px; left: 14px; }
 .pdp-stage .badge-sale { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 46px; height: 46px; padding: 0; font-size: 10px; line-height: 1.1; border-radius: 4px; }
 .pdp-stage .badge-sale b { font-size: 13px; }

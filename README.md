@@ -48,6 +48,11 @@ each placed order for the Orders page (until customer accounts exist).
   in the admin panel instead.
   Products show a drawn illustration until they have a photo
   (`assets/products/<file>.jpg`).
+- `assets/products/demo/` — demo photo galleries (made from the drawings)
+  for four products, to show how galleries look: Samsung Galaxy S24 Ultra
+  (7), Apple MacBook Air (5), Lenovo IdeaPad Slim 3 (4), JBL Flip 6 (3).
+  Replace them with real photos in the admin panel, or edit `image` /
+  `images` in `js/catalog.js`.
 - `js/api.js` — connects the shop to the backend (see Backend below).
 - `api/` — the backend: `catalogue.php`, `orders.php` and `reviews.php`
   (the shop's API), `_store.php` (order rules and emails), `_reviews.php`, `_bootstrap.php` (database
