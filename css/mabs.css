@@ -289,6 +289,43 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
 .cl-qty .dd-menu li { justify-content: space-between; font-variant-numeric: tabular-nums; }
 @media (max-width: 760px) { .field .dd-btn { font-size: 16px; } .period .dd { min-width: 0; } }
 
+/* ---------- loading skeletons (drawn by js/api.js) ---------- */
+/* header and carousel keep their size while the page starts, so nothing jumps */
+#site-header:empty { height: 97px; border-bottom: 1px solid var(--line); background: linear-gradient(var(--ink) 0 32px, #fff 32px); }
+@media (max-width: 760px) { #site-header:empty { height: 141px; } }
+.hero:not(.hero-welcome):not(.hero-slides) { min-height: clamp(280px, 26vw, 420px); }
+.sk { display: block; border-radius: 4px; background: #ececef linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, .55) 50%, transparent 80%) no-repeat;
+  background-size: 220% 100%; animation: sk-shine 1.4s ease-in-out infinite; }
+@keyframes sk-shine { from { background-position: 130% 0; } to { background-position: -30% 0; } }
+@media (prefers-reduced-motion: reduce) { .sk { animation: none; } }
+.sk-card, .sk-tile { display: flex; flex-direction: column; border-radius: 6px; background: #fff; box-shadow: 0 1px 3px rgba(34, 49, 58, .06); overflow: hidden; }
+.sk-card .sk-media { aspect-ratio: 1; margin: 12px; border-radius: 4px; }
+.sk-body { display: flex; flex-direction: column; gap: 9px; padding: 4px 16px 18px; }
+.sk-line { height: 11px; }
+.sk-price { width: 45%; height: 16px; margin-top: 6px; }
+.sk-w20 { width: 20%; } .sk-w35 { width: 35%; } .sk-w40 { width: 40%; } .sk-w45 { width: 45%; } .sk-w50 { width: 50%; }
+.sk-w60 { width: 60%; } .sk-w70 { width: 70%; } .sk-w80 { width: 80%; }
+.sk-btn { height: 38px; margin-top: 8px; border-radius: 999px; }
+.sk-tile { border: 1px solid var(--line); box-shadow: none; border-radius: var(--radius-lg); }
+.sk-tile-art { aspect-ratio: 16 / 9; border-radius: 0; }
+.sk-crumbs { padding-block: 22px 18px; }
+.sk-logo { flex: none; width: 96px; height: 26px; margin-right: 56px; border-radius: 6px; }
+.marquee-track:has(.sk-logo) { animation: none; }
+.sk-square { aspect-ratio: 1; border-radius: 6px; }
+.sk-stack { display: flex; flex-direction: column; gap: 12px; }
+.sk-title { height: 24px; width: 85%; }
+.sk-gap { height: 8px; background: none; animation: none; }
+.sk-block { height: 44px; border-radius: 6px; }
+.sk-row { display: flex; gap: 18px; padding: 18px 20px; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; }
+.sk-row + .sk-row { margin-top: 12px; }
+.sk-row .sk-stack { flex: 1; }
+.sk-thumb { flex: none; width: 112px; height: 112px; border-radius: 6px; }
+.cart-side .sk-row { display: flex; flex-direction: column; }
+/* real cards ease in where the skeleton was */
+.grid > .card { animation: card-in .3s ease-out both; }
+@keyframes card-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .grid > .card { animation: none; } }
+
 /* ---------- view preferences (above the carousel) ---------- */
 .view-prefs { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 5px var(--gutter); font-size: 12px; color: var(--mute); }
 .switch { position: relative; flex: none; width: 32px; height: 18px; border-radius: 999px; background: #c9ced4; transition: background .2s; }
@@ -397,7 +434,7 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
 @media (max-width: 640px) {
   .rail-mobile { display: flex !important; gap: 10px; margin-inline: calc(var(--gutter) * -1); padding: 2px var(--gutter) 10px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter); scrollbar-width: none; }
   .rail-mobile::-webkit-scrollbar { display: none; }
-  .rail-mobile > .card { flex: 0 0 44%; scroll-snap-align: start; }
+  .rail-mobile > .card, .rail-mobile > .sk-card { flex: 0 0 44%; scroll-snap-align: start; }
 }
 
 /* ---------- product cards ---------- */

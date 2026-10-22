@@ -84,11 +84,49 @@
     });
   }
 
+  /* ---------- loading skeletons ----------
+     Grey placeholder shapes in the page's main areas while the catalogue
+     loads; each page's script replaces them with the real content. */
+  function sk(cls) { return '<span class="sk ' + cls + '"></span>'; }
+  function skCard(rich) {
+    return '<div class="sk-card" aria-hidden="true">' + sk("sk-media") + '<div class="sk-body">' +
+      sk("sk-line") + sk("sk-line sk-w60") + (rich ? sk("sk-line sk-w35") : "") + sk("sk-line sk-price") +
+      (rich ? sk("sk-line sk-w50") + sk("sk-line sk-w45") + sk("sk-btn") : "") + "</div></div>";
+  }
+  function fill(id, html) {
+    var el = document.getElementById(id);
+    if (el && !el.children.length) { el.innerHTML = html; el.setAttribute("aria-busy", "true"); }
+  }
+  function repeat(n, f) { var out = ""; for (var i = 0; i < n; i++) out += f(i); return out; }
+  var searching = /[?&]q=[^&]/.test(location.search);
+  function paintSkeletons() {
+    var grid = document.getElementById("grid");
+    if (grid && searching) grid.classList.add("grid-rich"); // the search layout, as the results will use
+    fill("grid", '<p class="sr-only" role="status">Loading products…</p>' + repeat(searching ? 10 : 12, function () { return skCard(searching); }));
+    fill("brand-track", repeat(9, function () { return sk("sk-logo"); }));
+    fill("deal-rail", repeat(6, function () { return skCard(false); }));
+    fill("cat-grid", repeat(4, function () { return '<div class="sk-tile" aria-hidden="true">' + sk("sk-tile-art") + '<div class="sk-body">' + sk("sk-line sk-w50") + sk("sk-line sk-w70") + "</div></div>"; }));
+    fill("product", '<p class="sr-only" role="status">Loading product…</p><div class="sk-crumbs">' + sk("sk-line sk-w20") + "</div>" +
+      '<div class="pdp" aria-hidden="true"><section class="pdp-panel pdp-hero">' + sk("sk-square") +
+        '<div class="sk-stack">' + sk("sk-line sk-w20") + sk("sk-title") + sk("sk-line sk-w70") + sk("sk-gap") +
+          repeat(4, function () { return sk("sk-line sk-w80"); }) + "</div></section>" +
+        '<aside class="pdp-side"><section class="pdp-panel sk-stack">' + sk("sk-title sk-w50") + sk("sk-line sk-w70") + sk("sk-block") +
+          sk("sk-btn") + sk("sk-btn") + sk("sk-btn") + "</section></aside></div>");
+    fill("cart-root", '<p class="sr-only" role="status">Loading your cart…</p><div class="cart-layout" aria-hidden="true"><div class="cart-lines">' +
+      repeat(2, function () { return '<div class="sk-row">' + sk("sk-thumb") + '<div class="sk-stack">' + sk("sk-line sk-w60") + sk("sk-line sk-w40") + sk("sk-line sk-w50") + "</div></div>"; }) +
+      '</div><div class="cart-side"><div class="sk-row sk-stack">' + sk("sk-title sk-w50") + sk("sk-block") + sk("sk-line") + sk("sk-line") + sk("sk-btn") + "</div></div></div>");
+  }
+  paintSkeletons();
+  var paintedAt = Date.now();
+
   // run the page's scripts in order once the catalogue is ready
   function startPage() {
     var i = 0;
     (function next() {
-      if (i >= pageScripts.length) return;
+      if (i >= pageScripts.length) { // page drawn: the skeletons are gone
+        document.querySelectorAll("[aria-busy]").forEach(function (el) { el.removeAttribute("aria-busy"); });
+        return;
+      }
       var s = document.createElement("script");
       s.src = pageScripts[i++];
       s.onload = s.onerror = next;
@@ -96,5 +134,11 @@
     })();
   }
 
-  loadCatalogue().then(startPage, startPage);
+  // search results keep their skeleton for a moment, so the change of results is
+  // seen even when the catalogue comes straight from the cache
+  function whenReady() {
+    var wait = searching ? Math.max(0, 350 - (Date.now() - paintedAt)) : 0;
+    setTimeout(startPage, wait);
+  }
+  loadCatalogue().then(whenReady, whenReady);
 })();
