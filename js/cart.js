@@ -143,6 +143,19 @@
     var rm = e.target.closest("[data-cart-remove]"), mv = e.target.closest("[data-cart-wish]");
     var id = (rm || mv) && (rm || mv).getAttribute(rm ? "data-cart-remove" : "data-cart-wish");
     if (!id) return;
+    if (mv) { takeOut(id, true); return; }
+    var p = M.byId(id);
+    M.confirm({
+      title: "Remove this item from your cart?",
+      media: p ? M.media(p) : "",
+      html: "<b>" + esc(name(id)) + "</b>" + (M.cart.qty(id) > 1 ? " × " + M.cart.qty(id) : "") +
+        (p && p.stock > 0 ? " will be taken out of your cart. You can move it to your wishlist instead to buy it later." : " will be taken out of your cart."),
+      confirm: "Remove", cancel: "Keep it", danger: true
+    }).then(function (yes) { if (yes) takeOut(id, false); });
+  });
+
+  // take a line out of the cart (and onto the wishlist when moving it), with Undo
+  function takeOut(id, mv) {
     var line = root.querySelector('[data-line="' + id + '"]');
     lastRemoved = { id: id, qty: M.cart.qty(id), unwish: !!mv && !M.wish.has(id) };
     var next = line && (line.nextElementSibling || line.previousElementSibling);
@@ -155,7 +168,7 @@
     // keep the keyboard close to where it was
     var target = next && root.querySelector('[data-line="' + next.getAttribute("data-line") + '"] .cl-name');
     (target || document.querySelector(".cart-head h1")).focus();
-  });
+  }
 
   document.addEventListener("click", function (e) {
     if (!e.target.closest("[data-cart-undo]") || !lastRemoved) return;

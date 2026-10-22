@@ -823,6 +823,24 @@ a.pdp-rating:hover span { color: var(--accent); text-decoration: underline; }
   .help-facts div { grid-template-columns: 1fr; gap: 2px; }
 }
 
+/* ---------- confirmation pop-up (M.confirm) ---------- */
+.modal { position: fixed; inset: 0; z-index: 500; display: grid; place-items: center; padding: 20px; }
+.modal-scrim { position: absolute; inset: 0; background: rgba(34, 49, 58, .45); opacity: 0; transition: opacity .18s; }
+.modal-box { position: relative; width: min(400px, 100%); padding: 28px 26px 22px; border-radius: 14px; background: #fff; text-align: center;
+  box-shadow: 0 24px 60px -18px rgba(34, 49, 58, .45); opacity: 0; transform: translateY(8px) scale(.98); transition: opacity .18s, transform .22s var(--ease); }
+.modal.is-open .modal-scrim { opacity: 1; }
+.modal.is-open .modal-box { opacity: 1; transform: none; }
+.modal-media { display: grid; place-items: center; width: 84px; height: 84px; margin: 0 auto 16px; padding: 10px; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; }
+.modal-media svg, .modal-media img { width: 100%; height: 100%; object-fit: contain; }
+.modal-box h2 { font-size: 17px; font-weight: 700; color: var(--ink); }
+.modal-box p { margin-top: 8px; font-size: 13.5px; line-height: 1.55; color: var(--mute); }
+.modal-box p b { color: var(--ink); font-weight: 600; }
+.modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 22px; }
+.btn-danger { background: var(--sale); border-color: var(--sale); color: #fff; }
+.btn-danger:hover { background: #991b1b; border-color: #991b1b; }
+body.modal-open { overflow: hidden; }
+@media (prefers-reduced-motion: reduce) { .modal-box, .modal-scrim { transition: none; } }
+
 /* ---------- cart drawer ---------- */
 .drawer-scrim { position: fixed; inset: 0; z-index: 250; background: rgba(34, 49, 58, .45); opacity: 0; transition: opacity .22s; }
 .drawer { position: fixed; top: 0; right: 0; bottom: 0; z-index: 260; width: min(440px, 100%); display: flex; flex-direction: column; background: #fff; box-shadow: -20px 0 60px rgba(34, 49, 58, .25); transform: translateX(100%); transition: transform .24s var(--ease); }

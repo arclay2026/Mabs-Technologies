@@ -222,6 +222,50 @@
     "</article>";
   };
 
+  /* ---------- confirmation pop-up ----------
+     M.confirm({ title, text, media, confirm: "Remove", cancel: "Cancel", danger: true })
+     → Promise<boolean>. Escape, the backdrop and Cancel all answer false. */
+  M.confirm = function (o) {
+    return new Promise(function (resolve) {
+      var back = document.activeElement;
+      var el = document.createElement("div");
+      el.className = "modal";
+      el.innerHTML =
+        '<div class="modal-scrim" data-modal-no></div>' +
+        '<div class="modal-box" role="alertdialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-text">' +
+          (o.media ? '<div class="modal-media" aria-hidden="true">' + o.media + "</div>" : "") +
+          '<h2 id="modal-title">' + esc(o.title) + "</h2>" +
+          '<p id="modal-text">' + (o.html || esc(o.text || "")) + "</p>" +
+          '<div class="modal-actions">' +
+            '<button type="button" class="btn btn-ghost" data-modal-no>' + esc(o.cancel || "Cancel") + "</button>" +
+            '<button type="button" class="btn ' + (o.danger ? "btn-danger" : "btn-primary") + '" data-modal-yes>' + esc(o.confirm || "OK") + "</button>" +
+          "</div>" +
+        "</div>";
+      document.body.appendChild(el);
+      document.body.classList.add("modal-open");
+      requestAnimationFrame(function () { el.classList.add("is-open"); });
+      // the safe choice has the focus, so Enter by habit doesn't delete anything
+      var no = el.querySelector(".modal-actions [data-modal-no]"), yes = el.querySelector("[data-modal-yes]");
+      no.focus();
+      function done(answer) {
+        document.removeEventListener("keydown", keys, true);
+        el.remove();
+        document.body.classList.remove("modal-open");
+        if (back && back.isConnected) back.focus();
+        resolve(answer);
+      }
+      function keys(e) {
+        if (e.key === "Escape") { e.preventDefault(); done(false); }
+        else if (e.key === "Tab") { e.preventDefault(); (document.activeElement === no ? yes : no).focus(); } // stay inside
+      }
+      document.addEventListener("keydown", keys, true);
+      el.addEventListener("click", function (e) {
+        if (e.target.closest("[data-modal-yes]")) done(true);
+        else if (e.target.closest("[data-modal-no]")) done(false);
+      });
+    });
+  };
+
   /* ---------- toast ---------- */
   var toastEl, toastTimer;
   M.toast = function (msg) {
