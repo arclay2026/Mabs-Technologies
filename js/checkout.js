@@ -184,7 +184,7 @@
           "<p>We'll contact you on " + esc(o.customer.phone) + " to confirm stock" + (o.payment === "eft" ? " and share our banking details" : "") + ".</p>") +
         '<ul class="lines lines-compact">' + o.items.map(function (i) {
           var p = M.byId(i.id);
-          return M.lineHtml({ product: p || { id: i.id, name: i.name, price: i.price, art: { kind: "phone" } }, qty: i.qty, total: i.price * i.qty }, true);
+          return M.lineHtml({ product: p || { id: i.id, name: i.name, price: i.price, art: { kind: "phone" } }, qty: i.qty, total: i.price * i.qty });
         }).join("") + "</ul>" +
         '<dl class="totals">' +
           "<div><dt>Subtotal</dt><dd>" + money(o.subtotal) + "</dd></div>" +

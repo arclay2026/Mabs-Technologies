@@ -584,27 +584,18 @@
     scrim = document.querySelector(".drawer-scrim");
   }
 
-  M.lineHtml = function (l, compact) {
+  // a cart line for the side cart and checkout; quantities are changed on the cart page
+  M.lineHtml = function (l) {
     var p = l.product;
     var href = "product.html?id=" + encodeURIComponent(p.id);
     return '<li class="line">' +
       '<a class="line-media" href="' + href + '" style="' + M.tileStyle(p) + '" tabindex="-1" aria-hidden="true">' + M.media(p) + "</a>" +
       '<div class="line-info"><a class="line-name" href="' + href + '">' + esc(p.name) + "</a>" +
         '<span class="line-unit">' + money(p.price) + " each</span>" +
-        (compact ? '<span class="line-unit">Qty ' + l.qty + "</span>" :
-        '<div class="line-controls">' + M.stepper(p, l.qty) +
-          '<button type="button" class="link-btn" data-remove="' + esc(p.id) + '" aria-label="Remove ' + esc(p.name) + '">' + ICON.trash + "Remove</button></div>") +
+        '<span class="line-unit">Qty ' + l.qty + "</span>" +
       "</div>" +
       '<span class="line-total">' + money(l.total) + "</span>" +
     "</li>";
-  };
-
-  M.stepper = function (p, qty) {
-    return '<div class="stepper" role="group" aria-label="Quantity for ' + esc(p.name) + '">' +
-      '<button type="button" data-qty="' + esc(p.id) + '" data-step="-1" aria-label="Decrease quantity">' + ICON.minus + "</button>" +
-      '<output aria-live="polite">' + qty + "</output>" +
-      '<button type="button" data-qty="' + esc(p.id) + '" data-step="1" aria-label="Increase quantity"' + (qty >= M.maxQty(p) ? " disabled" : "") + ">" + ICON.plus + "</button>" +
-    "</div>";
   };
 
   /* ---------- courier delivery estimate, in working days (Mon–Fri) ---------- */
@@ -719,13 +710,12 @@
 
   /* ---------- delegated actions ---------- */
   document.addEventListener("click", function (e) {
-    var t = e.target.closest("[data-add],[data-wish],[data-qty],[data-remove],[data-open-cart],[data-open-menu],[data-close-drawer]");
+    var t = e.target.closest("[data-add],[data-wish],[data-open-cart],[data-open-menu],[data-close-drawer]");
     if (!t) return;
     if (t.hasAttribute("data-add")) {
       var id = t.getAttribute("data-add");
       var p = byId(id);
-      var qtyInput = t.getAttribute("data-qty-from") && document.querySelector(t.getAttribute("data-qty-from"));
-      var added = M.cart.add(id, qtyInput ? parseInt(qtyInput.value, 10) || 1 : 1);
+      var added = M.cart.add(id, 1);
       if (added) M.toast("<b>" + esc(p.name) + '</b> added to your cart. <button type="button" class="toast-link" data-open-cart>View cart</button>');
       else M.toast(M.maxQty(p) < p.stock ? "You can order up to " + M.maxQty(p) + " of this item per order." : "You already have all " + p.stock + " in stock in your cart.");
     } else if (t.hasAttribute("data-wish")) {
@@ -735,11 +725,7 @@
         b.classList.toggle("is-on", on); b.setAttribute("aria-pressed", on);
       });
       M.toast(on ? "Saved to your wishlist." : "Removed from your wishlist.");
-    } else if (t.hasAttribute("data-qty")) {
-      var qid = t.getAttribute("data-qty");
-      M.cart.set(qid, M.cart.qty(qid) + parseInt(t.getAttribute("data-step"), 10));
-    } else if (t.hasAttribute("data-remove")) {
-      M.cart.set(t.getAttribute("data-remove"), 0);
+
     } else if (t.hasAttribute("data-open-cart")) {
       M.openCart();
     } else if (t.hasAttribute("data-open-menu")) {
@@ -765,16 +751,7 @@
   document.addEventListener("cart:change", function () {
     updateCounts();
     var d = document.getElementById("cart-drawer");
-    if (d && openDrawerEl === d) {
-      // re-render, then return focus to the control the user just pressed
-      var active = document.activeElement;
-      var sel = active && active.getAttribute("data-qty") ?
-        '[data-qty="' + active.getAttribute("data-qty") + '"][data-step="' + active.getAttribute("data-step") + '"]' : null;
-      updateDrawer();
-      var again = sel && d.querySelector(sel);
-      if (again && !again.disabled) again.focus();
-      else if (!d.contains(document.activeElement)) d.querySelector("[data-close-drawer]").focus();
-    }
+    if (d && openDrawerEl === d) updateDrawer();
   });
   document.addEventListener("wish:change", updateCounts);
 

@@ -99,14 +99,8 @@
       '<div class="pdp-stock">' + M.stockNote(p) + "</div>" +
       (inStock ?
         '<div class="pdp-actions">' +
-          '<div class="pdp-cart-row">' +
-            '<div class="stepper" role="group" aria-label="Quantity">' +
-              '<button type="button" data-pqty="-1" aria-label="Decrease quantity">' + M.icon.minus + "</button>" +
-              '<input id="pdp-qty" type="number" min="1" max="' + M.maxQty(p) + '" value="1" inputmode="numeric" aria-label="Quantity">' +
-              '<button type="button" data-pqty="1" aria-label="Increase quantity">' + M.icon.plus + "</button>" +
-            "</div>" +
-            '<button type="button" class="btn btn-primary btn-lg" data-add="' + esc(p.id) + '" data-qty-from="#pdp-qty">' + M.icon.cart + "Add to cart</button>" +
-          "</div>" +
+          // adds one; quantities are changed on the cart page
+          '<button type="button" class="btn btn-primary btn-lg" data-add="' + esc(p.id) + '">' + M.icon.cart + "Add to cart</button>" +
           '<button type="button" class="btn btn-dark btn-lg" id="buy-now">Buy now</button>' +
         "</div>" :
         '<div class="pdp-actions"><button type="button" class="btn btn-primary btn-lg" disabled>Sold out</button></div>') +
@@ -270,32 +264,18 @@
     }, function () { window.prompt("Copy this link:", url); });
   });
 
-  /* ---------- quantity, thumbnails & buy now ---------- */
-  var qty = document.getElementById("pdp-qty");
-  function clampQty() {
-    var v = Math.max(1, Math.min(parseInt(qty.value, 10) || 1, M.maxQty(p)));
-    qty.value = v;
-    return v;
-  }
+  /* ---------- thumbnails & buy now ---------- */
   host.addEventListener("click", function (e) {
     var t = e.target.closest("[data-photo]");
     if (t) { show(+t.getAttribute("data-photo")); return; }
     var more = e.target.closest("[data-more]");
     if (more) { openViewer(+more.getAttribute("data-more")); return; }
-    var b = e.target.closest("[data-pqty]");
-    if (b && qty) {
-      qty.value = (parseInt(qty.value, 10) || 1) + parseInt(b.getAttribute("data-pqty"), 10);
-      clampQty();
-    }
   });
-  if (qty) {
-    qty.addEventListener("change", clampQty);
-    document.getElementById("buy-now").addEventListener("click", function () {
-      var want = clampQty();
-      if (M.cart.qty(p.id) < want) M.cart.set(p.id, want);
-      location.href = "checkout.html";
-    });
-  }
+  var buyNow = document.getElementById("buy-now");
+  if (buyNow) buyNow.addEventListener("click", function () {
+    if (!M.cart.qty(p.id)) M.cart.set(p.id, 1); // already in the cart: keep its quantity
+    location.href = "checkout.html";
+  });
 
   // the wishlist button carries a text label
   document.addEventListener("wish:change", function () {
