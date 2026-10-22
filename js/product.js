@@ -64,12 +64,25 @@
     return photos.length ? '<img src="' + esc(photos[i]) + '" alt="' + esc(p.name) + (photos.length > 1 ? ", photo " + (i + 1) : "") + '">' : M.art(p.art);
   }
 
+  // up to 4 thumbnails; with more photos the 4th is a blurred "+N" tile that opens the larger view
+  var THUMBS = 4;
+  function thumbs(cls, limit) {
+    if (photos.length < 2) return "";
+    var shown = photos.length > limit ? limit - 1 : photos.length;
+    var html = photos.slice(0, shown).map(function (src, i) {
+      return '<li><button type="button" data-photo="' + i + '"' + (i ? "" : ' aria-current="true"') + ' aria-label="Photo ' + (i + 1) + " of " + photos.length + '">' +
+        '<img src="' + esc(src) + '" alt="" loading="lazy"></button></li>';
+    }).join("");
+    if (shown < photos.length) {
+      html += '<li><button type="button" class="thumb-more" data-more="' + shown + '" aria-label="See all ' + photos.length + ' photos">' +
+        '<img src="' + esc(photos[shown]) + '" alt="" loading="lazy"><span>+' + (photos.length - shown) + "</span></button></li>";
+    }
+    return '<ul class="' + cls + '" aria-label="Photos">' + html + "</ul>";
+  }
+
   var gallery =
     '<div class="pdp-gallery' + (photos.length > 1 ? " has-thumbs" : "") + '">' +
-      (photos.length > 1 ? '<ul class="pdp-thumbs" aria-label="Photos">' + photos.map(function (src, i) {
-        return '<li><button type="button" data-photo="' + i + '"' + (i ? "" : ' aria-current="true"') + ' aria-label="Photo ' + (i + 1) + '">' +
-          '<img src="' + esc(src) + '" alt="" loading="lazy"></button></li>';
-      }).join("") + "</ul>" : "") +
+      thumbs("pdp-thumbs", THUMBS) +
       '<div class="pdp-stage">' + M.badge(p) +
         '<button type="button" class="pdp-zoom" id="pdp-zoom" aria-label="View larger">' + ICON_EXPAND + "</button>" +
         '<div class="pdp-stage-img" id="pdp-stage">' + stage(0) + "</div>" +
@@ -164,17 +177,31 @@
   document.head.appendChild(ld);
 
   /* ---------- gallery & larger view ---------- */
-  var current = 0;
-  function show(i) {
-    current = (i + photos.length) % photos.length;
-    document.getElementById("pdp-stage").innerHTML = stage(current);
-    host.querySelectorAll("[data-photo]").forEach(function (b) {
+  var current = 0, box, lastFocus;
+  function mark(scope) {
+    scope.querySelectorAll("[data-photo]").forEach(function (b) {
       if (+b.getAttribute("data-photo") === current) b.setAttribute("aria-current", "true"); else b.removeAttribute("aria-current");
     });
+    // a photo behind the "+N" tile lights that tile up instead
+    var more = scope.querySelector("[data-more]");
+    if (more) more.classList.toggle("is-current", current >= +more.getAttribute("data-more"));
+  }
+  function show(i) {
+    if (!photos.length) return;
+    current = (i + photos.length) % photos.length;
+    document.getElementById("pdp-stage").innerHTML = stage(current);
+    mark(host);
+    if (box) {
+      box.querySelector(".viewer-img").innerHTML = stage(current);
+      box.querySelector(".viewer-count").textContent = (current + 1) + " / " + photos.length;
+      mark(box);
+      var on = box.querySelector('[data-photo="' + current + '"]');
+      if (on) on.scrollIntoView({ block: "nearest", inline: "nearest" });
+    }
   }
 
-  var box, lastFocus;
-  function openViewer() {
+  function openViewer(at) {
+    if (typeof at === "number") show(at);
     lastFocus = document.activeElement;
     box = document.createElement("div");
     box.className = "viewer";
@@ -182,18 +209,25 @@
     box.setAttribute("aria-modal", "true");
     box.setAttribute("aria-label", p.name);
     box.innerHTML =
-      '<div class="viewer-img">' + stage(current) + "</div>" +
-      '<button type="button" class="viewer-close" aria-label="Close">' + M.icon.close + "</button>" +
+      '<div class="viewer-head"><p class="viewer-title">' + esc(p.name) + "</p>" +
+        '<span class="viewer-count">' + (photos.length > 1 ? (current + 1) + " / " + photos.length : "") + "</span>" +
+        '<button type="button" class="viewer-close" aria-label="Close">' + M.icon.close + "</button></div>" +
+      '<div class="viewer-body"><div class="viewer-img">' + stage(current) + "</div>" +
       (photos.length > 1 ? '<button type="button" class="viewer-nav viewer-prev" data-step="-1" aria-label="Previous photo">' + M.icon.chevron + "</button>" +
-        '<button type="button" class="viewer-nav viewer-next" data-step="1" aria-label="Next photo">' + M.icon.chevron + "</button>" : "");
+        '<button type="button" class="viewer-nav viewer-next" data-step="1" aria-label="Next photo">' + M.icon.chevron + "</button>" : "") +
+      "</div>" +
+      thumbs("viewer-thumbs", Infinity); // every photo in the larger view
     document.body.appendChild(box);
     document.body.style.overflow = "hidden";
+    mark(box);
     requestAnimationFrame(function () { box.classList.add("is-open"); });
     box.querySelector(".viewer-close").focus();
     box.addEventListener("click", function (e) {
       var nav = e.target.closest("[data-step]");
-      if (nav) { show(current + +nav.getAttribute("data-step")); box.querySelector(".viewer-img").innerHTML = stage(current); return; }
-      if (e.target.closest(".viewer-close") || e.target === box) closeViewer();
+      if (nav) { show(current + +nav.getAttribute("data-step")); return; }
+      var t = e.target.closest("[data-photo]");
+      if (t) { show(+t.getAttribute("data-photo")); return; }
+      if (e.target.closest(".viewer-close") || e.target.classList.contains("viewer-body")) closeViewer();
     });
   }
   function closeViewer() {
@@ -205,13 +239,25 @@
   document.addEventListener("keydown", function (e) {
     if (!box) return;
     if (e.key === "Escape") closeViewer();
-    else if (e.key === "Tab") { e.preventDefault(); box.querySelector(".viewer-close").focus(); }
-    else if (photos.length > 1 && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
-      show(current + (e.key === "ArrowLeft" ? -1 : 1)); box.querySelector(".viewer-img").innerHTML = stage(current);
+    else if (e.key === "ArrowLeft" || e.key === "ArrowRight") show(current + (e.key === "ArrowLeft" ? -1 : 1));
+    else if (e.key === "Tab") { // keep focus inside the larger view
+      var f = Array.prototype.slice.call(box.querySelectorAll("button"));
+      var i = f.indexOf(document.activeElement);
+      e.preventDefault();
+      f[(i + (e.shiftKey ? -1 : 1) + f.length) % f.length].focus();
     }
   });
-  document.getElementById("pdp-zoom").addEventListener("click", openViewer);
-  document.getElementById("pdp-stage").addEventListener("click", openViewer);
+  // swipe between photos on touch screens
+  var touchX = null;
+  document.addEventListener("touchstart", function (e) { touchX = e.target.closest(".viewer-body, .pdp-stage") ? e.touches[0].clientX : null; }, { passive: true });
+  document.addEventListener("touchend", function (e) {
+    if (touchX === null || photos.length < 2) return;
+    var dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 40) show(current + (dx < 0 ? 1 : -1));
+    touchX = null;
+  });
+  document.getElementById("pdp-zoom").addEventListener("click", function () { openViewer(); });
+  document.getElementById("pdp-stage").addEventListener("click", function () { openViewer(); });
 
   /* ---------- share ---------- */
   document.getElementById("pdp-share").addEventListener("click", function () {
@@ -232,6 +278,8 @@
   host.addEventListener("click", function (e) {
     var t = e.target.closest("[data-photo]");
     if (t) { show(+t.getAttribute("data-photo")); return; }
+    var more = e.target.closest("[data-more]");
+    if (more) { openViewer(+more.getAttribute("data-more")); return; }
     var b = e.target.closest("[data-pqty]");
     if (b && qty) {
       qty.value = (parseInt(qty.value, 10) || 1) + parseInt(b.getAttribute("data-pqty"), 10);

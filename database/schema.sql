@@ -37,7 +37,8 @@ CREATE TABLE products (
   badge       VARCHAR(30)   NULL,      -- 'New', 'Gaming', 'Hot'
   summary     TEXT          NULL,
   specs       TEXT          NOT NULL,  -- JSON: [["Memory","8 GB RAM"], …]
-  image_url   VARCHAR(255)  NULL,      -- product photo; NULL = drawn placeholder
+  image_url   VARCHAR(255)  NULL,      -- main photo (cards and the product page); NULL = drawn placeholder
+  images      TEXT          NULL,      -- JSON: every photo in gallery order, when there's more than one
   art         TEXT          NULL,      -- JSON: placeholder illustration settings
   active      TINYINT(1)    NOT NULL DEFAULT 1,
   sort        INT           NOT NULL DEFAULT 0,

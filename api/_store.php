@@ -62,6 +62,8 @@ function catalogue(): array
         if ($p['featured']) $item['featured'] = true;
         if ($p['badge']) $item['badge'] = $p['badge'];
         if ($p['image_url']) $item['image'] = $p['image_url'];
+        $gallery = json_decode($p['images'] ?? '', true);
+        if (is_array($gallery) && count($gallery) > 1) $item['images'] = array_values($gallery);
         $products[] = $item;
     }
     return ['categories' => $categories, 'brands' => $brands, 'products' => $products, 'delivery' => store_settings()];

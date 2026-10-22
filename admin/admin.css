@@ -176,6 +176,14 @@ h1 .pill { font-size: 13px; }
 .steps li.now { color: var(--ink); font-weight: 600; }
 .steps li.now::before { border-color: var(--blue); }
 
+/* product photos */
+.photo-list { display: flex; flex-wrap: wrap; gap: 10px; list-style: none; padding: 0; margin: 0; }
+.photo-list li { position: relative; width: 84px; aspect-ratio: 1; padding: 6px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--white); }
+.photo-list li:first-child { border-color: var(--blue); }
+.photo-list img { width: 100%; height: 100%; object-fit: contain; }
+.photo-list span { position: absolute; left: 4px; bottom: 4px; padding: 0 5px; border-radius: 3px; background: var(--slate); color: var(--white); font-size: 11px; font-weight: 600; }
+input[type=file] { height: auto !important; padding: 8px !important; }
+
 /* destructive actions */
 .danger { margin-top: 14px; }
 .danger summary { cursor: pointer; color: var(--red); font-weight: 500; }

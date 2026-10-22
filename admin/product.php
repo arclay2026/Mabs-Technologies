@@ -40,11 +40,11 @@ $v = $p ? [
     'id' => $p['id'], 'name' => $p['name'], 'brand' => $p['brand_id'], 'category' => $p['category_id'], 'type' => $p['type'],
     'price' => plain_amount($p['price']), 'was' => plain_amount($p['was_price']), 'stock' => (string) $p['stock'],
     'badge' => $p['badge'] ?? '', 'summary' => $p['summary'] ?? '', 'specs' => specs_text($p['specs']),
-    'image' => $p['image_url'] ?? '', 'featured' => (bool) $p['featured'], 'active' => (bool) $p['active'],
+    'photos' => implode("\n", json_decode($p['images'] ?? '', true) ?: array_filter([$p['image_url']])), 'featured' => (bool) $p['featured'], 'active' => (bool) $p['active'],
     'art_kind' => $art['kind'] ?? 'phone', 'art_color' => $art['color'] ?? '#2563eb', 'art_body' => $art['body'] ?? 'dark',
 ] : [
     'id' => '', 'name' => '', 'brand' => '', 'category' => '', 'type' => '', 'price' => '', 'was' => '', 'stock' => '0',
-    'badge' => '', 'summary' => '', 'specs' => '', 'image' => '', 'featured' => false, 'active' => true,
+    'badge' => '', 'summary' => '', 'specs' => '', 'photos' => '', 'featured' => false, 'active' => true,
     'art_kind' => 'phone', 'art_color' => '#2563eb', 'art_body' => 'dark',
 ];
 $errors = [];
@@ -55,7 +55,7 @@ if (is_post()) {
         flash($p['name'] . ' was deleted. Past orders keep its name and price.');
         redirect('products.php');
     }
-    foreach (['id', 'name', 'brand', 'category', 'type', 'price', 'was', 'stock', 'badge', 'summary', 'specs', 'image', 'art_kind', 'art_color', 'art_body'] as $f) {
+    foreach (['id', 'name', 'brand', 'category', 'type', 'price', 'was', 'stock', 'badge', 'summary', 'specs', 'photos', 'art_kind', 'art_color', 'art_body'] as $f) {
         $v[$f] = trim((string) ($_POST[$f] ?? ''));
     }
     $v['featured'] = !empty($_POST['featured']);
@@ -74,7 +74,22 @@ if (is_post()) {
     if ($v['was'] !== '' && ($was === null || ($price !== null && $was <= $price))) $errors['was'] = 'Leave empty, or enter a price higher than the current price.';
     if ($stock === null) $errors['stock'] = 'Enter how many are in stock (0 or more).';
     if (mb_strlen($v['badge']) > 30) $errors['badge'] = 'Keep the badge to 30 characters.';
-    if ($v['image'] !== '' && !preg_match('#^(https://|assets/)[^\s"\'<>]+$#', $v['image'])) $errors['image'] = 'Use a path like assets/products/photo.jpg or an https:// link.';
+    // photos: one path or link per line, plus any uploaded now (added to the end)
+    $photos = [];
+    foreach (preg_split('/\R/', $v['photos']) as $line) {
+        $line = trim($line);
+        if ($line === '' || in_array($line, $photos, true)) continue;
+        if (!preg_match('#^(https://|assets/)[^\s"\'<>]+$#', $line) || strlen($line) > 255) {
+            $errors['photos'] = 'Use paths like assets/products/photo.jpg or https:// links, one per line.';
+            break;
+        }
+        $photos[] = $line;
+    }
+    [$uploaded, $uploadProblems] = save_photo_uploads('upload', $newId);
+    $photos = array_merge($photos, $uploaded);
+    $v['photos'] = implode("\n", $photos); // keep new uploads if the form is shown again
+    if ($uploadProblems) $errors['upload'] = implode(' ', $uploadProblems);
+    if (count($photos) > 12) $errors['photos'] = 'Use up to 12 photos.';
     if (!in_array($v['art_kind'], ART_KINDS, true)) $v['art_kind'] = 'phone';
     if (!preg_match('/^#[0-9a-f]{6}$/i', $v['art_color'])) $v['art_color'] = '#2563eb';
     if (!isset(ART_BODIES[$v['art_body']])) $v['art_body'] = 'dark';
@@ -104,15 +119,15 @@ if (is_post()) {
         $values = [
             $v['name'], $v['brand'], $v['category'], $v['type'], $price, $was, $stock, $v['featured'] ? 1 : 0,
             $v['badge'] !== '' ? $v['badge'] : null, $v['summary'] !== '' ? $v['summary'] : null,
-            json_encode($specs, JSON_UNESCAPED_UNICODE), $v['image'] !== '' ? $v['image'] : null, $artJson, $v['active'] ? 1 : 0, $newId,
+            json_encode($specs, JSON_UNESCAPED_UNICODE), $photos[0] ?? null, count($photos) > 1 ? json_encode($photos, JSON_UNESCAPED_SLASHES) : null, $artJson, $v['active'] ? 1 : 0, $newId,
         ];
         if ($p) {
             $pdo->prepare('UPDATE products SET name = ?, brand_id = ?, category_id = ?, type = ?, price = ?, was_price = ?, stock = ?, featured = ?,
-                           badge = ?, summary = ?, specs = ?, image_url = ?, art = ?, active = ? WHERE id = ?')->execute($values);
+                           badge = ?, summary = ?, specs = ?, image_url = ?, images = ?, art = ?, active = ? WHERE id = ?')->execute($values);
             flash($v['name'] . ' saved.');
         } else {
             $pdo->prepare('INSERT INTO products (name, brand_id, category_id, type, price, was_price, stock, featured, badge, summary, specs,
-                           image_url, art, active, id, sort) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1000)')->execute($values);
+                           image_url, images, art, active, id, sort) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1000)')->execute($values);
             flash($v['name'] . ' added to the shop.');
         }
         redirect('product.php?id=' . rawurlencode($newId));
@@ -137,7 +152,7 @@ page_start($p ? $p['name'] : 'Add product', 'products');
 </div>
 <?php if ($errors): ?><p class="note note-error" role="alert">Please fix the highlighted fields.</p><?php endif; ?>
 
-<form method="post" class="cols form">
+<form method="post" class="cols form" enctype="multipart/form-data">
   <?= csrf_field() ?>
   <div class="col-main">
     <section class="card grid2">
@@ -166,9 +181,19 @@ page_start($p ? $p['name'] : 'Add product', 'products');
     </section>
 
     <section class="card grid2">
-      <h2 class="span2">Picture</h2>
-      <label class="span2">Photo <span class="hint">optional — upload it to assets/products/ and enter the path, or paste an https:// link</span> <?= field_error($errors, 'image') ?>
-        <input name="image" value="<?= h($v['image']) ?>" placeholder="assets/products/galaxy-a15.jpg"<?= invalid($errors, 'image') ?>></label>
+      <h2 class="span2">Photos</h2>
+      <?php $list = array_values(array_filter(array_map('trim', preg_split('/\R/', $v['photos'])))); ?>
+      <?php if ($list): ?>
+        <ol class="photo-list span2" aria-label="Current photos">
+          <?php foreach ($list as $i => $src): ?>
+            <li><img src="<?= h(photo_src($src)) ?>" alt=""><span><?= $i === 0 ? 'Main' : $i + 1 ?></span></li>
+          <?php endforeach; ?>
+        </ol>
+      <?php endif; ?>
+      <label class="span2">Add photos <span class="hint">JPG, PNG or WebP, up to 5 MB each — square photos on a white background look best</span> <?= field_error($errors, 'upload') ?>
+        <input type="file" name="upload[]" accept="image/jpeg,image/png,image/webp" multiple<?= invalid($errors, 'upload') ?>></label>
+      <label class="span2">Photo order <span class="hint">one per line; the first is the main photo. Delete a line to remove a photo.</span> <?= field_error($errors, 'photos') ?>
+        <textarea name="photos" rows="<?= max(2, count($list) + 1) ?>" placeholder="assets/products/galaxy-a15-front.jpg&#10;https://…"<?= invalid($errors, 'photos') ?>><?= h($v['photos']) ?></textarea></label>
       <p class="span2 muted">Without a photo, the shop draws an illustration:</p>
       <label>Drawing
         <select name="art_kind"><?php foreach (ART_KINDS as $k): ?><option value="<?= h($k) ?>"<?= $k === $v['art_kind'] ? ' selected' : '' ?>><?= h(ucfirst($k)) ?></option><?php endforeach; ?></select></label>

@@ -86,7 +86,10 @@ each placed order for the Orders page (until customer accounts exist).
     Confirmed → Out for delivery → Delivered, or Ready for collection →
     Collected), payment status, and Cancel (puts the items back in stock)
   - **Products**: quick-edit prices, sale prices, stock and visibility in one
-    table; add, edit, hide or delete products
+    table; add, edit, hide or delete products; upload up to 12 photos per
+    product (JPG, PNG or WebP, 5 MB each — saved in `assets/products/`), the
+    first being the main photo. The product page shows up to 4 thumbnails,
+    with a "+N" tile for the rest
   - **Settings**: courier fee, free-delivery threshold, in-store collection,
     and your password
 - If the backend can't be reached, the shop falls back to the built-in
@@ -113,9 +116,16 @@ hashes; `.htaccess` files block direct access to `api/_*.php`,
    account (both steps ask for the `secret` as a setup key). Then sign in at
    `https://your-domain/admin/`.
 
-Requires PHP 8.1+ with PDO MySQL, and MySQL 5.7+ or MariaDB 10.3+.
+Requires PHP 8.1+ with PDO MySQL and GD/fileinfo (standard on most hosts),
+and MySQL 5.7+ or MariaDB 10.3+. The `assets/products/` folder must be
+writable by PHP for photo uploads.
 To change the database later, add the change to `database/schema.sql` and
-run the matching `ALTER TABLE` in phpMyAdmin.
+run the matching `ALTER TABLE` in phpMyAdmin. Changes so far, for databases
+installed before them:
+
+```sql
+ALTER TABLE products ADD COLUMN images TEXT NULL AFTER image_url;  -- photo galleries (22 Oct 2026)
+```
 
 ## Hosting on GitHub Pages
 

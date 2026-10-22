@@ -193,3 +193,58 @@ function plain_amount(?string $v): string
     if ($v === null || $v === '') return '';
     return rtrim(rtrim(number_format((float) $v, 2, '.', ''), '0'), '.');
 }
+
+/* ---------- photo uploads (admin/product.php) ---------- */
+
+const PHOTO_TYPES = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+const PHOTO_MAX_BYTES = 5 * 1024 * 1024;
+
+/**
+ * Saves uploaded photos to assets/products/ under new random names.
+ * Only real JPG, PNG and WebP images are kept (checked by reading the file).
+ * Returns [saved paths, problems].
+ */
+function save_photo_uploads(string $field, string $slug): array
+{
+    $f = $_FILES[$field] ?? null;
+    if (!$f || !is_array($f['name'])) return [[], []];
+    $saved = [];
+    $problems = [];
+    $dir = MABS_ROOT . '/assets/products';
+    foreach ($f['name'] as $i => $original) {
+        $err = $f['error'][$i];
+        $label = '“' . mb_substr(basename((string) $original), 0, 60) . '”';
+        if ($err === UPLOAD_ERR_NO_FILE) continue;
+        if ($err === UPLOAD_ERR_INI_SIZE || $err === UPLOAD_ERR_FORM_SIZE || $f['size'][$i] > PHOTO_MAX_BYTES) {
+            $problems[] = "$label is too big — photos can be up to 5 MB.";
+            continue;
+        }
+        if ($err !== UPLOAD_ERR_OK || !is_uploaded_file($f['tmp_name'][$i])) {
+            $problems[] = "$label couldn’t be uploaded. Try again.";
+            continue;
+        }
+        $info = @getimagesize($f['tmp_name'][$i]);
+        $ext = $info ? (PHOTO_TYPES[$info['mime']] ?? null) : null;
+        if (!$ext) {
+            $problems[] = "$label isn’t a JPG, PNG or WebP photo.";
+            continue;
+        }
+        if (!is_dir($dir) && !@mkdir($dir, 0755, true)) {
+            $problems[] = 'The assets/products folder couldn’t be created on the server.';
+            break;
+        }
+        $name = ($slug !== '' ? $slug : 'photo') . '-' . bin2hex(random_bytes(4)) . '.' . $ext;
+        if (!move_uploaded_file($f['tmp_name'][$i], "$dir/$name")) {
+            $problems[] = "$label couldn’t be saved. Check that the assets/products folder can be written to.";
+            continue;
+        }
+        $saved[] = 'assets/products/' . $name;
+    }
+    return [$saved, $problems];
+}
+
+/** a photo path as seen from the admin pages (one folder down from the site) */
+function photo_src(string $path): string
+{
+    return str_starts_with($path, 'assets/') ? '../' . $path : $path;
+}
