@@ -1,0 +1,5 @@
+# Only the public endpoints (catalogue.php, orders.php) may be requested.
+Options -Indexes
+<FilesMatch "^(_.*|config.*)\.php$">
+  Require all denied
+</FilesMatch>

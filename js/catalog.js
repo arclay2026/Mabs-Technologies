@@ -1,9 +1,11 @@
 /* =====================================================================
    MABS TECHNOLOGIES — STORE CONFIG & CATALOGUE
    ---------------------------------------------------------------------
-   Everything the shop knows about the business and its stock lives in
-   this file. Edit the config to switch on contact details and order
-   hand-off, and edit `products` to change what is for sale.
+   The shop's settings (contact details, backend address) and its
+   built-in catalogue. With the backend running (api/, see README),
+   products, prices, stock and delivery charges come from the database and
+   are managed in the admin panel; this catalogue is the fallback when the
+   backend can't be reached (e.g. on GitHub Pages).
    Prices are in South African rand (ZAR), VAT inclusive.
    ===================================================================== */
 (function () {
@@ -20,12 +22,9 @@
     phone: "",      // as displayed, e.g. "082 123 4567"
     address: "",    // e.g. "12 Main Road, Johannesburg"
     hours: "",      // e.g. "Mon–Sat 9:00–18:00"
-    // Supabase project (Project Settings → API). The publishable key is meant
-    // to be public; never put the secret / service_role key here.
-    supabase: {
-      url: "https://jxxradpjdqqckgrmrjyf.supabase.co",
-      key: "sb_publishable_l-j562qW0HU7BZ2Q-00EoQ_nsyz1gCD"
-    },
+    // Shop backend (PHP + MySQL in api/). Relative to the site; set to "" to
+    // run purely from the built-in catalogue below.
+    api: "api/",
     // shown under "Popular searches" when someone opens the search box;
     // swap for real trending searches once searches are logged in a database
     popularSearches: ["Laptops", "Samsung Galaxy", "iPhone", "Gaming", "Smart TV", "Wireless headphones"],

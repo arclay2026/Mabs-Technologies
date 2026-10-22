@@ -1,11 +1,14 @@
 /* =====================================================================
    MABS TECHNOLOGIES — CHECKOUT (checkout.html)
    ---------------------------------------------------------------------
-   There is no server yet: a placed order is saved in this browser
-   (localStorage "mabs.orders.v1") and the confirmation screen lets the
-   customer send it to the shop by WhatsApp or email, using the contact
-   details in catalog.js. Swap `submitOrder` for a call to an order API
-   or payment gateway when one is available.
+   When the shop backend is running (js/api.js loaded the catalogue from
+   it), orders go to api/orders.php, which rechecks stock, prices every
+   line, saves the order and emails the shop and the customer.
+   Without the backend (e.g. on GitHub Pages) the order is kept in this
+   browser and the confirmation screen lets the customer send it to the
+   shop by WhatsApp or email, using the contact details in catalog.js.
+   Either way a copy is kept in localStorage "mabs.orders.v1" for the
+   Orders page until customer accounts exist.
    ===================================================================== */
 (function () {
   "use strict";
@@ -102,42 +105,46 @@
     M.write("mabs.orders.v1", orders);
   }
 
-  // save the order: to the database when this page's catalogue came from it
+  // save the order on the server when this page's catalogue came from it
   // (it rechecks stock and prices); otherwise only on this device, so
-  // checkout keeps working if the database can't be reached
+  // checkout keeps working without the backend
   function submitOrder(order) {
-    if (!M.db || M.db.source !== "database") { rememberOrder(order); return Promise.resolve(order); }
-    return M.db.api("rpc/place_order", {
+    if (!M.api || M.api.source !== "server") { rememberOrder(order); return Promise.resolve(order); }
+    return M.api.request("orders.php", {
       method: "POST",
       body: {
-        p_items: order.items.map(function (i) { return { id: i.id, qty: i.qty }; }),
-        p_customer: order.customer, p_fulfilment: order.fulfil, p_payment: order.payment,
-        p_address: order.address, p_notes: order.notes
+        items: order.items.map(function (i) { return { id: i.id, qty: i.qty }; }),
+        customer: order.customer, fulfil: order.fulfil,
+        payment: order.payment === "on-receipt" ? "on_receipt" : order.payment,
+        address: order.address, notes: order.notes,
+        website: form.elements.website ? form.elements.website.value : ""
       }
     }).then(function (saved) {
-      // the database's numbers win: order number, prices, fee and total
+      // the server's numbers win: order number, prices, fee and total
       order.number = saved.number;
       order.placed = saved.placed;
       order.items = saved.items.map(function (i) { return { id: i.id, name: i.name, price: +i.price, qty: i.qty }; });
       order.subtotal = +saved.subtotal; order.fee = +saved.fee; order.total = +saved.total;
+      order.received = true;
+      order.emailed = !!saved.emailed;
       rememberOrder(order);
-      M.db.refresh(); // stock changed
+      M.api.refresh(); // stock changed
       return order;
     });
   }
 
   function orderError(err) {
-    var msg = String((err && err.message) || "");
-    var m = msg.match(/^(OUT_OF_STOCK|UNKNOWN_PRODUCT):(.+)$/);
-    if (m) {
-      var p = M.byId(m[2]);
-      M.db.refresh();
+    var code = (err && err.code) || "";
+    if (code === "OUT_OF_STOCK" || code === "UNKNOWN_PRODUCT") {
+      var p = M.byId(err.data && err.data.product);
+      M.api.refresh();
       return (p ? "<b>" + esc(p.name) + "</b>" : "One of your items") +
-        (m[1] === "OUT_OF_STOCK" ? " doesn't have enough stock left for your order." : " is no longer available.") +
+        (code === "OUT_OF_STOCK" ? " doesn't have enough stock left for your order." : " is no longer available.") +
         " Please update your cart and try again.";
     }
-    if (msg === "MISSING_DETAILS") return "Please check your name, cellphone number and email address.";
-    if (msg === "MISSING_ADDRESS") return "Please check your delivery address and postal code.";
+    if (code === "MISSING_DETAILS") return "Please check your name, cellphone number and email address.";
+    if (code === "MISSING_ADDRESS") return "Please check your delivery address, province and postal code.";
+    if (code === "TOO_MANY_ORDERS") return "You've placed several orders in the last few minutes. Please wait a little and try again, or contact us.";
     return "We couldn’t place your order just now. Please check your connection and try again.";
   }
 
@@ -167,7 +174,10 @@
         '<div class="confirm-tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>' +
         '<h1 tabindex="-1">Thank you, ' + esc(o.customer.name.split(" ")[0]) + "!</h1>" +
         '<p class="lede">Your order reference is <b class="ref">' + esc(o.number) + "</b>.</p>" +
-        (send.length ?
+        (o.received ?
+          "<p>We've received your order" + (o.emailed ? " and emailed a copy to " + esc(o.customer.email) : "") + ". We'll contact you on " + esc(o.customer.phone) +
+            " to confirm stock" + (o.payment === "eft" ? " and share our banking details" : "") + ".</p>" :
+        send.length ?
           "<p>To finish, send your order to us below — we'll reply to confirm stock" + (o.payment === "eft" ? " and share our banking details" : "") + ".</p>" +
           '<div class="confirm-actions">' + send.join("") + "</div>" :
           "<p>We'll contact you on " + esc(o.customer.phone) + " to confirm stock" + (o.payment === "eft" ? " and share our banking details" : "") + ".</p>") +

@@ -1,8 +1,10 @@
 # Mabs Technologies — Online Store
 
 An e-commerce web app for Mabs Technologies, selling computers, phones &
-tablets, accessories and electronics. Static HTML/CSS/JS with no build
-step — host it on any static web host (Hostinger, GitHub Pages, Netlify…).
+tablets, accessories and electronics. The shop is HTML/CSS/JS with no build
+step; the backend (orders, stock, admin panel) is PHP + MySQL, so the live
+shop needs PHP hosting such as Hostinger. Without PHP (e.g. on GitHub
+Pages) the shop still runs from its built-in catalogue.
 
 ## Pages
 
@@ -20,17 +22,26 @@ step — host it on any static web host (Hostinger, GitHub Pages, Netlify…).
 - `wishlist.html` — My Account → Wishlist: saved products with Add to cart,
   Remove, Add all to cart and a shareable link (`wishlist.html?shared=…`).
 
-The cart drawer, wishlist and header search work on every page. Cart,
-wishlist and placed orders are saved in the browser's `localStorage`.
+The cart drawer, wishlist and header search work on every page. Cart and
+wishlist are saved in the browser's `localStorage`, along with a copy of
+each placed order for the Orders page (until customer accounts exist).
+
+- `admin/` — the admin panel (see Backend below).
 
 ## Files
 
-- `js/catalog.js` — **edit this to run the shop**: store config (contact
-  details, delivery fee, free-delivery threshold, collection) and the
-  product list (name, brand, category, price, previous price, stock, specs).
-  Products show a drawn illustration until you add a photo with
-  `image: "assets/products/<file>.jpg"`.
-- `js/db.js` — database connection (see Database below).
+- `js/catalog.js` — store config (contact details, backend address) and the
+  built-in catalogue the shop falls back to without the backend. Once the
+  backend is live, products, prices, stock and delivery charges are managed
+  in the admin panel instead.
+  Products show a drawn illustration until they have a photo
+  (`assets/products/<file>.jpg`).
+- `js/api.js` — connects the shop to the backend (see Backend below).
+- `api/` — the backend: `catalogue.php` and `orders.php` (the shop's API),
+  `_store.php` (order rules and emails), `_bootstrap.php` (database
+  connection), `config.sample.php` (settings template).
+- `database/schema.sql`, `database/seed.sql` — the MySQL tables and the
+  starting catalogue (installed for you by `admin/setup.php`).
 - `js/app.js` — cart, wishlist, header ("Shop by department" menu, live
   search, mobile menu), footer, cart drawer, product cards.
 - `js/shop.js`, `js/product.js`, `js/checkout.js`, `js/orders.js`,
@@ -50,41 +61,61 @@ wishlist and placed orders are saved in the browser's `localStorage`.
 
 ## Before going live
 
-1. Fill in `email`, `whatsapp`, `phone`, `address` and `hours` in
-   `MABS.store` (`js/catalog.js`). With `whatsapp` and/or `email` set, the
-   confirmation screen lets customers send their order straight to the shop.
-   Without them, orders only exist in the customer's own browser.
-2. Replace the sample catalogue (products, prices, stock) with real stock.
-3. For online card payments and central order storage, replace
-   `submitOrder` in `js/checkout.js` with a call to a backend or payment
-   gateway (e.g. PayFast, Yoco, Ozow).
+1. Set up the backend on PHP hosting (below), then manage products, prices
+   and stock in the admin panel.
+2. Fill in `email`, `whatsapp`, `phone`, `address` and `hours` in
+   `MABS.store` (`js/catalog.js`) to show them in the footer.
+3. For online card payments, add a payment gateway (e.g. PayFast, Yoco,
+   Ozow) to checkout.
 
-## Database (Supabase)
+## Backend (PHP + MySQL)
 
-The store's database lives in Supabase. `supabase/migrations/` holds the
-schema and the starting catalogue; the Supabase GitHub integration applies
-any new migration to the production database when it's merged into `main`
-(never edit an applied migration — add a new one).
+**What it does**
 
-- `categories`, `brands`, `products`, `store_settings` — the catalogue and
-  delivery settings; anyone can read them, only the dashboard can change them
-- `orders`, `order_items` — created only through `place_order(...)`, which
-  rechecks stock, prices every line from the database, works out the
-  delivery fee, saves the order and reduces stock in one step; signed-in
-  customers can read only their own orders
-- Row-level security is on for every table
+- `api/catalogue.php` — the shop loads products, stock, prices, brands,
+  departments and delivery charges from here (cached for 5 minutes per tab)
+- `api/orders.php` — checkout sends orders here. The server rechecks stock,
+  prices every line from the database (prices sent by the browser are
+  ignored), works out the delivery fee, saves the order and reduces stock in
+  one transaction, so two customers can never buy the same last unit. It
+  then emails the order to the shop and a confirmation to the customer.
+  Limits: 50 of an item per order, 8 orders per visitor per 10 minutes.
+- `admin/` — password-protected admin panel:
+  - **Orders**: new/open/completed tabs, search, sales totals, low-stock
+    alert; each order's items, customer and address, status (Placed →
+    Confirmed → Out for delivery → Delivered, or Ready for collection →
+    Collected), payment status, and Cancel (puts the items back in stock)
+  - **Products**: quick-edit prices, sale prices, stock and visibility in one
+    table; add, edit, hide or delete products
+  - **Settings**: courier fee, free-delivery threshold, in-store collection,
+    and your password
+- If the backend can't be reached, the shop falls back to the built-in
+  catalogue and orders are kept on the customer's device, with WhatsApp /
+  email buttons to send them to the shop (when those are set in `catalog.js`).
 
-The site connects through `js/db.js`, using `MABS.store.supabase` in
-`js/catalog.js` (project URL + publishable key; never the secret key):
+**Security**: database passwords live only in `api/config.php`, which is
+never committed (`.gitignore`); admin passwords are hashed; every admin form
+has a CSRF token; sign-in locks for 15 minutes after 5 wrong passwords;
+sessions expire after 4 hours idle; IP addresses are stored only as salted
+hashes; `.htaccess` files block direct access to `api/_*.php`,
+`api/config.php`, `admin/_*.php` and `database/`.
 
-- every page loads the catalogue and delivery settings from the database
-  (cached for 5 minutes per tab), then starts its own scripts — listed in the
-  `data-load` attribute of the `db.js` script tag
-- checkout calls `place_order` whenever the page's catalogue came from the
-  database; the order number, prices and totals shown on the confirmation
-  come from it
-- if the URL is empty or the database can't be reached, the shop falls back
-  to the built-in catalogue in `js/catalog.js`
+**Setting it up (e.g. Hostinger)**
+
+1. Upload all the files to `public_html` (File Manager or Git deploy).
+2. In the control panel, create a MySQL database and user (Databases →
+   MySQL Databases). Note the database name, user and password.
+3. Copy `api/config.sample.php` to `api/config.php` and fill in the
+   database details, a long random `secret`, the email addresses for order
+   emails, and your site address.
+4. Open `https://your-domain/admin/setup.php`. It checks the connection,
+   installs the tables and the starting catalogue, and creates your admin
+   account (both steps ask for the `secret` as a setup key). Then sign in at
+   `https://your-domain/admin/`.
+
+Requires PHP 8.1+ with PDO MySQL, and MySQL 5.7+ or MariaDB 10.3+.
+To change the database later, add the change to `database/schema.sql` and
+run the matching `ALTER TABLE` in phpMyAdmin.
 
 ## Hosting on GitHub Pages
 
@@ -96,10 +127,25 @@ updates on every push to `main`. All links are relative, so it also works
 unchanged on a custom domain. The empty `.nojekyll` file tells Pages to
 serve the files as they are, without running them through Jekyll.
 
+GitHub Pages can't run PHP, so there the shop uses its built-in catalogue
+and the admin panel doesn't work — it's a preview. For the real shop, use
+PHP hosting. (If the shop pages stay on Pages and the API lives elsewhere,
+set `api` in `js/catalog.js` to the API's full address and add the Pages
+address to `cors_origins` in `api/config.php`.)
+
 ## Running locally
+
+Shop only (built-in catalogue):
 
 ```bash
 python3 -m http.server 8000
 ```
 
-Then open `http://localhost:8000/`.
+With the backend (needs PHP and a local MySQL/MariaDB database, plus
+`api/config.php`):
+
+```bash
+php -S localhost:8000
+```
+
+Then open `http://localhost:8000/` (and `/admin/setup.php` the first time).
