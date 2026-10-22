@@ -12,7 +12,8 @@ label > .dd, .field .dd, .form .dd { display: flex; width: 100%; }
   border: 1px solid var(--dd-line); border-radius: 8px; background: #fff; color: var(--dd-ink); font: inherit; font-size: 13.5px; font-weight: 500; text-align: left; cursor: pointer;
   transition: border-color .15s, box-shadow .15s; }
 .dd-btn:hover { border-color: #b9c0c7; }
-.dd-btn:focus-visible, .dd.is-open .dd-btn { outline: none; border-color: var(--dd-accent); box-shadow: 0 0 0 3px rgba(0, 113, 227, .14); }
+.dd.is-open .dd-btn { border-color: #9aa4ad; }
+.dd-btn:focus-visible { outline: 2px solid var(--dd-ink); outline-offset: 2px; } /* keyboard only */
 .dd-btn[aria-invalid="true"] { border-color: #b91c1c; }
 .dd-btn.is-placeholder .dd-value { color: #8a949c; font-weight: 400; }
 .dd-btn:disabled { background: var(--dd-soft); color: var(--dd-mute); cursor: not-allowed; }
