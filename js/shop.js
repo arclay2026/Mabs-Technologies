@@ -243,7 +243,7 @@
 
   function title() {
     if (state.wish) return "Your wishlist";
-    if (state.q) return "Search results";
+    if (state.q) return "Results for \u201c" + state.q + "\u201d";
     if (state.deals && !state.cat) return "On sale";
     if (state.type) return M.plural(state.type);
     return state.cat ? M.catName(state.cat) : "All products";
@@ -268,6 +268,10 @@
       // search results get the detailed card; browsing keeps the compact grid
       var rich = !!state.q;
       shopEl.classList.toggle("is-search", rich); // and filters move into a sidebar
+      // while searching, the results are the page: banner, brands, departments and deals step aside
+      document.body.classList.toggle("is-searching", rich);
+      if (rich) { $("shop-title").setAttribute("role", "heading"); $("shop-title").setAttribute("aria-level", "1"); }
+      else { $("shop-title").removeAttribute("role"); $("shop-title").removeAttribute("aria-level"); }
       $("grid").classList.toggle("grid-rich", rich);
       $("grid").innerHTML = list.slice(0, shown).map(function (p) { return M.card(p, { rich: rich }); }).join("");
       if (list.length > PAGE) {

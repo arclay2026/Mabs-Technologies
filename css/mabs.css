@@ -560,6 +560,10 @@ body.sheet-open::after { content: ""; position: fixed; inset: 0; z-index: 150; b
 .chip { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 3px 9px 3px 12px; border-radius: 999px; background: var(--accent-tint); color: var(--accent-hover); font-size: 12.5px; font-weight: 700; }
 .chip svg { width: 15px; height: 15px; }
 .chip:hover { background: #d9e9fc; }
+/* while searching, only the results show (js/shop.js sets body.is-searching) */
+body.is-searching main > :not(#shop) { display: none; }
+body.is-searching #shop { padding-top: clamp(20px, 3vw, 32px); min-height: 70vh; }
+
 /* search results: the filters become a sidebar beside 4 results per row */
 @media (min-width: 1000px) {
   .is-search .shop-layout { display: grid; grid-template-columns: 264px minmax(0, 1fr); gap: 20px; align-items: start; }

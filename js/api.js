@@ -105,6 +105,7 @@
       grid.classList.add("grid-rich");
       var shop = document.getElementById("shop");
       if (shop) shop.classList.add("is-search");
+      document.body.classList.add("is-searching");
       fill("f-cats", repeat(4, function () { return sk("sk-line sk-w70 sk-filter"); }));
       fill("f-brands", repeat(6, function () { return sk("sk-line sk-w60 sk-filter"); }));
     }
