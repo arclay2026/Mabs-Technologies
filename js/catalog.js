@@ -32,6 +32,13 @@
       courierFee: 120,   // flat courier fee per order
       freeOver: 1500,    // orders at or above this subtotal ship free
       collect: true      // offer free in-store collection
+    },
+    // shown on every product page — check these match how the shop works
+    service: {
+      deliveryDays: [2, 4],  // courier: working days from order to door
+      collectNote: "Usually ready within 1 working day. We'll let you know.",
+      returns: "Changed your mind? Return unused items in their original packaging within 7 days.",
+      warranty: "Manufacturer's warranty"  // used when a product has no "Warranty" spec
     }
   };
 
