@@ -5,16 +5,18 @@ require __DIR__ . '/_admin.php';
 require_admin();
 
 $pdo = db();
-$q = trim((string) ($_GET['q'] ?? ''));
-$cat = (string) ($_GET['cat'] ?? '');
-$brand = (string) ($_GET['brand'] ?? '');
-$stock = (string) ($_GET['stock'] ?? '');
-$show = (string) ($_GET['show'] ?? '');
+$q = trim(q('q'));
+$cat = q('cat');
+$brand = q('brand');
+$stock = q('stock');
+$show = q('show');
 $back = 'products.php' . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '');
 
 if (is_post()) {
     $find = $pdo->prepare('SELECT id, name, price, was_price, stock, active FROM products WHERE id = ?');
-    $save = $pdo->prepare('UPDATE products SET price = ?, was_price = ?, stock = ?, active = ? WHERE id = ?');
+    $save = $pdo->prepare('UPDATE products SET price = ?, was_price = ?, active = ? WHERE id = ?');
+    // stock is only written when it was edited here, and only if no order changed it meanwhile
+    $saveStock = $pdo->prepare('UPDATE products SET stock = ? WHERE id = ? AND stock = ?');
     $changed = 0;
     $problems = [];
     foreach ((array) ($_POST['rows'] ?? []) as $id => $row) {
@@ -25,6 +27,7 @@ if (is_post()) {
         $wasRaw = trim((string) ($row['was'] ?? ''));
         $was = $wasRaw === '' ? null : parse_money($wasRaw);
         $units = parse_count((string) ($row['stock'] ?? ''));
+        $shownStock = parse_count((string) ($row['stock_was'] ?? ''));
         $active = !empty($row['active']) ? 1 : 0;
         if ($price === null || $units === null || ($wasRaw !== '' && $was === null)) {
             $problems[] = $p['name'] . ': check the price and stock';
@@ -34,11 +37,20 @@ if (is_post()) {
             $problems[] = $p['name'] . ': the “was” price must be higher than the price (or empty)';
             continue;
         }
-        if ($price != $p['price'] || $was != $p['was_price'] || ($was === null) !== ($p['was_price'] === null)
-            || $units !== (int) $p['stock'] || $active !== (int) $p['active']) {
-            $save->execute([$price, $was, $units, $active, $p['id']]);
-            $changed++;
+        $rowChanged = false;
+        if ($price != $p['price'] || ($was === null ? $p['was_price'] !== null : $was != $p['was_price']) || $active !== (int) $p['active']) {
+            $save->execute([$price, $was, $active, $p['id']]);
+            $rowChanged = true;
         }
+        if ($shownStock !== null && $units !== $shownStock) {
+            $saveStock->execute([$units, $p['id'], $shownStock]);
+            if ($saveStock->rowCount() === 1) {
+                $rowChanged = true;
+            } elseif ((int) $p['stock'] !== $units) {
+                $problems[] = $p['name'] . ': stock changed to ' . (int) $p['stock'] . ' while you were editing (an order or a cancellation). Check it and save again';
+            }
+        }
+        if ($rowChanged) $changed++;
     }
     if ($changed) flash($changed === 1 ? '1 product updated.' : "$changed products updated.");
     if (!$changed && !$problems) flash('Nothing changed.', 'info');
@@ -104,7 +116,7 @@ page_start('Products', 'products');
         <td class="num"><input class="in-num" name="<?= $k ?>[price]" value="<?= h(plain_amount($p['price'])) ?>" inputmode="decimal" required aria-label="Price of <?= h($p['name']) ?>"></td>
         <td class="num"><input class="in-num" name="<?= $k ?>[was]" value="<?= h(plain_amount($p['was_price'])) ?>" inputmode="decimal" placeholder="—" aria-label="Was price of <?= h($p['name']) ?>"></td>
         <td class="num"><input class="in-num in-stock<?= (int) $p['stock'] === 0 ? ' is-out' : ((int) $p['stock'] <= 2 ? ' is-low' : '') ?>" name="<?= $k ?>[stock]" value="<?= (int) $p['stock'] ?>" inputmode="numeric" required aria-label="Stock of <?= h($p['name']) ?>"></td>
-        <td class="center"><input type="checkbox" name="<?= $k ?>[active]" value="1"<?= $p['active'] ? ' checked' : '' ?> aria-label="Show <?= h($p['name']) ?> in the shop"></td>
+        <td class="center"><input type="hidden" name="<?= $k ?>[stock_was]" value="<?= (int) $p['stock'] ?>"><input type="checkbox" name="<?= $k ?>[active]" value="1"<?= $p['active'] ? ' checked' : '' ?> aria-label="Show <?= h($p['name']) ?> in the shop"></td>
         <td class="nowrap"><a href="product.php?id=<?= h(rawurlencode($p['id'])) ?>">Edit</a></td>
       </tr>
     <?php endforeach; ?>

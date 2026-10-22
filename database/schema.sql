@@ -3,10 +3,13 @@
 -- ---------------------------------------------------------------------
 -- Works on MySQL 5.7+ and MariaDB 10.3+. Install it from the admin panel
 -- (admin/setup.php) or import it in phpMyAdmin, then load seed.sql.
+-- Safe to run again: existing tables and rows are left alone. Columns and
+-- indexes added after the first release are applied by setup.php's
+-- "Update database" step (see UPGRADES in admin/_admin.php).
 -- JSON values (specs, art, address) are stored as text for portability.
 -- =====================================================================
 
-CREATE TABLE categories (
+CREATE TABLE IF NOT EXISTS categories (
   id    VARCHAR(40)  NOT NULL,
   name  VARCHAR(80)  NOT NULL,
   blurb VARCHAR(160) NULL,
@@ -14,7 +17,7 @@ CREATE TABLE categories (
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE brands (
+CREATE TABLE IF NOT EXISTS brands (
   id          VARCHAR(40)  NOT NULL,
   name        VARCHAR(80)  NOT NULL,
   logo_url    VARCHAR(255) NULL,      -- full-colour logo for the featured brands strip
@@ -24,7 +27,7 @@ CREATE TABLE brands (
   UNIQUE KEY brands_name (name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE products (
+CREATE TABLE IF NOT EXISTS products (
   id          VARCHAR(80)   NOT NULL,  -- URL slug, e.g. 'apple-iphone-15'
   name        VARCHAR(200)  NOT NULL,
   brand_id    VARCHAR(40)   NOT NULL,
@@ -55,7 +58,7 @@ CREATE TABLE products (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- one row of shop-wide settings
-CREATE TABLE store_settings (
+CREATE TABLE IF NOT EXISTS store_settings (
   id          TINYINT       NOT NULL DEFAULT 1,
   courier_fee DECIMAL(12,2) NOT NULL DEFAULT 120,
   free_over   DECIMAL(12,2) NOT NULL DEFAULT 1500,
@@ -63,9 +66,9 @@ CREATE TABLE store_settings (
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO store_settings (id) VALUES (1);
+INSERT IGNORE INTO store_settings (id) VALUES (1);
 
-CREATE TABLE orders (
+CREATE TABLE IF NOT EXISTS orders (
   id             INT UNSIGNED  NOT NULL AUTO_INCREMENT,
   number         VARCHAR(20)   NOT NULL,              -- e.g. 'MB261022-4821'
   status         ENUM('placed','confirmed','out_for_delivery','ready_for_collection','delivered','collected','cancelled')
@@ -88,10 +91,11 @@ CREATE TABLE orders (
   UNIQUE KEY orders_number (number),
   KEY orders_status (status, created_at),
   KEY orders_created (created_at),
-  KEY orders_ip (ip_hash, created_at)
+  KEY orders_ip (ip_hash, created_at),
+  KEY orders_email (customer_email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE order_items (
+CREATE TABLE IF NOT EXISTS order_items (
   id         INT UNSIGNED  NOT NULL AUTO_INCREMENT,
   order_id   INT UNSIGNED  NOT NULL,
   product_id VARCHAR(80)   NULL,       -- NULL if the product is later deleted
@@ -106,7 +110,7 @@ CREATE TABLE order_items (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- admin panel users
-CREATE TABLE admins (
+CREATE TABLE IF NOT EXISTS admins (
   id            INT UNSIGNED NOT NULL AUTO_INCREMENT,
   email         VARCHAR(190) NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
@@ -117,7 +121,7 @@ CREATE TABLE admins (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- failed admin sign-ins, for throttling
-CREATE TABLE login_attempts (
+CREATE TABLE IF NOT EXISTS login_attempts (
   id      INT UNSIGNED NOT NULL AUTO_INCREMENT,
   ip_hash CHAR(64)     NOT NULL,
   at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -126,7 +130,7 @@ CREATE TABLE login_attempts (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- product reviews: written on the product page, shown once approved in the admin panel
-CREATE TABLE reviews (
+CREATE TABLE IF NOT EXISTS reviews (
   id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
   product_id  VARCHAR(80)  NOT NULL,
   rating      TINYINT      NOT NULL,              -- 1 to 5 stars

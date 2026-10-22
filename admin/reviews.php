@@ -8,8 +8,8 @@ const REVIEW_TABS = ['pending' => 'Waiting', 'approved' => 'Published', 'rejecte
 const PER_PAGE = 20;
 
 $pdo = db();
-$tab = isset(REVIEW_TABS[$_GET['tab'] ?? '']) ? $_GET['tab'] : 'pending';
-$page = max(1, (int) ($_GET['page'] ?? 1));
+$tab = isset(REVIEW_TABS[q('tab')]) ? q('tab') : 'pending';
+$page = max(1, (int) (q('page') ?: 1));
 $self = 'reviews.php?' . http_build_query(['tab' => $tab, 'page' => $page > 1 ? $page : null]);
 
 if (is_post()) {

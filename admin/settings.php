@@ -32,9 +32,11 @@ if (is_post()) {
         } elseif ($new !== ($_POST['confirm'] ?? '')) {
             $errors['confirm'] = 'The new passwords don’t match.';
         } else {
-            $pdo->prepare('UPDATE admins SET password_hash = ? WHERE id = ?')->execute([password_hash($new, PASSWORD_DEFAULT), $admin['id']]);
+            $hash = password_hash($new, PASSWORD_DEFAULT);
+            $pdo->prepare('UPDATE admins SET password_hash = ? WHERE id = ?')->execute([$hash, $admin['id']]);
             session_regenerate_id(true);
-            flash('Password changed.');
+            $_SESSION['pw'] = password_mark($hash); // this session stays signed in; all others are signed out
+            flash('Password changed. Any other devices signed in to the admin panel have been signed out.');
             redirect('settings.php');
         }
     }

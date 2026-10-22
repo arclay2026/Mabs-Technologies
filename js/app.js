@@ -63,6 +63,9 @@
   var CART_KEY = "mabs.cart.v1";
   var cartItems = read(CART_KEY, []).filter(function (it) { return byId(it.id); });
 
+  // the most of a product one order may have: what's in stock, up to the shop's per-item limit
+  M.maxQty = function (p) { return Math.min(p.stock, M.store.maxPerItem || 10); };
+
   M.cart = {
     qty: function (id) {
       for (var i = 0; i < cartItems.length; i++) if (cartItems[i].id === id) return cartItems[i].qty;
@@ -70,7 +73,7 @@
     },
     set: function (id, qty) {
       var p = byId(id); if (!p) return 0;
-      qty = Math.max(0, Math.min(Math.floor(qty) || 0, p.stock));
+      qty = Math.max(0, Math.min(Math.floor(qty) || 0, M.maxQty(p)));
       cartItems = cartItems.filter(function (it) { return it.id !== id; });
       if (qty > 0) cartItems.push({ id: id, qty: qty });
       write(CART_KEY, cartItems); emit("cart:change");
@@ -80,7 +83,7 @@
       var p = byId(id); if (!p || p.stock < 1) return 0;
       var before = this.qty(id);
       // keep the line in its original position when topping it up
-      var after = Math.min(before + (qty || 1), p.stock);
+      var after = Math.min(before + (qty || 1), M.maxQty(p));
       if (before) {
         cartItems.forEach(function (it) { if (it.id === id) it.qty = after; });
         write(CART_KEY, cartItems); emit("cart:change");
@@ -600,7 +603,7 @@
     return '<div class="stepper" role="group" aria-label="Quantity for ' + esc(p.name) + '">' +
       '<button type="button" data-qty="' + esc(p.id) + '" data-step="-1" aria-label="Decrease quantity">' + ICON.minus + "</button>" +
       '<output aria-live="polite">' + qty + "</output>" +
-      '<button type="button" data-qty="' + esc(p.id) + '" data-step="1" aria-label="Increase quantity"' + (qty >= p.stock ? " disabled" : "") + ">" + ICON.plus + "</button>" +
+      '<button type="button" data-qty="' + esc(p.id) + '" data-step="1" aria-label="Increase quantity"' + (qty >= M.maxQty(p) ? " disabled" : "") + ">" + ICON.plus + "</button>" +
     "</div>";
   };
 
@@ -707,7 +710,7 @@
       var qtyInput = t.getAttribute("data-qty-from") && document.querySelector(t.getAttribute("data-qty-from"));
       var added = M.cart.add(id, qtyInput ? parseInt(qtyInput.value, 10) || 1 : 1);
       if (added) M.toast("<b>" + esc(p.name) + '</b> added to your cart. <button type="button" class="toast-link" data-open-cart>View cart</button>');
-      else M.toast("You already have all " + p.stock + " in stock in your cart.");
+      else M.toast(M.maxQty(p) < p.stock ? "You can order up to " + M.maxQty(p) + " of this item per order." : "You already have all " + p.stock + " in stock in your cart.");
     } else if (t.hasAttribute("data-wish")) {
       var wid = t.getAttribute("data-wish");
       var on = M.wish.toggle(wid);

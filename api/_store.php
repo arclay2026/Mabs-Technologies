@@ -7,6 +7,10 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/_bootstrap.php';
 
+const MAX_PER_ITEM = 10;     // keep in step with maxPerItem in js/catalog.js
+const MAX_LINES = 30;
+const OPEN_ORDERS_PER_CUSTOMER = 3; // unconfirmed orders per email or phone per day
+
 /** A request the shop turns down (bad order, review…); code_name is what the browser sees. */
 final class ShopError extends RuntimeException
 {
@@ -100,12 +104,13 @@ function place_order(array $input): array
     $wanted = [];
     foreach ((array) ($input['items'] ?? []) as $line) {
         $id = is_array($line) ? clean($line['id'] ?? '', 80) : '';
+
         $qty = is_array($line) ? filter_var($line['qty'] ?? null, FILTER_VALIDATE_INT) : false;
-        if ($id === '' || $qty === false || $qty < 1 || $qty > 50) throw new ShopError('BAD_ITEM');
-        $wanted[$id] = ($wanted[$id] ?? 0) + $qty;
+        if ($id === '' || $qty === false || $qty < 1 || $qty > MAX_PER_ITEM) throw new ShopError('BAD_ITEM');
+        $wanted['x' . $id] = ($wanted['x' . $id] ?? 0) + $qty; // "x" keeps ids like "123" as text keys
     }
     if (!$wanted) throw new ShopError('EMPTY_CART');
-    if (count($wanted) > 50 || max($wanted) > 50) throw new ShopError('BAD_ITEM');
+    if (count($wanted) > MAX_LINES || max($wanted) > MAX_PER_ITEM) throw new ShopError('BAD_ITEM');
 
     $fulfil = clean($input['fulfil'] ?? '', 20);
     $payment = clean($input['payment'] ?? '', 20);
@@ -140,6 +145,11 @@ function place_order(array $input): array
     $recent = $pdo->prepare('SELECT COUNT(*) FROM orders WHERE ip_hash = ? AND created_at > NOW() - INTERVAL 10 MINUTE');
     $recent->execute([ip_hash()]);
     if ((int) $recent->fetchColumn() >= 8) throw new ShopError('TOO_MANY_ORDERS', 429);
+    // unpaid orders hold stock, so one customer can't tie up much of it
+    $open = $pdo->prepare("SELECT COUNT(*) FROM orders WHERE status = 'placed' AND created_at > NOW() - INTERVAL 1 DAY
+                           AND (customer_email = ? OR REPLACE(customer_phone, ' ', '') = ?)");
+    $open->execute([$email, str_replace(' ', '', $phone)]);
+    if ((int) $open->fetchColumn() >= OPEN_ORDERS_PER_CUSTOMER) throw new ShopError('TOO_MANY_ORDERS', 429);
 
     $settings = store_settings();
     if ($fulfil === 'collect' && !$settings['collect']) throw new ShopError('BAD_FULFILMENT');
@@ -147,7 +157,7 @@ function place_order(array $input): array
     $pdo->beginTransaction();
     try {
         // lock the rows so two shoppers can't buy the last unit at once
-        $ids = array_keys($wanted);
+        $ids = array_map(fn ($k) => substr($k, 1), array_keys($wanted));
         sort($ids);
         $marks = implode(',', array_fill(0, count($ids), '?'));
         $stmt = $pdo->prepare("SELECT id, name, price, stock FROM products WHERE active = 1 AND id IN ($marks) ORDER BY id FOR UPDATE");
@@ -160,10 +170,10 @@ function place_order(array $input): array
         foreach ($ids as $id) {
             if (!isset($found[$id])) throw new ShopError('UNKNOWN_PRODUCT', 409, $id);
             $p = $found[$id];
-            if ((int) $p['stock'] < $wanted[$id]) throw new ShopError('OUT_OF_STOCK', 409, $id);
+            if ((int) $p['stock'] < $wanted["x" . $id]) throw new ShopError('OUT_OF_STOCK', 409, $id);
             $price = (float) $p['price'];
-            $items[] = ['id' => $id, 'name' => $p['name'], 'price' => $price, 'qty' => $wanted[$id]];
-            $subtotal += $price * $wanted[$id];
+            $items[] = ['id' => $id, 'name' => $p['name'], 'price' => $price, 'qty' => $wanted["x" . $id]];
+            $subtotal += $price * $wanted["x" . $id];
         }
         $subtotal = round($subtotal, 2);
         $fee = delivery_fee($subtotal, $fulfil, $settings);
@@ -235,7 +245,8 @@ function cancel_order(string $number): bool
 
 /* ---------- order emails ---------- */
 
-function order_text(array $o): string
+/** the order as plain text; $forShop adds the customer's notes */
+function order_text(array $o, bool $forShop = true): string
 {
     $lines = [];
     foreach ($o['items'] as $i) {
@@ -250,7 +261,7 @@ function order_text(array $o): string
         . ($o['fulfil'] === 'collect' ? 'Collection' : 'Delivery') . ': ' . ($o['fee'] > 0 ? money($o['fee']) : 'Free') . "\n"
         . 'Total: ' . money($o['total']) . "\n\n"
         . $how . "\nPayment: " . $pay
-        . ($o['notes'] !== '' ? "\nNotes: " . $o['notes'] : '');
+        . ($forShop && $o['notes'] !== '' ? "\nNotes: " . $o['notes'] : '');
 }
 
 function send_mail(string $to, string $subject, string $body, ?string $replyTo = null): bool
@@ -260,13 +271,15 @@ function send_mail(string $to, string $subject, string $body, ?string $replyTo =
     $name = $m['store_name'] ?? 'Mabs Technologies';
     $headers = [
         'From: ' . mb_encode_mimeheader($name) . ' <' . $m['from'] . '>',
-        'Content-Type: text/plain; charset=UTF-8',
-        'Content-Transfer-Encoding: 8bit',
         'MIME-Version: 1.0',
+        'Content-Type: text/plain; charset=UTF-8',
+        'Content-Transfer-Encoding: base64', // safe for long lines and any characters
     ];
     if ($replyTo) $headers[] = 'Reply-To: ' . $replyTo;
+    // envelope sender on the shop's own domain, so SPF/DMARC checks pass
+    $params = filter_var($m['from'], FILTER_VALIDATE_EMAIL) ? '-f' . $m['from'] : '';
     // a failed email must never undo an order that's already saved
-    if (!@mail($to, mb_encode_mimeheader($subject), $body, implode("\r\n", $headers))) {
+    if (!@mail($to, mb_encode_mimeheader($subject), chunk_split(base64_encode($body)), implode("\r\n", $headers), $params)) {
         error_log('[mabs] could not send email "' . $subject . '" to ' . $to);
         return false;
     }
@@ -285,8 +298,11 @@ function send_order_emails(array $o): bool
             . ($site ? "\n\nOpen it in the admin panel: $site/admin/order.php?n=" . rawurlencode($o['number']) : ''),
             $o['customer']['email']);
     }
+    // the customer's copy repeats as little typed-in text as possible (first name only, no notes),
+    // so the order form can't be used to send messages to someone else's inbox
+    $first = mb_substr(preg_split('/\s+/', trim($o['customer']['name']))[0] ?? '', 0, 30);
     return send_mail($o['customer']['email'], 'Your Mabs Technologies order ' . $o['number'],
-        "Hi {$o['customer']['name']},\n\nThank you for your order. Your reference is {$o['number']}.\n"
-        . "We'll be in touch to confirm stock" . ($o['payment'] === 'eft' ? ' and send our banking details' : '') . ".\n\n" . $text
+        "Hi $first,\n\nThank you for your order. Your reference is {$o['number']}.\n"
+        . "We'll be in touch to confirm stock" . ($o['payment'] === 'eft' ? ' and send our banking details' : '') . ".\n\n" . order_text($o, false)
         . "\n\n" . ($m['store_name'] ?? 'Mabs Technologies'), $m['store_to'] ?? null);
 }

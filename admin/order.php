@@ -5,7 +5,7 @@ require __DIR__ . '/_admin.php';
 require_admin();
 
 $pdo = db();
-$number = (string) ($_GET['n'] ?? '');
+$number = q('n');
 $load = $pdo->prepare('SELECT * FROM orders WHERE number = ?');
 $load->execute([$number]);
 $o = $load->fetch();
@@ -33,6 +33,8 @@ if (is_post()) {
     } elseif ($action === 'payment' && isset(PAYMENT_STATUSES[$_POST['payment_status'] ?? ''])) {
         $pdo->prepare('UPDATE orders SET payment_status = ? WHERE id = ?')->execute([$_POST['payment_status'], $o['id']]);
         flash('Payment marked as ' . strtolower(PAYMENT_STATUSES[$_POST['payment_status']]) . '.');
+    } elseif ($action === 'cancel' && in_array($o['status'], ['delivered', 'collected'], true)) {
+        flash('This order has already been ' . $o['status'] . ', so it can’t be cancelled. Arrange a return instead.', 'error');
     } elseif ($action === 'cancel') {
         flash(cancel_order($o['number']) ? 'Order cancelled and its items put back in stock.' : 'This order was already cancelled.');
     }

@@ -54,6 +54,9 @@ function ip_hash(): string
     if ($header !== '' && !empty($_SERVER[$header])) {
         $ip = trim(explode(',', (string) $_SERVER[$header])[0]);
     }
+    // one IPv6 connection can use any address in its /64, so count the /64 as one visitor
+    $bin = @inet_pton($ip);
+    if ($bin !== false && strlen($bin) === 16) $ip = bin2hex(substr($bin, 0, 8)) . '::/64';
     return hash('sha256', $ip . '|' . (config()['secret'] ?? ''));
 }
 

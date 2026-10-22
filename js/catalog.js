@@ -28,6 +28,7 @@
     // shown under "Popular searches" when someone opens the search box;
     // swap for real trending searches once searches are logged in a database
     popularSearches: ["Laptops", "Samsung Galaxy", "iPhone", "Gaming", "Smart TV", "Wireless headphones"],
+    maxPerItem: 10,      // most of one product a single order can hold (the backend enforces it too)
     delivery: {
       courierFee: 120,   // flat courier fee per order
       freeOver: 1500,    // orders at or above this subtotal ship free

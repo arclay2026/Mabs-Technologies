@@ -113,7 +113,7 @@
           '<div class="pdp-cart-row">' +
             '<div class="stepper" role="group" aria-label="Quantity">' +
               '<button type="button" data-pqty="-1" aria-label="Decrease quantity">' + M.icon.minus + "</button>" +
-              '<input id="pdp-qty" type="number" min="1" max="' + p.stock + '" value="1" inputmode="numeric" aria-label="Quantity">' +
+              '<input id="pdp-qty" type="number" min="1" max="' + M.maxQty(p) + '" value="1" inputmode="numeric" aria-label="Quantity">' +
               '<button type="button" data-pqty="1" aria-label="Increase quantity">' + M.icon.plus + "</button>" +
             "</div>" +
             '<button type="button" class="btn btn-primary btn-lg" data-add="' + esc(p.id) + '" data-qty-from="#pdp-qty">' + M.icon.cart + "Add to cart</button>" +
@@ -284,7 +284,7 @@
   /* ---------- quantity, thumbnails & buy now ---------- */
   var qty = document.getElementById("pdp-qty");
   function clampQty() {
-    var v = Math.max(1, Math.min(parseInt(qty.value, 10) || 1, p.stock));
+    var v = Math.max(1, Math.min(parseInt(qty.value, 10) || 1, M.maxQty(p)));
     qty.value = v;
     return v;
   }
@@ -347,8 +347,9 @@
       '<div class="field"><label for="rv-body">Your review</label><textarea id="rv-body" name="body" rows="5" maxlength="3000" required minlength="10" placeholder="What did you like or dislike? How are you using it?"></textarea></div>' +
       '<div class="review-form-row">' +
         '<div class="field"><label for="rv-name">Name</label><input id="rv-name" name="name" maxlength="80" required autocomplete="given-name" placeholder="e.g. Thabo M."><span class="hint">Shown with your review</span></div>' +
-        '<div class="field"><label for="rv-email">Email</label><input id="rv-email" name="email" type="email" maxlength="190" required autocomplete="email"><span class="hint">Never shown. If you bought this here, your review is marked Verified buyer.</span></div>' +
+        '<div class="field"><label for="rv-email">Email</label><input id="rv-email" name="email" type="email" maxlength="190" required autocomplete="email"><span class="hint">Never shown</span></div>' +
       "</div>" +
+      '<div class="field"><label for="rv-order">Order number <span class="opt">(optional)</span></label><input id="rv-order" name="order" maxlength="20" placeholder="e.g. MB261022-4821" autocomplete="off"><span class="hint">Bought it here? Add your order number and the email you ordered with, and your review is marked Verified buyer.</span></div>' +
       '<div class="hp" aria-hidden="true"><label>Leave this empty <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>' +
       '<p class="form-alert" id="review-alert" role="alert" tabindex="-1" hidden></p>' +
       '<div class="review-form-actions"><button type="submit" class="btn btn-primary">Submit review</button><button type="button" class="btn btn-ghost" data-cancel-review>Cancel</button></div>' +
@@ -439,12 +440,11 @@
     btn.disabled = true; btn.textContent = "Sending…";
     M.api.request("reviews.php", { method: "POST", body: {
       product: p.id, rating: +rating.value, title: el.title.value.trim(), body: el.body.value.trim(),
-      name: el.name.value.trim(), email: el.email.value.trim(), website: el.website.value
+      name: el.name.value.trim(), email: el.email.value.trim(), order: el.order.value.trim(), website: el.website.value
     } }).then(function (res) {
       f.reset(); f.hidden = true;
       var thanks = document.getElementById("review-thanks");
-      thanks.innerHTML = M.icon.check + "<span><b>Thank you for your review!</b> It will appear here once we've checked it" +
-        (res.verified ? ", marked Verified buyer" : "") + ".</span>";
+      thanks.innerHTML = M.icon.check + "<span><b>Thank you for your review!</b> It will appear here once we've checked it.</span>";
       thanks.hidden = false;
       btn.disabled = false; btn.textContent = "Submit review";
     }, function (err) {

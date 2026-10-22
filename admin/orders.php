@@ -16,9 +16,9 @@ const TABS = [
 ];
 
 $pdo = db();
-$tab = isset(TABS[$_GET['tab'] ?? '']) ? $_GET['tab'] : 'open';
-$q = trim((string) ($_GET['q'] ?? ''));
-$page = max(1, (int) ($_GET['page'] ?? 1));
+$tab = isset(TABS[q('tab')]) ? q('tab') : 'open';
+$q = trim(q('q'));
+$page = max(1, (int) (q('page') ?: 1));
 
 $counts = array_column($pdo->query('SELECT status, COUNT(*) n FROM orders GROUP BY status')->fetchAll(), 'n', 'status');
 $tabCount = fn (array $statuses) => array_sum(array_map(fn ($s) => (int) ($counts[$s] ?? 0), $statuses ?: array_keys(ORDER_STATUSES)));

@@ -15,17 +15,38 @@ header('Cache-Control: no-store');
 header("Content-Security-Policy: default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; "
      . "img-src 'self' data: https:; script-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'");
 
-$https = (($_SERVER['HTTPS'] ?? '') !== '' && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
-session_name('mabs_admin');
-session_set_cookie_params(['lifetime' => 0, 'path' => '/', 'secure' => $https, 'httponly' => true, 'samesite' => 'Strict']);
-ini_set('session.use_strict_mode', '1');
-session_start();
-
 const SESSION_IDLE = 4 * 3600; // sign out after 4 hours without activity
+
+// the admin panel only works over HTTPS (except on your own computer)
+$https = (($_SERVER['HTTPS'] ?? '') !== '' && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
+$local = PHP_SAPI === 'cli-server' || in_array($_SERVER['SERVER_NAME'] ?? '', ['localhost', '127.0.0.1', '::1'], true);
+if (!$https && !$local && isset($_SERVER['HTTP_HOST'])) {
+    header('Location: https://' . $_SERVER['HTTP_HOST'] . ($_SERVER['REQUEST_URI'] ?? '/admin/'), true, 301);
+    exit;
+}
+if ($https) header('Strict-Transport-Security: max-age=31536000');
+
+// sessions live in their own folder next to (not inside) the website when the host allows it,
+// so other sites' clean-ups can't sign you out early, and they last as long as SESSION_IDLE
+$sessionDir = dirname((string) realpath(MABS_ROOT)) . '/mabs-sessions';
+if ((is_dir($sessionDir) || @mkdir($sessionDir, 0700)) && is_writable($sessionDir)) session_save_path($sessionDir);
+ini_set('session.gc_maxlifetime', (string) SESSION_IDLE);
+ini_set('session.use_strict_mode', '1');
+session_name('mabs_admin');
+// Lax so links in order emails open signed in; every change still needs the CSRF token
+session_set_cookie_params(['lifetime' => 0, 'path' => '/', 'secure' => $https, 'httponly' => true, 'samesite' => 'Lax']);
+session_start();
 
 function h($s): string
 {
     return htmlspecialchars((string) $s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
+/** a text value from the address bar ("" when missing or not text, e.g. ?tab[]=x) */
+function q(string $key): string
+{
+    $v = $_GET[$key] ?? '';
+    return is_string($v) ? $v : '';
 }
 
 function redirect(string $to): never
@@ -50,6 +71,11 @@ function csrf_field(): string
 function is_post(): bool
 {
     if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') return false;
+    // a save bigger than the server's limit arrives empty; say so instead of "expired"
+    if (!$_POST && (int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 0) {
+        flash('That was more than the server accepts in one save (' . ini_get('post_max_size') . '). Add fewer or smaller photos at a time.', 'error');
+        redirect($_SERVER['REQUEST_URI'] ?? 'index.php');
+    }
     if (!hash_equals(csrf_token(), (string) ($_POST['csrf'] ?? ''))) {
         http_response_code(400);
         exit('This form has expired. Go back, refresh the page and try again.');
@@ -82,8 +108,27 @@ function installed(): bool
         db()->query('SELECT 1 FROM admins LIMIT 1');
         return true;
     } catch (PDOException $e) {
-        return false;
+        if ($e->getCode() === '42S02') return false; // table doesn't exist
+        throw $e; // anything else (database down, no access) is not "not installed"
     }
+}
+
+/* ---------- database updates for shops installed before a change ----------
+   Each entry: what it adds, an SQL check that returns 0 when it's missing,
+   and the SQL that adds it. setup.php runs the missing ones. */
+const UPGRADES = [
+    ['Product photo galleries',
+     "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'products' AND column_name = 'images'",
+     'ALTER TABLE products ADD COLUMN images TEXT NULL AFTER image_url'],
+    ['Product reviews', "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'reviews'", 'schema'],
+    ['Faster review checks',
+     "SELECT COUNT(*) FROM information_schema.statistics WHERE table_schema = DATABASE() AND table_name = 'orders' AND index_name = 'orders_email'",
+     'ALTER TABLE orders ADD KEY orders_email (customer_email)'],
+];
+
+function pending_upgrades(): array
+{
+    return array_values(array_filter(UPGRADES, fn ($u) => (int) db()->query($u[1])->fetchColumn() === 0));
 }
 
 function admin_count(): int
@@ -101,12 +146,30 @@ function current_admin(): ?array
             $_SESSION = [];
             return null;
         }
-        $stmt = db()->prepare('SELECT id, email FROM admins WHERE id = ?');
+        $stmt = db()->prepare('SELECT id, email, password_hash FROM admins WHERE id = ?');
         $stmt->execute([$_SESSION['admin_id']]);
-        $admin = $stmt->fetch() ?: null;
+        $row = $stmt->fetch();
+        // a password change signs out every other session
+        if (!$row || !hash_equals((string) ($_SESSION['pw'] ?? ''), password_mark($row['password_hash']))) {
+            $_SESSION = [];
+            return null;
+        }
+        $admin = ['id' => (int) $row['id'], 'email' => $row['email']];
         $_SESSION['seen'] = time();
     }
     return $admin;
+}
+
+/** short fingerprint of the stored password hash, kept in the session */
+function password_mark(string $hash): string
+{
+    return substr(hash('sha256', $hash), 0, 20);
+}
+
+/** a page inside the admin panel to return to after signing in, e.g. "order.php?n=MB…" */
+function safe_next(string $next): string
+{
+    return preg_match('#^[a-z]+\.php(\?[A-Za-z0-9=&%._\-]*)?$#', $next) ? $next : 'orders.php';
 }
 
 function require_admin(): array
@@ -116,7 +179,10 @@ function require_admin(): array
     } catch (Throwable $e) {
         redirect('setup.php'); // not configured or installed yet
     }
-    if (!$admin) redirect('index.php');
+    if (!$admin) {
+        $here = basename($_SERVER['SCRIPT_NAME'] ?? '') . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '');
+        redirect('index.php' . ($here !== 'orders.php' ? '?next=' . rawurlencode(safe_next($here)) : ''));
+    }
     return $admin;
 }
 
@@ -181,6 +247,15 @@ function page_start(string $title, string $active = ''): void
              '<form method="post" action="logout.php">', csrf_field(), '<button type="submit" class="link">Sign out</button></form></div>';
     }
     echo '</div></header><main class="wrap main">', flashes();
+    if ($admin) {
+        // checked once per sign-in: tell the admin if the database needs an update
+        if (!isset($_SESSION['upgrades'])) {
+            try { $_SESSION['upgrades'] = count(pending_upgrades()); } catch (Throwable $e) { $_SESSION['upgrades'] = 0; }
+        }
+        if ($_SESSION['upgrades'] > 0) {
+            echo '<p class="note note-info">Your database needs a quick update for the newest features. <a href="setup.php">Update it now</a> (you’ll need the setup key).</p>';
+        }
+    }
 }
 
 function page_end(): void
@@ -213,7 +288,18 @@ function plain_amount(?string $v): string
 /* ---------- photo uploads (admin/product.php) ---------- */
 
 const PHOTO_TYPES = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
-const PHOTO_MAX_BYTES = 5 * 1024 * 1024;
+/** a php.ini size such as "8M" in bytes */
+function ini_bytes(string $v): int
+{
+    $n = (int) $v;
+    return match (strtoupper(substr(trim($v), -1))) { 'G' => $n << 30, 'M' => $n << 20, 'K' => $n << 10, default => $n };
+}
+// 5 MB, or less if the host's upload limit is lower
+define('PHOTO_MAX_BYTES', min(5 << 20, ini_bytes((string) ini_get('upload_max_filesize')) ?: 5 << 20));
+function photo_limit(): string
+{
+    return round(PHOTO_MAX_BYTES / 1048576, 1) . ' MB';
+}
 
 /**
  * Saves uploaded photos to assets/products/ under new random names.
@@ -232,7 +318,7 @@ function save_photo_uploads(string $field, string $slug): array
         $label = '“' . mb_substr(basename((string) $original), 0, 60) . '”';
         if ($err === UPLOAD_ERR_NO_FILE) continue;
         if ($err === UPLOAD_ERR_INI_SIZE || $err === UPLOAD_ERR_FORM_SIZE || $f['size'][$i] > PHOTO_MAX_BYTES) {
-            $problems[] = "$label is too big — photos can be up to 5 MB.";
+            $problems[] = "$label is too big — photos can be up to " . photo_limit() . '.';
             continue;
         }
         if ($err !== UPLOAD_ERR_OK || !is_uploaded_file($f['tmp_name'][$i])) {
@@ -257,6 +343,24 @@ function save_photo_uploads(string $field, string $slug): array
         $saved[] = 'assets/products/' . $name;
     }
     return [$saved, $problems];
+}
+
+/** a product's photo paths, main photo first */
+function product_photos(array $p): array
+{
+    $all = json_decode($p['images'] ?? '', true);
+    return is_array($all) && $all ? $all : array_values(array_filter([$p['image_url'] ?? null]));
+}
+
+/** deletes uploaded photo files that no product uses any more (links and other paths are left alone) */
+function delete_unused_photos(array $paths): void
+{
+    $check = db()->prepare('SELECT COUNT(*) FROM products WHERE image_url = ? OR images LIKE ?');
+    foreach (array_unique($paths) as $path) {
+        if (!preg_match('#^assets/products/[a-z0-9-]+-[0-9a-f]{8}\.(jpg|png|webp)$#', $path)) continue; // only files this panel uploaded
+        $check->execute([$path, '%"' . addcslashes($path, '%_\\') . '"%']);
+        if ((int) $check->fetchColumn() === 0) @unlink(MABS_ROOT . '/' . $path);
+    }
 }
 
 /** a photo path as seen from the admin pages (one folder down from the site) */

@@ -41,7 +41,7 @@ function product_reviews(string $productId, string $sort = 'newest', int $page =
         $sum += (int) $r['rating'] * (int) $r['n'];
     }
     $order = REVIEW_SORTS[$sort] ?? REVIEW_SORTS['newest'];
-    $page = max(1, $page);
+    $page = max(1, min($page, 1000));
     $stmt = $pdo->prepare("SELECT rating, title, body, name, verified, reply, COALESCE(approved_at, created_at) AS at
                            FROM reviews WHERE product_id = ? AND status = 'approved'
                            ORDER BY $order LIMIT " . (REVIEWS_PER_PAGE + 1) . ' OFFSET ' . (($page - 1) * REVIEWS_PER_PAGE));
@@ -67,6 +67,7 @@ function submit_review(array $in): array
     $body = clean($in['body'] ?? '', 3000);
     $name = clean($in['name'] ?? '', 80);
     $email = strtolower(clean($in['email'] ?? '', 190));
+    $orderNo = strtoupper(clean($in['order'] ?? '', 20));
 
     if ($rating === false) throw new ShopError('BAD_RATING');
     if (mb_strlen($body) < 10) throw new ShopError('SHORT_REVIEW');
@@ -85,10 +86,13 @@ function submit_review(array $in): array
     $dupe->execute([$email, $productId]);
     if ($dupe->fetchColumn()) throw new ShopError('ALREADY_REVIEWED', 409);
 
-    $bought = $pdo->prepare("SELECT 1 FROM orders o JOIN order_items i ON i.order_id = o.id
-                             WHERE o.customer_email = ? AND i.product_id = ? AND o.status <> 'cancelled' LIMIT 1");
-    $bought->execute([$email, $productId]);
-    $verified = (bool) $bought->fetchColumn();
+    $verified = false;
+    if ($orderNo !== '') {
+        $bought = $pdo->prepare("SELECT 1 FROM orders o JOIN order_items i ON i.order_id = o.id
+                                 WHERE o.number = ? AND o.customer_email = ? AND i.product_id = ? AND o.status <> 'cancelled' LIMIT 1");
+        $bought->execute([$orderNo, $email, $productId]);
+        $verified = (bool) $bought->fetchColumn();
+    }
 
     $pdo->prepare('INSERT INTO reviews (product_id, rating, title, body, name, email, verified, ip_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
         ->execute([$productId, $rating, $title !== '' ? $title : null, $body, $name, $email, $verified ? 1 : 0, ip_hash()]);
@@ -101,5 +105,5 @@ function submit_review(array $in): array
             . ($title !== '' ? "$title\n" : '') . "$body\n\n"
             . ($site ? "Approve or reject it: $site/admin/reviews.php" : 'Approve or reject it in the admin panel under Reviews.'));
     }
-    return ['status' => 'pending', 'verified' => $verified];
+    return ['status' => 'pending']; // never says whether this email bought the product
 }

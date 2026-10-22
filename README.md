@@ -8,15 +8,21 @@ Pages) the shop still runs from its built-in catalogue.
 
 ## Pages
 
-- `index.html` — storefront: hero, category tiles, "on sale" rail and the
-  full shop with search, category/brand/price/stock filters and sorting.
-  Filters are kept in the URL, e.g. `index.html?cat=computers&type=Laptop&brand=HP#shop`.
-- `product.html?id=<product-id>` — product details, specs, quantity,
-  add to cart / buy now, wishlist and related products.
+- `index.html` — storefront: carousel (slides listed in `MABS.slides` in
+  `js/catalog.js`: a 3840 × 1000 desktop image and a 1080 × 720 phone image
+  each; a welcome banner shows until there are any), featured brands,
+  departments, deals and the full shop with search, filters, sorting and
+  "Show more". Filters are kept in the URL, e.g.
+  `index.html?cat=computers&type=Laptop&brand=HP#shop`.
+- `product.html?id=<product-id>` — photo gallery, details, delivery
+  estimate, buy box, description and specs, reviews and related products.
 - `checkout.html` — contact details, courier delivery or in-store
   collection, payment choice (EFT or pay on delivery/collection), order
   summary with VAT, and an order confirmation.
-
+- `help.html` — help centre: delivery, collection, payment, returns,
+  warranty, orders and contact. Fees come from the store settings; the
+  delivery time, collection, returns and warranty wording from
+  `MABS.store.service` in `js/catalog.js` — check it matches how you work.
 - `orders.html` — My Account → Orders: orders placed from this browser,
   filtered by period, with a progress tracker and "Order again".
 - `wishlist.html` — My Account → Wishlist: saved products with Add to cart,
@@ -79,7 +85,9 @@ each placed order for the Orders page (until customer accounts exist).
   ignored), works out the delivery fee, saves the order and reduces stock in
   one transaction, so two customers can never buy the same last unit. It
   then emails the order to the shop and a confirmation to the customer.
-  Limits: 50 of an item per order, 8 orders per visitor per 10 minutes.
+  Limits: 10 of one item per order (`maxPerItem` in `js/catalog.js` and
+  `MAX_PER_ITEM` in `api/_store.php`), 3 unconfirmed orders per email or
+  phone per day, 8 orders per visitor per 10 minutes.
 - `admin/` — password-protected admin panel:
   - **Orders**: new/open/completed tabs, search, sales totals, low-stock
     alert; each order's items, customer and address, status (Placed →
@@ -94,7 +102,8 @@ each placed order for the Orders page (until customer accounts exist).
     email) on the product page; they wait in the admin panel until you
     publish them (the menu shows how many are waiting, and you get an
     email). Reply publicly, unpublish, reject or delete. A review is marked
-    "Verified buyer" when its email has ordered that product. Star ratings
+    "Verified buyer" when it gives the order number and email of an order
+    for that product. Star ratings
     show under the product title and on product cards. Limits: one review
     per email per product, 5 per visitor per hour
   - **Settings**: courier fee, free-delivery threshold, in-store collection,
@@ -106,9 +115,14 @@ each placed order for the Orders page (until customer accounts exist).
 **Security**: database passwords live only in `api/config.php`, which is
 never committed (`.gitignore`); admin passwords are hashed; every admin form
 has a CSRF token; sign-in locks for 15 minutes after 5 wrong passwords;
-sessions expire after 4 hours idle; IP addresses are stored only as salted
-hashes; `.htaccess` files block direct access to `api/_*.php`,
-`api/config.php`, `admin/_*.php` and `database/`.
+sessions expire after 4 hours idle, are kept in a `mabs-sessions` folder
+next to the website when the host allows it, and end on every other device
+when you change your password; the admin panel redirects to HTTPS; IP
+addresses are stored only as salted hashes; stock you didn't edit is never
+overwritten by a save. `.htaccess` files block `.git`, the README, backups,
+`api/_*.php`, `api/config*`, `admin/_*.php` and `database/`, and stop
+scripts running from `assets/products/`. On an nginx host (no `.htaccess`),
+block those paths in the server settings instead.
 
 **Setting it up (e.g. Hostinger)**
 
@@ -126,14 +140,16 @@ hashes; `.htaccess` files block direct access to `api/_*.php`,
 Requires PHP 8.1+ with PDO MySQL and GD/fileinfo (standard on most hosts),
 and MySQL 5.7+ or MariaDB 10.3+. The `assets/products/` folder must be
 writable by PHP for photo uploads.
-To change the database later, add the change to `database/schema.sql` and
-run the matching `ALTER TABLE` in phpMyAdmin. Changes so far, for databases
-installed before them:
+After an update to the code, the admin panel tells you if the database
+needs updating; open `admin/setup.php` and click **Update database** (it
+only adds what's missing). Changes are listed in `UPGRADES` in
+`admin/_admin.php`; add new columns or tables there and in
+`database/schema.sql`.
 
-```sql
-ALTER TABLE products ADD COLUMN images TEXT NULL AFTER image_url;  -- photo galleries (22 Oct 2026)
--- reviews (22 Oct 2026): run the CREATE TABLE reviews statement from database/schema.sql
-```
+**Link previews** (WhatsApp, Facebook…) use `assets/og-image.jpg`. The
+pages point at it by its full GitHub Pages address; when the shop moves to
+its own domain, replace `https://arclay2026.github.io/Mabs-Technologies/`
+in the `og:image` tags.
 
 ## Hosting on GitHub Pages
 

@@ -1,7 +1,7 @@
 <?php
 /* api/reviews.php
    GET  ?product=<id>&sort=newest|highest|lowest&page=1 → {summary:{avg,count,dist}, reviews:[…], more}
-   POST {product, rating, title, body, name, email} → 201 {status:"pending", verified}
+   POST {product, rating, title, body, name, email, order?} → 201 {status:"pending"}
         errors: 422 BAD_RATING|SHORT_REVIEW|MISSING_DETAILS, 404 UNKNOWN_PRODUCT,
                 409 ALREADY_REVIEWED, 429 TOO_MANY_REVIEWS */
 declare(strict_types=1);

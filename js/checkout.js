@@ -144,6 +144,7 @@
     }
     if (code === "MISSING_DETAILS") return "Please check your name, cellphone number and email address.";
     if (code === "MISSING_ADDRESS") return "Please check your delivery address, province and postal code.";
+    if (code === "BAD_ITEM") return "One of the quantities in your cart isn't allowed (up to " + (M.store.maxPerItem || 10) + " of each item). Please update your cart.";
     if (code === "TOO_MANY_ORDERS") return "You've placed several orders in the last few minutes. Please wait a little and try again, or contact us.";
     return "We couldn’t place your order just now. Please check your connection and try again.";
   }

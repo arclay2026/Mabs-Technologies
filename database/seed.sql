@@ -4,13 +4,13 @@
 -- Prices in rand (VAT inclusive). Manage them in the admin panel from here on.
 -- =====================================================================
 
-INSERT INTO categories (id, name, blurb, sort) VALUES
+INSERT IGNORE INTO categories (id, name, blurb, sort) VALUES
   ('computers', 'Computers', 'Laptops, desktops & monitors', 0),
   ('phones', 'Phones & Tablets', 'Smartphones & tablets', 1),
   ('accessories', 'Accessories', 'Chargers, audio, storage & more', 2),
   ('electronics', 'Electronics', 'TVs, speakers, wearables & gaming', 3);
 
-INSERT INTO brands (id, name, logo_url, logo_height, sort) VALUES
+INSERT IGNORE INTO brands (id, name, logo_url, logo_height, sort) VALUES
   ('samsung', 'Samsung', 'assets/brands/samsung.svg', 16, 0),
   ('apple', 'Apple', 'assets/brands/apple.svg', 30, 1),
   ('canon', 'Canon', 'assets/brands/canon.svg', 18, 2),
@@ -24,7 +24,7 @@ INSERT INTO brands (id, name, logo_url, logo_height, sort) VALUES
   ('asus', 'ASUS', 'assets/brands/asus.svg', 18, 10),
   ('huawei', 'Huawei', 'assets/brands/huawei.svg', 27, 11);
 
-INSERT INTO products (id, name, brand_id, category_id, type, price, was_price, stock, featured, badge, summary, specs, image_url, art, sort) VALUES
+INSERT IGNORE INTO products (id, name, brand_id, category_id, type, price, was_price, stock, featured, badge, summary, specs, image_url, art, sort) VALUES
   ('lenovo-ideapad-slim-3', 'Lenovo IdeaPad Slim 3 15"', 'lenovo', 'computers', 'Laptop', 8999, 10499, 14, true, NULL, 'A thin, light everyday laptop for study, office work and streaming.', '[["Processor","Intel Core i5"],["Memory","8 GB RAM"],["Storage","512 GB SSD"],["Display","15.6\\" Full HD"],["OS","Windows 11 Home"]]', NULL, '{"kind":"laptop","color":"#2563eb","body":"silver"}', 0),
   ('hp-250-g10', 'HP 250 G10 Notebook', 'hp', 'computers', 'Laptop', 7499, NULL, 20, false, NULL, 'Dependable business notebook with a full-size keyboard and plenty of ports.', '[["Processor","Intel Core i3"],["Memory","8 GB RAM"],["Storage","256 GB SSD"],["Display","15.6\\" Full HD"],["OS","Windows 11 Home"]]', NULL, '{"kind":"laptop","color":"#0ea5e9","body":"dark"}', 1),
   ('dell-inspiron-14', 'Dell Inspiron 14', 'dell', 'computers', 'Laptop', 13999, NULL, 6, false, NULL, 'Compact 14-inch performer for multitasking, design work and video calls.', '[["Processor","Intel Core i7"],["Memory","16 GB RAM"],["Storage","512 GB SSD"],["Display","14\\" FHD+"],["OS","Windows 11 Home"]]', NULL, '{"kind":"laptop","color":"#4f46e5","body":"silver"}', 2),

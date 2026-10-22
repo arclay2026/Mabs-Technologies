@@ -10,7 +10,7 @@ const ART_KINDS = ['laptop', 'desktop', 'monitor', 'phone', 'tablet', 'watch', '
 const ART_BODIES = ['dark' => 'Dark', 'silver' => 'Silver', 'light' => 'Light grey', 'white' => 'White'];
 
 $pdo = db();
-$id = (string) ($_GET['id'] ?? '');
+$id = q('id');
 $p = null;
 if ($id !== '') {
     $stmt = $pdo->prepare('SELECT * FROM products WHERE id = ?');
@@ -52,6 +52,7 @@ $errors = [];
 if (is_post()) {
     if (($_POST['action'] ?? '') === 'delete' && $p) {
         $pdo->prepare('DELETE FROM products WHERE id = ?')->execute([$p['id']]);
+        delete_unused_photos(product_photos($p));
         flash($p['name'] . ' was deleted. Past orders keep its name and price.');
         redirect('products.php');
     }
@@ -64,6 +65,15 @@ if (is_post()) {
     $price = parse_money($v['price']);
     $was = $v['was'] === '' ? null : parse_money($v['was']);
     $stock = parse_count($v['stock']);
+    $shownStock = parse_count((string) ($_POST['stock_was'] ?? ''));
+    if ($p && $stock !== null && $shownStock !== null) {
+        if ($stock === $shownStock) {
+            $stock = (int) $p['stock']; // not edited: keep whatever orders have done since
+        } elseif ((int) $p['stock'] !== $shownStock && (int) $p['stock'] !== $stock) {
+            $errors['stock'] = 'Stock changed to ' . (int) $p['stock'] . ' while you were editing (an order or a cancellation). Check the number and save again.';
+            $v['stock_was'] = (string) $p['stock'];
+        }
+    }
     $newId = $p ? $p['id'] : slugify($v['id'] !== '' ? $v['id'] : $v['name']);
 
     if ($v['name'] === '' || mb_strlen($v['name']) > 200) $errors['name'] = 'Enter the product name.';
@@ -130,6 +140,7 @@ if (is_post()) {
                            image_url, images, art, active, id, sort) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1000)')->execute($values);
             flash($v['name'] . ' added to the shop.');
         }
+        if ($p) delete_unused_photos(array_diff(product_photos($p), $photos)); // photos taken off this product
         redirect('product.php?id=' . rawurlencode($newId));
     }
 }
@@ -190,7 +201,7 @@ page_start($p ? $p['name'] : 'Add product', 'products');
           <?php endforeach; ?>
         </ol>
       <?php endif; ?>
-      <label class="span2">Add photos <span class="hint">JPG, PNG or WebP, up to 5 MB each — square photos on a white background look best</span> <?= field_error($errors, 'upload') ?>
+      <label class="span2">Add photos <span class="hint">JPG, PNG or WebP, up to <?= h(photo_limit()) ?> each — square photos on a white background look best</span> <?= field_error($errors, 'upload') ?>
         <input type="file" name="upload[]" accept="image/jpeg,image/png,image/webp" multiple<?= invalid($errors, 'upload') ?>></label>
       <label class="span2">Photo order <span class="hint">one per line; the first is the main photo. Delete a line to remove a photo.</span> <?= field_error($errors, 'photos') ?>
         <textarea name="photos" rows="<?= max(2, count($list) + 1) ?>" placeholder="assets/products/galaxy-a15-front.jpg&#10;https://…"<?= invalid($errors, 'photos') ?>><?= h($v['photos']) ?></textarea></label>
@@ -214,6 +225,7 @@ page_start($p ? $p['name'] : 'Add product', 'products');
         <input name="was" value="<?= h($v['was']) ?>" inputmode="decimal"<?= invalid($errors, 'was') ?>></label>
       <label>In stock <?= field_error($errors, 'stock') ?>
         <input name="stock" value="<?= h($v['stock']) ?>" inputmode="numeric" required<?= invalid($errors, 'stock') ?>></label>
+      <input type="hidden" name="stock_was" value="<?= h($v['stock_was'] ?? ($p ? (string) $p['stock'] : '')) ?>">
       <label class="check"><input type="checkbox" name="active" value="1"<?= $v['active'] ? ' checked' : '' ?>> Show in the shop</label>
       <label class="check"><input type="checkbox" name="featured" value="1"<?= $v['featured'] ? ' checked' : '' ?>> Featured</label>
       <button class="btn btn-block" type="submit"><?= $p ? 'Save product' : 'Add product' ?></button>
