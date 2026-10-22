@@ -7,8 +7,8 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/_bootstrap.php';
 
-/** An order the shop can't accept; $code is what the browser sees. */
-final class OrderError extends RuntimeException
+/** A request the shop turns down (bad order, review…); code_name is what the browser sees. */
+final class ShopError extends RuntimeException
 {
     public function __construct(public string $code_name, public int $http = 422, public ?string $product = null)
     {
@@ -66,6 +66,18 @@ function catalogue(): array
         if (is_array($gallery) && count($gallery) > 1) $item['images'] = array_values($gallery);
         $products[] = $item;
     }
+    // star ratings, when the reviews table exists (see _reviews.php)
+    if (function_exists('review_summaries')) {
+        try {
+            $ratings = review_summaries();
+            foreach ($products as &$item) {
+                if (isset($ratings[$item['id']])) $item['rating'] = $ratings[$item['id']];
+            }
+            unset($item);
+        } catch (PDOException $e) {
+            error_log('[mabs] reviews unavailable: ' . $e->getMessage());
+        }
+    }
     return ['categories' => $categories, 'brands' => $brands, 'products' => $products, 'delivery' => store_settings()];
 }
 
@@ -89,23 +101,23 @@ function place_order(array $input): array
     foreach ((array) ($input['items'] ?? []) as $line) {
         $id = is_array($line) ? clean($line['id'] ?? '', 80) : '';
         $qty = is_array($line) ? filter_var($line['qty'] ?? null, FILTER_VALIDATE_INT) : false;
-        if ($id === '' || $qty === false || $qty < 1 || $qty > 50) throw new OrderError('BAD_ITEM');
+        if ($id === '' || $qty === false || $qty < 1 || $qty > 50) throw new ShopError('BAD_ITEM');
         $wanted[$id] = ($wanted[$id] ?? 0) + $qty;
     }
-    if (!$wanted) throw new OrderError('EMPTY_CART');
-    if (count($wanted) > 50 || max($wanted) > 50) throw new OrderError('BAD_ITEM');
+    if (!$wanted) throw new ShopError('EMPTY_CART');
+    if (count($wanted) > 50 || max($wanted) > 50) throw new ShopError('BAD_ITEM');
 
     $fulfil = clean($input['fulfil'] ?? '', 20);
     $payment = clean($input['payment'] ?? '', 20);
-    if (!in_array($fulfil, ['delivery', 'collect'], true)) throw new OrderError('BAD_FULFILMENT');
-    if (!in_array($payment, ['eft', 'on_receipt'], true)) throw new OrderError('BAD_PAYMENT');
+    if (!in_array($fulfil, ['delivery', 'collect'], true)) throw new ShopError('BAD_FULFILMENT');
+    if (!in_array($payment, ['eft', 'on_receipt'], true)) throw new ShopError('BAD_PAYMENT');
 
     $c = is_array($input['customer'] ?? null) ? $input['customer'] : [];
     $name = clean($c['name'] ?? '', 120);
     $phone = clean($c['phone'] ?? '', 30);
     $email = strtolower(clean($c['email'] ?? '', 190));
     if ($name === '' || !preg_match('/^\+?[0-9][0-9 ]{8,}$/', $phone) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        throw new OrderError('MISSING_DETAILS');
+        throw new ShopError('MISSING_DETAILS');
     }
 
     $address = null;
@@ -118,7 +130,7 @@ function place_order(array $input): array
         ];
         if ($address['street'] === '' || $address['city'] === '' || !in_array($address['province'], PROVINCES, true)
             || !preg_match('/^[0-9]{4}$/', $address['postal'])) {
-            throw new OrderError('MISSING_ADDRESS');
+            throw new ShopError('MISSING_ADDRESS');
         }
     }
     $notes = clean($input['notes'] ?? '', 1000);
@@ -127,10 +139,10 @@ function place_order(array $input): array
     // a handful of orders per visitor per 10 minutes is plenty
     $recent = $pdo->prepare('SELECT COUNT(*) FROM orders WHERE ip_hash = ? AND created_at > NOW() - INTERVAL 10 MINUTE');
     $recent->execute([ip_hash()]);
-    if ((int) $recent->fetchColumn() >= 8) throw new OrderError('TOO_MANY_ORDERS', 429);
+    if ((int) $recent->fetchColumn() >= 8) throw new ShopError('TOO_MANY_ORDERS', 429);
 
     $settings = store_settings();
-    if ($fulfil === 'collect' && !$settings['collect']) throw new OrderError('BAD_FULFILMENT');
+    if ($fulfil === 'collect' && !$settings['collect']) throw new ShopError('BAD_FULFILMENT');
 
     $pdo->beginTransaction();
     try {
@@ -146,9 +158,9 @@ function place_order(array $input): array
         $items = [];
         $subtotal = 0.0;
         foreach ($ids as $id) {
-            if (!isset($found[$id])) throw new OrderError('UNKNOWN_PRODUCT', 409, $id);
+            if (!isset($found[$id])) throw new ShopError('UNKNOWN_PRODUCT', 409, $id);
             $p = $found[$id];
-            if ((int) $p['stock'] < $wanted[$id]) throw new OrderError('OUT_OF_STOCK', 409, $id);
+            if ((int) $p['stock'] < $wanted[$id]) throw new ShopError('OUT_OF_STOCK', 409, $id);
             $price = (float) $p['price'];
             $items[] = ['id' => $id, 'name' => $p['name'], 'price' => $price, 'qty' => $wanted[$id]];
             $subtotal += $price * $wanted[$id];
@@ -178,7 +190,7 @@ function place_order(array $input): array
         foreach ($items as $i) {
             $addItem->execute([$orderId, $i['id'], $i['name'], $i['price'], $i['qty']]);
             $takeStock->execute([$i['qty'], $i['id'], $i['qty']]);
-            if ($takeStock->rowCount() !== 1) throw new OrderError('OUT_OF_STOCK', 409, $i['id']);
+            if ($takeStock->rowCount() !== 1) throw new ShopError('OUT_OF_STOCK', 409, $i['id']);
         }
         $pdo->commit();
     } catch (Throwable $e) {

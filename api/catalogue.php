@@ -1,7 +1,7 @@
 <?php
 /* GET api/catalogue.php — products, brands, departments and delivery settings */
 declare(strict_types=1);
-require __DIR__ . '/_store.php';
+require __DIR__ . '/_reviews.php';
 
 try {
     cors();

@@ -190,6 +190,16 @@
     return '<span class="card-brandmark is-text">' + esc(name) + "</span>";
   }
 
+  // five stars filled to the rating (e.g. 4.3), for cards, the product page and reviews
+  var STAR = '<path d="M12 2.6l2.9 6 6.5.8-4.8 4.5 1.2 6.5L12 17.3l-5.8 3.1 1.2-6.5L2.6 9.4l6.5-.8z"/>';
+  M.stars = function (rating, label) {
+    var row = "";
+    for (var i = 0; i < 5; i++) row += '<svg viewBox="0 0 24 24" aria-hidden="true">' + STAR + "</svg>";
+    var pct = Math.max(0, Math.min(100, rating / 5 * 100));
+    return '<span class="stars" role="img" aria-label="' + esc(label || rating + " out of 5 stars") + '">' +
+      '<span class="stars-off">' + row + '</span><span class="stars-on" style="width:' + pct + '%">' + row + "</span></span>";
+  };
+
   // Takealot-style card: big square image on white, two-line name, price;
   // the whole card opens the product page
   M.card = function (p) {
@@ -202,7 +212,9 @@
       brandMark(p.brand) +
       '<div class="card-body">' +
         '<h3 class="card-title"><a href="' + href + '">' + esc(p.name) + "</a></h3>" +
-        '<p class="card-price">' + M.priceHtml(p) + "</p>" + note +
+        '<p class="card-price">' + M.priceHtml(p) + "</p>" +
+        (p.rating && p.rating.count ? '<p class="card-rating">' + M.stars(p.rating.avg, "Rated " + p.rating.avg + " out of 5") +
+          '<span>(' + p.rating.count + ")</span></p>" : "") + note +
       "</div>" +
     "</article>";
   };

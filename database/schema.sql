@@ -124,3 +124,27 @@ CREATE TABLE login_attempts (
   PRIMARY KEY (id),
   KEY login_attempts_ip (ip_hash, at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- product reviews: written on the product page, shown once approved in the admin panel
+CREATE TABLE reviews (
+  id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  product_id  VARCHAR(80)  NOT NULL,
+  rating      TINYINT      NOT NULL,              -- 1 to 5 stars
+  title       VARCHAR(120) NULL,
+  body        TEXT         NOT NULL,
+  name        VARCHAR(80)  NOT NULL,              -- shown with the review
+  email       VARCHAR(190) NOT NULL,              -- never shown; matches orders for "Verified buyer"
+  verified    TINYINT(1)   NOT NULL DEFAULT 0,    -- this email ordered this product
+  status      ENUM('pending','approved','rejected') NOT NULL DEFAULT 'pending',
+  reply       TEXT         NULL,                  -- the shop's public reply
+  ip_hash     CHAR(64)     NULL,
+  created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  approved_at DATETIME     NULL,
+  PRIMARY KEY (id),
+  KEY reviews_product (product_id, status, created_at),
+  KEY reviews_status (status, created_at),
+  KEY reviews_email (email, product_id),
+  KEY reviews_ip (ip_hash, created_at),
+  CONSTRAINT reviews_product_fk FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT reviews_rating_ck CHECK (rating BETWEEN 1 AND 5)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

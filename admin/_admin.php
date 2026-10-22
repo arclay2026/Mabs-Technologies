@@ -6,7 +6,7 @@
    ===================================================================== */
 declare(strict_types=1);
 
-require_once __DIR__ . '/../api/_store.php';
+require_once __DIR__ . '/../api/_reviews.php';
 
 header('X-Frame-Options: DENY');
 header('X-Content-Type-Options: nosniff');
@@ -137,10 +137,25 @@ function when(string $datetime): string
     return date('j M Y, H:i', strtotime($datetime));
 }
 
-function nav_link(string $href, string $label, string $active): string
+function nav_link(string $href, string $label, string $active, int $count = 0): string
 {
     $on = basename($href, '.php') === $active;
-    return '<a href="' . h($href) . '"' . ($on ? ' aria-current="page"' : '') . '>' . h($label) . '</a>';
+    return '<a href="' . h($href) . '"' . ($on ? ' aria-current="page"' : '') . '>' . h($label)
+        . ($count ? ' <span class="nav-count" title="' . $count . ' waiting">' . $count . '</span>' : '') . '</a>';
+}
+
+function pending_reviews(): int
+{
+    try {
+        return (int) db()->query("SELECT COUNT(*) FROM reviews WHERE status = 'pending'")->fetchColumn();
+    } catch (PDOException $e) {
+        return 0; // reviews table not installed yet
+    }
+}
+
+function stars(int $rating): string
+{
+    return '<span class="stars" aria-label="' . $rating . ' out of 5 stars">' . str_repeat('★', $rating) . '<span class="stars-off">' . str_repeat('★', 5 - $rating) . '</span></span>';
 }
 
 /* ---------- layout ---------- */
@@ -160,7 +175,8 @@ function page_start(string $title, string $active = ''): void
          '<a class="brand" href="', $admin ? 'orders.php' : 'index.php', '"><img src="../assets/logo-light.svg" alt="Mabs Technologies" height="26"><span>Admin</span></a>';
     if ($admin) {
         echo '<nav class="nav" aria-label="Admin">',
-             nav_link('orders.php', 'Orders', $active), nav_link('products.php', 'Products', $active), nav_link('settings.php', 'Settings', $active),
+             nav_link('orders.php', 'Orders', $active), nav_link('products.php', 'Products', $active),
+             nav_link('reviews.php', 'Reviews', $active, pending_reviews()), nav_link('settings.php', 'Settings', $active),
              '</nav><div class="who"><a href="../index.html" target="_blank" rel="noopener">View shop</a>',
              '<form method="post" action="logout.php">', csrf_field(), '<button type="submit" class="link">Sign out</button></form></div>';
     }

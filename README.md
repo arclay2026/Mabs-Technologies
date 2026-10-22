@@ -37,8 +37,8 @@ each placed order for the Orders page (until customer accounts exist).
   Products show a drawn illustration until they have a photo
   (`assets/products/<file>.jpg`).
 - `js/api.js` — connects the shop to the backend (see Backend below).
-- `api/` — the backend: `catalogue.php` and `orders.php` (the shop's API),
-  `_store.php` (order rules and emails), `_bootstrap.php` (database
+- `api/` — the backend: `catalogue.php`, `orders.php` and `reviews.php`
+  (the shop's API), `_store.php` (order rules and emails), `_reviews.php`, `_bootstrap.php` (database
   connection), `config.sample.php` (settings template).
 - `database/schema.sql`, `database/seed.sql` — the MySQL tables and the
   starting catalogue (installed for you by `admin/setup.php`).
@@ -90,6 +90,13 @@ each placed order for the Orders page (until customer accounts exist).
     product (JPG, PNG or WebP, 5 MB each — saved in `assets/products/`), the
     first being the main photo. The product page shows up to 4 thumbnails,
     with a "+N" tile for the rest
+  - **Reviews**: customers write reviews (1–5 stars, headline, text, name,
+    email) on the product page; they wait in the admin panel until you
+    publish them (the menu shows how many are waiting, and you get an
+    email). Reply publicly, unpublish, reject or delete. A review is marked
+    "Verified buyer" when its email has ordered that product. Star ratings
+    show under the product title and on product cards. Limits: one review
+    per email per product, 5 per visitor per hour
   - **Settings**: courier fee, free-delivery threshold, in-store collection,
     and your password
 - If the backend can't be reached, the shop falls back to the built-in
@@ -125,6 +132,7 @@ installed before them:
 
 ```sql
 ALTER TABLE products ADD COLUMN images TEXT NULL AFTER image_url;  -- photo galleries (22 Oct 2026)
+-- reviews (22 Oct 2026): run the CREATE TABLE reviews statement from database/schema.sql
 ```
 
 ## Hosting on GitHub Pages

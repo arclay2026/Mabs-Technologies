@@ -11,7 +11,7 @@ try {
     $input = json_input();
     if (!empty($input['website'])) json_out(['error' => 'BAD_ITEM'], 422); // spam bots fill hidden fields
     json_out(place_order($input), 201);
-} catch (OrderError $e) {
+} catch (ShopError $e) {
     json_out(array_filter(['error' => $e->code_name, 'product' => $e->product]), $e->http);
 } catch (Throwable $e) {
     api_fail($e);

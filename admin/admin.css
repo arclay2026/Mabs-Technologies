@@ -202,3 +202,19 @@ details.card.danger { margin-top: 0; }
   .grid2 { grid-template-columns: 1fr; }
   .track li { font-size: 11px; }
 }
+
+/* reviews */
+.nav-count { display: inline-block; min-width: 18px; margin-left: 4px; padding: 0 5px; border-radius: 999px; background: var(--blue); color: var(--white); font-size: 11px; line-height: 18px; text-align: center; }
+.stars { color: #f59e0b; letter-spacing: 1px; font-size: 15px; }
+.stars-off { color: #d6dade; }
+.review-head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; margin-bottom: 8px; }
+.review-head p { margin: 0 0 2px; }
+.review-product { font-size: 13px; text-align: right; }
+.verified { color: var(--green); font-weight: 500; }
+.reply { margin: 12px 0; display: grid; gap: 8px; justify-items: start; }
+.reply label { width: 100%; }
+.review-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding-top: 12px; border-top: 1px solid var(--line); }
+.review-actions form { margin: 0; }
+.danger.inline { margin: 0 0 0 auto; display: flex; align-items: center; gap: 10px; }
+.danger.inline form { margin: 0; }
+.danger.inline[open] { flex-direction: row-reverse; }
