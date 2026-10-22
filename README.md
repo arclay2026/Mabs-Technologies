@@ -59,6 +59,10 @@ each placed order for the Orders page (until customer accounts exist).
 - `js/shop.js`, `js/product.js`, `js/checkout.js`, `js/orders.js`,
   `js/wishlist.js` — page scripts; `js/account.js` — the shared My Account menu.
 - `css/mabs.css` — all styling.
+- `js/select.js` + `css/select.css` — designed dropdowns: every `<select>`
+  in the shop and admin panel is shown as a styled button and list (mouse,
+  touch and keyboard), while the real `<select>` stays hidden underneath
+  for forms and scripts. Nothing to do when adding a new `<select>`.
 - `assets/logo.svg` / `assets/logo-light.svg` — the official logo trimmed
   for the site (dark wordmark for light backgrounds, light wordmark for
   dark ones); `assets/favicon.svg` is the three blue strokes on their own.

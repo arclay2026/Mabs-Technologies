@@ -236,7 +236,8 @@ function page_start(string $title, string $active = ''): void
          '<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">',
          '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
          '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">',
-         '<link rel="stylesheet" href="admin.css"></head><body>';
+         '<link rel="stylesheet" href="../css/select.css"><link rel="stylesheet" href="admin.css">',
+         '<script src="../js/select.js" defer></script></head><body>';
     echo '<header class="top"><div class="wrap top-in">',
          '<a class="brand" href="', $admin ? 'orders.php' : 'index.php', '"><img src="../assets/logo-light.svg" alt="Mabs Technologies" height="26"><span>Admin</span></a>';
     if ($admin) {

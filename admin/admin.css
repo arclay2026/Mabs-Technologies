@@ -207,6 +207,12 @@ ul.list { margin: 0 0 12px; padding-left: 20px; }
 ul.list li { margin-bottom: 4px; }
 .note a { font-weight: 600; }
 
+/* designed dropdowns (../css/select.css) in admin forms and filters */
+.dd-btn { height: 36px; border-color: var(--line-strong); font-size: 14px; font-weight: 400; }
+label > .dd { margin-top: 6px; }
+.filters .dd { width: auto; min-width: 150px; }
+.dd-btn[aria-invalid="true"] { border-color: var(--red); }
+
 /* reviews */
 .nav-count { display: inline-block; min-width: 18px; margin-left: 4px; padding: 0 5px; border-radius: 999px; background: var(--blue); color: var(--white); font-size: 11px; line-height: 18px; text-align: center; }
 .stars { color: #f59e0b; letter-spacing: 1px; font-size: 15px; }

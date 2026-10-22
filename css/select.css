@@ -1,0 +1,36 @@
+/* =====================================================================
+   DESIGNED DROPDOWNS (js/select.js) — shared by the shop and admin panel.
+   Colours follow the brand: slate text, blue accent, soft grey surfaces.
+   ===================================================================== */
+.dd { --dd-ink: #22313a; --dd-mute: #5f6b75; --dd-line: #d9dde2; --dd-accent: #0071e3; --dd-tint: #eaf3fd; --dd-soft: #f5f5f7;
+  position: relative; display: inline-flex; vertical-align: middle; min-width: 0; }
+label > .dd, .field .dd, .form .dd { display: flex; width: 100%; }
+/* the real <select> stays underneath for forms and scripts, invisible */
+.dd-native { position: absolute !important; inset: 0; width: 100% !important; height: 100% !important; margin: 0 !important; opacity: 0; pointer-events: none; }
+.dd.is-open { z-index: 70; } /* above cards, sticky bars and neighbouring dropdowns */
+.dd-btn { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-width: 0; height: 36px; padding: 0 10px 0 12px;
+  border: 1px solid var(--dd-line); border-radius: 8px; background: #fff; color: var(--dd-ink); font: inherit; font-size: 13.5px; font-weight: 500; text-align: left; cursor: pointer;
+  transition: border-color .15s, box-shadow .15s; }
+.dd-btn:hover { border-color: #b9c0c7; }
+.dd-btn:focus-visible, .dd.is-open .dd-btn { outline: none; border-color: var(--dd-accent); box-shadow: 0 0 0 3px rgba(0, 113, 227, .14); }
+.dd-btn[aria-invalid="true"] { border-color: #b91c1c; }
+.dd-btn.is-placeholder .dd-value { color: #8a949c; font-weight: 400; }
+.dd-btn:disabled { background: var(--dd-soft); color: var(--dd-mute); cursor: not-allowed; }
+.dd-value { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dd-chevron { flex: none; width: 16px; height: 16px; color: var(--dd-mute); transition: transform .2s; }
+.dd.is-open .dd-chevron { transform: rotate(180deg); }
+.dd-menu { position: absolute; top: calc(100% + 6px); left: 0; z-index: 60; min-width: 100%; max-height: 280px; overflow-y: auto; margin: 0; padding: 6px; list-style: none;
+  border: 1px solid var(--dd-line); border-radius: 10px; background: #fff; box-shadow: 0 14px 34px -10px rgba(34, 49, 58, .28), 0 2px 6px rgba(34, 49, 58, .06);
+  outline: none; animation: dd-in .14s ease-out; }
+.dd.is-up .dd-menu { top: auto; bottom: calc(100% + 6px); animation-name: dd-in-up; }
+.dd-menu li { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 8px 10px; border-radius: 6px;
+  font-size: 13.5px; color: var(--dd-ink); white-space: nowrap; cursor: pointer; }
+.dd-menu li.is-active { background: var(--dd-soft); }
+.dd-menu li[aria-selected="true"] { color: var(--dd-accent); font-weight: 600; }
+.dd-menu li[aria-selected="true"].is-active { background: var(--dd-tint); }
+.dd-menu li.is-disabled { color: #a3acb3; cursor: default; }
+.dd-tick { flex: none; width: 15px; height: 15px; visibility: hidden; }
+.dd-menu li[aria-selected="true"] .dd-tick { visibility: visible; }
+@keyframes dd-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+@keyframes dd-in-up { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .dd-menu { animation: none; } .dd-chevron { transition: none; } }
