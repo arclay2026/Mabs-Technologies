@@ -89,21 +89,21 @@
       price: 8999, was: 10499, stock: 14, featured: true,
       art: { kind: "laptop", color: "#2563eb", body: "silver" },
       summary: "A thin, light everyday laptop for study, office work and streaming.",
-      specs: [["Processor", "Intel Core i5"], ["Memory", "8 GB RAM"], ["Storage", "512 GB SSD"], ["Display", "15.6\" Full HD"], ["OS", "Windows 11 Home"]]
+      specs: [["Processor", "Intel Core i5"], ["Memory", "8 GB RAM"], ["Storage", "512 GB SSD"], ["Display", "15.6\" Full HD"], ["OS", "Windows 11 Home"], ["Colour", "Grey"]]
     },
     {
       id: "hp-250-g10", name: "HP 250 G10 Notebook", brand: "HP", category: "computers", type: "Laptop",
       price: 7499, stock: 20,
       art: { kind: "laptop", color: "#0ea5e9", body: "dark" },
       summary: "Dependable business notebook with a full-size keyboard and plenty of ports.",
-      specs: [["Processor", "Intel Core i3"], ["Memory", "8 GB RAM"], ["Storage", "256 GB SSD"], ["Display", "15.6\" Full HD"], ["OS", "Windows 11 Home"]]
+      specs: [["Processor", "Intel Core i3"], ["Memory", "8 GB RAM"], ["Storage", "256 GB SSD"], ["Display", "15.6\" Full HD"], ["OS", "Windows 11 Home"], ["Colour", "Silver"]]
     },
     {
       id: "dell-inspiron-14", name: "Dell Inspiron 14", brand: "Dell", category: "computers", type: "Laptop",
       price: 13999, stock: 6,
       art: { kind: "laptop", color: "#4f46e5", body: "silver" },
       summary: "Compact 14-inch performer for multitasking, design work and video calls.",
-      specs: [["Processor", "Intel Core i7"], ["Memory", "16 GB RAM"], ["Storage", "512 GB SSD"], ["Display", "14\" FHD+"], ["OS", "Windows 11 Home"]]
+      specs: [["Processor", "Intel Core i7"], ["Memory", "16 GB RAM"], ["Storage", "512 GB SSD"], ["Display", "14\" FHD+"], ["OS", "Windows 11 Home"], ["Colour", "Silver"]]
     },
     {
       id: "apple-macbook-air-13-m2",
@@ -113,28 +113,28 @@
       price: 18999, was: 20999, stock: 4, featured: true,
       art: { kind: "laptop", color: "#64748b", body: "silver" },
       summary: "Silent, fanless and all-day battery — the go-anywhere Mac.",
-      specs: [["Chip", "Apple M2"], ["Memory", "8 GB unified"], ["Storage", "256 GB SSD"], ["Display", "13.6\" Liquid Retina"], ["OS", "macOS"]]
+      specs: [["Chip", "Apple M2"], ["Memory", "8 GB unified"], ["Storage", "256 GB SSD"], ["Display", "13.6\" Liquid Retina"], ["OS", "macOS"], ["Colour", "Silver"]]
     },
     {
       id: "asus-tuf-gaming-f15", name: "ASUS TUF Gaming F15", brand: "ASUS", category: "computers", type: "Laptop",
       price: 17999, stock: 3, badge: "Gaming",
       art: { kind: "laptop", color: "#dc2626", body: "dark" },
       summary: "Military-grade build with dedicated graphics and a fast 144 Hz screen.",
-      specs: [["Processor", "Intel Core i5"], ["Graphics", "NVIDIA GeForce RTX 3050"], ["Memory", "16 GB RAM"], ["Storage", "512 GB SSD"], ["Display", "15.6\" FHD 144 Hz"]]
+      specs: [["Processor", "Intel Core i5"], ["Graphics", "NVIDIA GeForce RTX 3050"], ["Memory", "16 GB RAM"], ["Storage", "512 GB SSD"], ["Display", "15.6\" FHD 144 Hz"], ["Colour", "Grey"]]
     },
     {
       id: "hp-pro-tower-290", name: "HP Pro Tower 290 Desktop", brand: "HP", category: "computers", type: "Desktop",
       price: 9999, stock: 5,
       art: { kind: "desktop", color: "#0284c7", body: "dark" },
       summary: "Space-saving office tower, ready for a monitor, keyboard and mouse.",
-      specs: [["Processor", "Intel Core i5"], ["Memory", "8 GB RAM"], ["Storage", "512 GB SSD"], ["Connectivity", "Wi-Fi, Bluetooth, Gigabit LAN"], ["OS", "Windows 11 Pro"]]
+      specs: [["Processor", "Intel Core i5"], ["Memory", "8 GB RAM"], ["Storage", "512 GB SSD"], ["Connectivity", "Wi-Fi, Bluetooth, Gigabit LAN"], ["OS", "Windows 11 Pro"], ["Colour", "Black"]]
     },
     {
       id: "samsung-24-fhd-monitor", name: "Samsung 24\" FHD Monitor", brand: "Samsung", category: "computers", type: "Monitor",
       price: 2299, was: 2699, stock: 18,
       art: { kind: "monitor", color: "#0ea5e9", body: "dark" },
       summary: "Borderless Full HD IPS panel — a great second screen for home or office.",
-      specs: [["Size", "24\""], ["Resolution", "1920 × 1080"], ["Panel", "IPS"], ["Refresh rate", "75 Hz"], ["Inputs", "HDMI, VGA"]]
+      specs: [["Size", "24\""], ["Resolution", "1920 × 1080"], ["Panel", "IPS"], ["Refresh rate", "75 Hz"], ["Inputs", "HDMI, VGA"], ["Colour", "Black"]]
     },
 
     /* ---------- phones & tablets ---------- */
@@ -143,49 +143,49 @@
       price: 8499, was: 9499, stock: 22, featured: true,
       art: { kind: "phone", color: "#6366f1", body: "silver" },
       summary: "Premium-feel mid-ranger with a bright AMOLED display and great cameras.",
-      specs: [["Storage", "128 GB"], ["Display", "6.6\" Super AMOLED"], ["Network", "5G, dual SIM"], ["Main camera", "50 MP"], ["Battery", "5000 mAh"]]
+      specs: [["Storage", "128 GB"], ["Display", "6.6\" Super AMOLED"], ["Network", "5G, dual SIM"], ["Main camera", "50 MP"], ["Battery", "5000 mAh"], ["Headphone jack", "No"], ["Colour", "Blue"]]
     },
     {
       id: "samsung-galaxy-s24", name: "Samsung Galaxy S24 256GB", brand: "Samsung", category: "phones", type: "Smartphone",
       price: 18999, stock: 6, badge: "New",
       art: { kind: "phone", color: "#a855f7", body: "dark" },
       summary: "Compact flagship with Galaxy AI features and a pro-grade camera system.",
-      specs: [["Storage", "256 GB"], ["Display", "6.2\" Dynamic AMOLED 2X"], ["Network", "5G"], ["Main camera", "50 MP"], ["Battery", "4000 mAh"]]
+      specs: [["Storage", "256 GB"], ["Display", "6.2\" Dynamic AMOLED 2X"], ["Network", "5G"], ["Main camera", "50 MP"], ["Battery", "4000 mAh"], ["Headphone jack", "No"], ["Colour", "Black"]]
     },
     {
       id: "apple-iphone-15", name: "Apple iPhone 15 128GB", brand: "Apple", category: "phones", type: "Smartphone",
       price: 17999, stock: 8, featured: true,
       art: { kind: "phone", color: "#ec4899", body: "light" },
       summary: "Dynamic Island, a 48 MP main camera and USB-C charging.",
-      specs: [["Storage", "128 GB"], ["Display", "6.1\" Super Retina XDR"], ["Network", "5G"], ["Main camera", "48 MP"], ["Port", "USB-C"]]
+      specs: [["Storage", "128 GB"], ["Display", "6.1\" Super Retina XDR"], ["Network", "5G"], ["Main camera", "48 MP"], ["Port", "USB-C"], ["Headphone jack", "No"], ["Colour", "Pink"]]
     },
     {
       id: "xiaomi-redmi-note-13", name: "Xiaomi Redmi Note 13 256GB", brand: "Xiaomi", category: "phones", type: "Smartphone",
       price: 4499, was: 4999, stock: 30,
       art: { kind: "phone", color: "#14b8a6", body: "dark" },
       summary: "Big storage and a smooth 120 Hz AMOLED screen at a friendly price.",
-      specs: [["Storage", "256 GB"], ["Display", "6.67\" AMOLED 120 Hz"], ["Network", "4G, dual SIM"], ["Main camera", "108 MP"], ["Battery", "5000 mAh"]]
+      specs: [["Storage", "256 GB"], ["Display", "6.67\" AMOLED 120 Hz"], ["Network", "4G, dual SIM"], ["Main camera", "108 MP"], ["Battery", "5000 mAh"], ["Headphone jack", "3.5 mm"], ["Colour", "Green"]]
     },
     {
       id: "samsung-galaxy-a15", name: "Samsung Galaxy A15 128GB", brand: "Samsung", category: "phones", type: "Smartphone",
       price: 3299, stock: 25,
       art: { kind: "phone", color: "#0ea5e9", body: "dark" },
       summary: "Reliable everyday phone with a big screen and two-day battery life.",
-      specs: [["Storage", "128 GB"], ["Display", "6.5\" Super AMOLED"], ["Network", "4G, dual SIM"], ["Main camera", "50 MP"], ["Battery", "5000 mAh"]]
+      specs: [["Storage", "128 GB"], ["Display", "6.5\" Super AMOLED"], ["Network", "4G, dual SIM"], ["Main camera", "50 MP"], ["Battery", "5000 mAh"], ["Headphone jack", "3.5 mm"], ["Colour", "Blue"]]
     },
     {
       id: "apple-ipad-10", name: "Apple iPad (10th gen) 64GB Wi-Fi", brand: "Apple", category: "phones", type: "Tablet",
       price: 8999, stock: 9,
       art: { kind: "tablet", color: "#3b82f6", body: "silver" },
       summary: "All-screen iPad for notes, school work and entertainment.",
-      specs: [["Storage", "64 GB"], ["Display", "10.9\" Liquid Retina"], ["Connectivity", "Wi-Fi"], ["Port", "USB-C"]]
+      specs: [["Storage", "64 GB"], ["Display", "10.9\" Liquid Retina"], ["Connectivity", "Wi-Fi"], ["Port", "USB-C"], ["Headphone jack", "No"], ["Colour", "Blue"]]
     },
     {
       id: "samsung-galaxy-tab-a9-plus", name: "Samsung Galaxy Tab A9+ 64GB", brand: "Samsung", category: "phones", type: "Tablet",
       price: 4299, was: 4799, stock: 11,
       art: { kind: "tablet", color: "#8b5cf6", body: "dark" },
       summary: "Large 11-inch screen with quad speakers — perfect for the family.",
-      specs: [["Storage", "64 GB"], ["Display", "11\" 90 Hz"], ["Connectivity", "Wi-Fi"], ["Audio", "Quad speakers"]]
+      specs: [["Storage", "64 GB"], ["Display", "11\" 90 Hz"], ["Connectivity", "Wi-Fi"], ["Audio", "Quad speakers"], ["Headphone jack", "3.5 mm"], ["Colour", "Grey"]]
     },
 
     /* ---------- accessories ---------- */
@@ -194,21 +194,21 @@
       price: 999, was: 1199, stock: 12, featured: true,
       art: { kind: "headphones", color: "#0d9488", body: "dark" },
       summary: "Lightweight on-ear headphones with up to 50 hours of battery.",
-      specs: [["Connection", "Bluetooth 5.2"], ["Battery", "Up to 50 hours"], ["Mic", "Built-in for calls"]]
+      specs: [["Connection", "Bluetooth 5.2"], ["Battery", "Up to 50 hours"], ["Mic", "Built-in for calls"], ["Colour", "Black"]]
     },
     {
       id: "jbl-tune-buds", name: "JBL Tune Buds Earbuds", brand: "JBL", category: "accessories", type: "Earbuds",
       price: 1299, stock: 0,
       art: { kind: "earbuds", color: "#f97316", body: "dark" },
       summary: "True wireless earbuds with noise cancelling and JBL Pure Bass.",
-      specs: [["Connection", "Bluetooth 5.3"], ["Noise cancelling", "Active (ANC)"], ["Water resistance", "IP54"]]
+      specs: [["Connection", "Bluetooth 5.3"], ["Noise cancelling", "Active (ANC)"], ["Water resistance", "IP54"], ["Colour", "Black"]]
     },
     {
       id: "samsung-t7-1tb-ssd", name: "Samsung T7 1TB Portable SSD", brand: "Samsung", category: "accessories", type: "Storage",
       price: 1899, stock: 9,
       art: { kind: "ssd", color: "#0ea5e9" },
       summary: "Credit-card-sized SSD for fast backups and big file transfers.",
-      specs: [["Capacity", "1 TB"], ["Interface", "USB 3.2 Gen 2, USB-C"], ["Includes", "USB-C to C and C to A cables"]]
+      specs: [["Capacity", "1 TB"], ["Interface", "USB 3.2 Gen 2, USB-C"], ["Includes", "USB-C to C and C to A cables"], ["Colour", "Blue"]]
     },
 
     /* ---------- electronics ---------- */
@@ -217,7 +217,7 @@
       price: 9999, stock: 4,
       art: { kind: "tv", color: "#2563eb", body: "dark" },
       summary: "Sharp 4K picture and slim design for the main lounge.",
-      specs: [["Size", "55\""], ["Resolution", "4K UHD"], ["HDR", "HDR10+"], ["Inputs", "3 × HDMI, USB"]]
+      specs: [["Size", "55\""], ["Resolution", "4K UHD"], ["HDR", "HDR10+"], ["Inputs", "3 × HDMI, USB"], ["Colour", "Black"]]
     },
     {
       id: "jbl-flip-6",
@@ -227,28 +227,28 @@
       price: 1999, stock: 16,
       art: { kind: "speaker", color: "#0d9488" },
       summary: "Bold, waterproof sound you can take anywhere.",
-      specs: [["Connection", "Bluetooth"], ["Battery", "Up to 12 hours"], ["Water resistance", "IP67"]]
+      specs: [["Connection", "Bluetooth"], ["Battery", "Up to 12 hours"], ["Water resistance", "IP67"], ["Colour", "Teal"]]
     },
     {
       id: "samsung-galaxy-watch6", name: "Samsung Galaxy Watch6 40mm", brand: "Samsung", category: "electronics", type: "Smartwatch",
       price: 4499, was: 5499, stock: 7,
       art: { kind: "watch", color: "#0ea5e9", body: "dark", round: true },
       summary: "Health, sleep and fitness tracking on a bright round display.",
-      specs: [["Case", "40 mm"], ["Connectivity", "Bluetooth, Wi-Fi"], ["Tracking", "Heart rate, sleep, workouts"]]
+      specs: [["Case", "40 mm"], ["Connectivity", "Bluetooth, Wi-Fi"], ["Tracking", "Heart rate, sleep, workouts"], ["Colour", "Black"]]
     },
     {
       id: "sony-playstation-5-slim", name: "Sony PlayStation 5 Slim", brand: "Sony", category: "electronics", type: "Gaming",
       price: 11999, stock: 2, badge: "Hot",
       art: { kind: "console", color: "#2563eb" },
       summary: "Next-gen gaming with ultra-fast loading and the DualSense controller.",
-      specs: [["Storage", "1 TB SSD"], ["Drive", "Ultra HD Blu-ray"], ["Includes", "DualSense wireless controller"]]
+      specs: [["Storage", "1 TB SSD"], ["Drive", "Ultra HD Blu-ray"], ["Includes", "DualSense wireless controller"], ["Colour", "White"]]
     },
     {
       id: "hp-smart-tank-580", name: "HP Smart Tank 580 All-in-One Printer", brand: "HP", category: "electronics", type: "Printer",
       price: 3499, stock: 6,
       art: { kind: "printer", color: "#0284c7", body: "light" },
       summary: "Refillable ink tanks for low-cost printing, scanning and copying.",
-      specs: [["Functions", "Print, scan, copy"], ["Connectivity", "Wi-Fi, USB"], ["Ink", "Refillable tanks"]]
+      specs: [["Functions", "Print, scan, copy"], ["Connectivity", "Wi-Fi, USB"], ["Ink", "Refillable tanks"], ["Colour", "White"]]
     },
 
     /* ---------- more sample stock ---------- */
@@ -257,42 +257,42 @@
       price: 8499, was: 9299, stock: 11,
       art: { kind: "laptop", color: "#0891b2", body: "silver" },
       summary: "Slim 15-inch laptop with a full-size keyboard and fast SSD.",
-      specs: [["Processor", "Intel Core i5"], ["Memory", "8 GB RAM"], ["Storage", "512 GB SSD"], ["Display", "15.6\" Full HD"]]
+      specs: [["Processor", "Intel Core i5"], ["Memory", "8 GB RAM"], ["Storage", "512 GB SSD"], ["Display", "15.6\" Full HD"], ["Colour", "Silver"]]
     },
     {
       id: "lenovo-legion-5", name: "Lenovo Legion 5 Gaming Laptop", brand: "Lenovo", category: "computers", type: "Laptop",
       price: 24999, was: 27999, stock: 3, badge: "Gaming",
       art: { kind: "laptop", color: "#7c3aed", body: "dark" },
       summary: "Serious gaming and creative power with a high-refresh screen.",
-      specs: [["Processor", "AMD Ryzen 7"], ["Graphics", "NVIDIA GeForce RTX 4060"], ["Memory", "16 GB RAM"], ["Storage", "1 TB SSD"]]
+      specs: [["Processor", "AMD Ryzen 7"], ["Graphics", "NVIDIA GeForce RTX 4060"], ["Memory", "16 GB RAM"], ["Storage", "1 TB SSD"], ["Colour", "Grey"]]
     },
     {
       id: "apple-macbook-pro-14-m3", name: "Apple MacBook Pro 14\" (M3)", brand: "Apple", category: "computers", type: "Laptop",
       price: 32999, stock: 4, badge: "New",
       art: { kind: "laptop", color: "#475569", body: "dark" },
       summary: "Pro performance and a stunning Liquid Retina XDR display.",
-      specs: [["Chip", "Apple M3"], ["Memory", "8 GB unified"], ["Storage", "512 GB SSD"], ["Display", "14.2\" Liquid Retina XDR"]]
+      specs: [["Chip", "Apple M3"], ["Memory", "8 GB unified"], ["Storage", "512 GB SSD"], ["Display", "14.2\" Liquid Retina XDR"], ["Colour", "Grey"]]
     },
     {
       id: "lenovo-ideacentre-3", name: "Lenovo IdeaCentre 3 Desktop", brand: "Lenovo", category: "computers", type: "Desktop",
       price: 8999, was: 9999, stock: 6,
       art: { kind: "desktop", color: "#dc2626", body: "dark" },
       summary: "Compact home desktop with plenty of ports for the whole family.",
-      specs: [["Processor", "Intel Core i5"], ["Memory", "8 GB RAM"], ["Storage", "512 GB SSD"], ["OS", "Windows 11 Home"]]
+      specs: [["Processor", "Intel Core i5"], ["Memory", "8 GB RAM"], ["Storage", "512 GB SSD"], ["OS", "Windows 11 Home"], ["Colour", "Black"]]
     },
     {
       id: "dell-24-fhd-monitor", name: "Dell 24\" Full HD Monitor", brand: "Dell", category: "computers", type: "Monitor",
       price: 2499, was: 2899, stock: 14,
       art: { kind: "monitor", color: "#2563eb", body: "dark" },
       summary: "Thin-bezel IPS monitor with comfortable, flicker-free viewing.",
-      specs: [["Size", "24\""], ["Resolution", "1920 × 1080"], ["Panel", "IPS"], ["Inputs", "HDMI, VGA"]]
+      specs: [["Size", "24\""], ["Resolution", "1920 × 1080"], ["Panel", "IPS"], ["Inputs", "HDMI, VGA"], ["Colour", "Black"]]
     },
     {
       id: "apple-iphone-15-pro", name: "Apple iPhone 15 Pro 256GB", brand: "Apple", category: "phones", type: "Smartphone",
       price: 25999, stock: 5, featured: true,
       art: { kind: "phone", color: "#64748b", body: "silver" },
       summary: "Titanium design, the A17 Pro chip and a pro camera system.",
-      specs: [["Storage", "256 GB"], ["Display", "6.1\" Super Retina XDR"], ["Network", "5G"], ["Port", "USB-C"]]
+      specs: [["Storage", "256 GB"], ["Display", "6.1\" Super Retina XDR"], ["Network", "5G"], ["Port", "USB-C"], ["Headphone jack", "No"], ["Colour", "Grey"]]
     },
     {
       id: "samsung-galaxy-s24-ultra",
@@ -302,84 +302,84 @@
       price: 24999, was: 27999, stock: 4, featured: true,
       art: { kind: "phone", color: "#334155", body: "dark" },
       summary: "Built-in S Pen, a 200 MP camera and Galaxy AI.",
-      specs: [["Storage", "256 GB"], ["Display", "6.8\" Dynamic AMOLED 2X"], ["Network", "5G"], ["Main camera", "200 MP"]]
+      specs: [["Storage", "256 GB"], ["Display", "6.8\" Dynamic AMOLED 2X"], ["Network", "5G"], ["Main camera", "200 MP"], ["Headphone jack", "No"], ["Colour", "Black"]]
     },
     {
       id: "samsung-galaxy-a35", name: "Samsung Galaxy A35 5G 128GB", brand: "Samsung", category: "phones", type: "Smartphone",
       price: 6499, was: 7299, stock: 18,
       art: { kind: "phone", color: "#38bdf8", body: "silver" },
       summary: "Bright AMOLED screen and dependable cameras for everyday use.",
-      specs: [["Storage", "128 GB"], ["Display", "6.6\" Super AMOLED"], ["Network", "5G, dual SIM"], ["Battery", "5000 mAh"]]
+      specs: [["Storage", "128 GB"], ["Display", "6.6\" Super AMOLED"], ["Network", "5G, dual SIM"], ["Battery", "5000 mAh"], ["Headphone jack", "No"], ["Colour", "Blue"]]
     },
     {
       id: "xiaomi-redmi-13c", name: "Xiaomi Redmi 13C 128GB", brand: "Xiaomi", category: "phones", type: "Smartphone",
       price: 2299, was: 2599, stock: 40,
       art: { kind: "phone", color: "#22c55e", body: "dark" },
       summary: "Big-screen budget phone with a long-lasting battery.",
-      specs: [["Storage", "128 GB"], ["Display", "6.74\" 90 Hz"], ["Network", "4G, dual SIM"], ["Battery", "5000 mAh"]]
+      specs: [["Storage", "128 GB"], ["Display", "6.74\" 90 Hz"], ["Network", "4G, dual SIM"], ["Battery", "5000 mAh"], ["Headphone jack", "3.5 mm"], ["Colour", "Green"]]
     },
     {
       id: "apple-ipad-air-11-m2", name: "Apple iPad Air 11\" (M2) 128GB", brand: "Apple", category: "phones", type: "Tablet",
       price: 14999, stock: 7,
       art: { kind: "tablet", color: "#8b5cf6", body: "silver" },
       summary: "Powerful, light and ready for Apple Pencil Pro.",
-      specs: [["Chip", "Apple M2"], ["Storage", "128 GB"], ["Display", "11\" Liquid Retina"], ["Connectivity", "Wi-Fi"]]
+      specs: [["Chip", "Apple M2"], ["Storage", "128 GB"], ["Display", "11\" Liquid Retina"], ["Connectivity", "Wi-Fi"], ["Headphone jack", "No"], ["Colour", "Purple"]]
     },
     {
       id: "lenovo-tab-m10", name: "Lenovo Tab M10 (3rd Gen) 64GB", brand: "Lenovo", category: "phones", type: "Tablet",
       price: 2999, was: 3499, stock: 15,
       art: { kind: "tablet", color: "#64748b", body: "dark" },
       summary: "Family-friendly 10-inch tablet for streaming and homework.",
-      specs: [["Storage", "64 GB"], ["Display", "10.1\" WUXGA"], ["Connectivity", "Wi-Fi"]]
+      specs: [["Storage", "64 GB"], ["Display", "10.1\" WUXGA"], ["Connectivity", "Wi-Fi"], ["Headphone jack", "3.5 mm"], ["Colour", "Grey"]]
     },
     {
       id: "apple-airpods-pro-2", name: "Apple AirPods Pro (2nd gen)", brand: "Apple", category: "accessories", type: "Earbuds",
       price: 4999, was: 5499, stock: 9, featured: true,
       art: { kind: "earbuds", color: "#0ea5e9", body: "white" },
       summary: "Active noise cancellation and personalised spatial audio.",
-      specs: [["Noise cancelling", "Active (ANC)"], ["Case", "MagSafe, USB-C"], ["Water resistance", "IP54"]]
+      specs: [["Noise cancelling", "Active (ANC)"], ["Case", "MagSafe, USB-C"], ["Water resistance", "IP54"], ["Colour", "White"]]
     },
     {
       id: "jbl-tune-520bt", name: "JBL Tune 520BT Headphones", brand: "JBL", category: "accessories", type: "Headphones",
       price: 899, was: 1099, stock: 20,
       art: { kind: "headphones", color: "#f97316", body: "dark" },
       summary: "Pure Bass sound with up to 57 hours of playtime.",
-      specs: [["Connection", "Bluetooth 5.3"], ["Battery", "Up to 57 hours"], ["Mic", "Built-in for calls"]]
+      specs: [["Connection", "Bluetooth 5.3"], ["Battery", "Up to 57 hours"], ["Mic", "Built-in for calls"], ["Colour", "Black"]]
     },
     {
       id: "samsung-25w-usb-c-charger", name: "Samsung 25W USB-C Fast Charger", brand: "Samsung", category: "accessories", type: "Charger",
       price: 349, stock: 55,
       art: { kind: "charger", color: "#1e293b", body: "white" },
       summary: "Super Fast Charging for Galaxy phones and other USB-C devices.",
-      specs: [["Output", "25 W USB-C PD"], ["Plug", "SA 2-pin adapter included"]]
+      specs: [["Output", "25 W USB-C PD"], ["Plug", "SA 2-pin adapter included"], ["Colour", "White"]]
     },
     {
       id: "jbl-charge-5", name: "JBL Charge 5 Bluetooth Speaker", brand: "JBL", category: "electronics", type: "Speaker",
       price: 2999, was: 3499, stock: 10,
       art: { kind: "speaker", color: "#f97316" },
       summary: "Powerful, waterproof sound that also charges your phone.",
-      specs: [["Connection", "Bluetooth"], ["Battery", "Up to 20 hours"], ["Water resistance", "IP67"]]
+      specs: [["Connection", "Bluetooth"], ["Battery", "Up to 20 hours"], ["Water resistance", "IP67"], ["Colour", "Black"]]
     },
     {
       id: "apple-watch-se-40mm", name: "Apple Watch SE (2nd gen) 40mm", brand: "Apple", category: "electronics", type: "Smartwatch",
       price: 5499, was: 5999, stock: 8,
       art: { kind: "watch", color: "#0ea5e9", body: "silver" },
       summary: "Fitness, sleep and safety features in a light, comfortable watch.",
-      specs: [["Case", "40 mm aluminium"], ["Connectivity", "GPS"], ["Tracking", "Heart rate, sleep, workouts"]]
+      specs: [["Case", "40 mm aluminium"], ["Connectivity", "GPS"], ["Tracking", "Heart rate, sleep, workouts"], ["Colour", "Silver"]]
     },
     {
       id: "canon-pixma-g3430", name: "Canon PIXMA G3430 Ink Tank Printer", brand: "Canon", category: "electronics", type: "Printer",
       price: 3299, was: 3699, stock: 7,
       art: { kind: "printer", color: "#dc2626", body: "light" },
       summary: "Refillable MegaTank printing, scanning and copying over Wi-Fi.",
-      specs: [["Functions", "Print, scan, copy"], ["Connectivity", "Wi-Fi, USB"], ["Ink", "Refillable MegaTank"]]
+      specs: [["Functions", "Print, scan, copy"], ["Connectivity", "Wi-Fi, USB"], ["Ink", "Refillable MegaTank"], ["Colour", "Black"]]
     },
     {
       id: "deli-scientific-calculator", name: "Deli Scientific Calculator (240 functions)", brand: "Deli", category: "accessories", type: "Calculator",
       price: 229, stock: 45,
       art: { kind: "calculator", color: "#cb0a3d", body: "dark" },
       summary: "Exam-friendly scientific calculator for high school and university.",
-      specs: [["Functions", "240"], ["Display", "2-line"], ["Power", "Battery"]]
+      specs: [["Functions", "240"], ["Display", "2-line"], ["Power", "Battery"], ["Colour", "Black"]]
     }
   ];
 

@@ -19,8 +19,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/mabs.css?v=202610222130">
-<link rel="stylesheet" href="css/select.css?v=202610222130">
+<link rel="stylesheet" href="css/mabs.css?v=202610222245">
+<link rel="stylesheet" href="css/select.css?v=202610222245">
 </head>
 <body class="mabs" data-page="home">
 <div id="site-header"></div>
@@ -110,9 +110,10 @@
               <label><span class="sr-only">Maximum price</span><input type="number" id="f-max" min="0" step="100" placeholder="Max" inputmode="numeric"></label>
             </div>
           </fieldset>
+          <!-- Availability, Colour, Storage, Screen size… (only those that fit the products shown); js/shop.js -->
+          <div class="facets" id="f-specs"></div>
           <fieldset>
             <legend>Show</legend>
-            <label class="check"><input type="checkbox" id="f-stock"> In stock only</label>
             <label class="check"><input type="checkbox" id="f-deals"> On sale</label>
             <label class="check"><input type="checkbox" id="f-wish"> My wishlist</label>
           </fieldset>
@@ -132,7 +133,7 @@
 
 <div id="site-footer"></div>
 
-<script src="js/catalog.js?v=202610222130"></script>
-<script src="js/api.js?v=202610222130" data-load="js/select.js js/app.js js/shop.js"></script>
+<script src="js/catalog.js?v=202610222245"></script>
+<script src="js/api.js?v=202610222245" data-load="js/select.js js/app.js js/shop.js"></script>
 </body>
 </html>

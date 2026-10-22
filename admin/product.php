@@ -187,7 +187,7 @@ page_start($p ? $p['name'] : 'Add product', 'products');
         <input name="badge" value="<?= h($v['badge']) ?>" maxlength="30"<?= invalid($errors, 'badge') ?>></label>
       <label class="span2">Summary <span class="hint">one or two sentences</span>
         <textarea name="summary" rows="2" maxlength="600"><?= h($v['summary']) ?></textarea></label>
-      <label class="span2">Specs <span class="hint">one per line, as “Label: value”</span> <?= field_error($errors, 'specs') ?>
+      <label class="span2">Specs <span class="hint">one per line, as “Label: value”. Colour, Storage, Memory, Processor, Display (with the size in inches), Network, Headphone jack, Lens type and Condition also become shop filters.</span> <?= field_error($errors, 'specs') ?>
         <textarea name="specs" rows="6" placeholder="Processor: Intel Core i5&#10;Memory: 8 GB RAM"<?= invalid($errors, 'specs') ?>><?= h($v['specs']) ?></textarea></label>
     </section>
 

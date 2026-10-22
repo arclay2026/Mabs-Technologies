@@ -276,11 +276,6 @@
     });
   };
 
-  function inCartNote(id) {
-    var q = M.cart.qty(id);
-    return q ? '<a class="card-incart" href="cart.html">' + ICON.check + q + " in your cart</a>" : "";
-  }
-
   function richCard(p) {
     var href = "product.html?id=" + encodeURIComponent(p.id);
     var out = p.stock < 1, wished = M.wish.has(p.id), d = M.store.delivery;
@@ -302,15 +297,10 @@
         '<div class="card-buy">' +
           (out ? '<button type="button" class="btn card-add" disabled>Sold out</button>' :
             '<button type="button" class="btn card-add" data-add="' + esc(p.id) + '">' + ICON.cart + "<span>Add to cart</span></button>") +
-          '<span class="card-incart-slot" data-incart="' + esc(p.id) + '">' + inCartNote(p.id) + "</span>" +
         "</div>" +
       "</div>" +
     "</article>";
   }
-  // keep "2 in your cart" under each rich card up to date
-  document.addEventListener("cart:change", function () {
-    document.querySelectorAll("[data-incart]").forEach(function (el) { el.innerHTML = inCartNote(el.getAttribute("data-incart")); });
-  });
 
   /* ---------- toast ---------- */
   var toastEl, toastTimer;

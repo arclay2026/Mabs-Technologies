@@ -14,6 +14,12 @@ Pages) the shop still runs from its built-in catalogue.
   departments, deals and the full shop with search, filters, sorting and
   "Show more". Filters are kept in the URL, e.g.
   `index.html?cat=computers&type=Laptop&brand=HP#shop`.
+  Besides category, brand and price, the filters offer Availability and
+  whichever product details the products shown have (Colour, Storage
+  capacity, Memory, Processor, Screen size, Network, Audio jack, Lens type,
+  Product condition). They're read from each product's specs, so a spec
+  line like `Colour: Black` or `Headphone jack: No` in the admin panel puts
+  the product in that filter; a product with no `Condition` counts as New.
 - `product.html?id=<product-id>` — photo gallery, details, delivery
   estimate, buy box, description and specs, reviews and related products.
 - `cart.html` — shopping cart: each item with its delivery estimate,

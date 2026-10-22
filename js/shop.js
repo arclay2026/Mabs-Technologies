@@ -2,7 +2,8 @@
    MABS TECHNOLOGIES — STOREFRONT (index.html)
    Brand strip, category tiles, sale rail and the filterable shop grid.
    Shop filters live in the URL (?cat=&q=&brand=&min=&max=&stock=&deals=
-   &wish=&sort=) so results can be bookmarked and shared.
+   &wish=&sort=, plus product details like &colour=&storage=&screen=) so
+   results can be bookmarked and shared.
    ===================================================================== */
 (function () {
   "use strict";
@@ -165,6 +166,7 @@
     if (state.brands.length) p.set("brand", state.brands.join(","));
     if (state.min) p.set("min", state.min);
     if (state.max) p.set("max", state.max);
+    FACETS.forEach(function (f) { if (state.f[f.key]) p.set(f.key, state.f[f.key].join(",")); });
     if (state.stock) p.set("stock", "1");
     if (state.deals) p.set("deals", "1");
     if (state.wish) p.set("wish", "1");
@@ -175,13 +177,19 @@
     history.replaceState(null, "", location.pathname + (qs ? "?" + qs : "") + hash);
   }
 
-  function matches(p, skipBrand) {
+  // `skip` leaves one filter out, to count what ticking its other options would show
+  function matches(p, skip) {
     if (state.cat && p.category !== state.cat) return false;
     if (state.type && p.type !== state.type) return false;
-    if (!skipBrand && state.brands.length && state.brands.indexOf(p.brand) === -1) return false;
+    for (var k in state.f) {
+      if (k === skip) continue;
+      var have = facetValues(p, FACET[k]);
+      if (!state.f[k].some(function (v) { return have.indexOf(v) !== -1; })) return false;
+    }
+    if (skip !== "brand" && state.brands.length && state.brands.indexOf(p.brand) === -1) return false;
     if (state.min !== "" && p.price < +state.min) return false;
     if (state.max !== "" && p.price > +state.max) return false;
-    if (state.stock && p.stock < 1) return false;
+    if (skip !== "stock" && state.stock && p.stock < 1) return false;
     if (state.deals && !(p.was && p.was > p.price)) return false;
     if (state.wish && !M.wish.has(p.id)) return false;
     return !state.q || M.matchQuery(p, state.q);
@@ -197,6 +205,58 @@
     name: function (a, b) { return a.name.localeCompare(b.name); }
   };
 
+  /* ---------- product details filters ----------
+     Read from each product's specs ("Colour: Black", "Storage: 256 GB SSD"…),
+     so a filter appears only when the products being shown have that detail:
+     phones get storage, screen size and headphone jack; laptops get memory
+     and processor; and so on. In the admin panel, adding a spec line with
+     one of these labels puts the product in the matching filter. */
+  var CAP = /(\d+(?:\.\d+)?)\s*(GB|TB)\b/i;
+  function capacity(v) { var m = CAP.exec(v); return m ? [+m[1] + " " + m[2].toUpperCase()] : []; }
+  function gb(v) { var m = CAP.exec(v); return m ? +m[1] * (/t/i.test(m[2]) ? 1024 : 1) : 0; }
+  function first(v) { return [v]; }
+  var SWATCH = { black: "#1d1d1f", white: "#fff", silver: "#c7cbd1", grey: "#8a9099", gray: "#8a9099", blue: "#2f6fd6", navy: "#1e3a6e",
+    green: "#3aa66a", teal: "#0f9488", mint: "#9ee0c5", red: "#d0312d", pink: "#f2a7c3", purple: "#8b5cf6", lavender: "#c4b5fd",
+    yellow: "#f5cf3b", gold: "#d4b36a", orange: "#f28c28", brown: "#8a5a3b", beige: "#e6d5b8", titanium: "#a8a195", graphite: "#45474d" };
+  var FACETS = [
+    { key: "colour", label: "Colour", specs: ["colour", "color"], swatch: true,
+      values: function (v) { return v.split(/\s*[,\/&]\s*|\s+and\s+/i).filter(Boolean).map(function (c) { return c.charAt(0).toUpperCase() + c.slice(1).toLowerCase(); }); } },
+    { key: "storage", label: "Storage capacity", chip: " storage", specs: ["storage", "capacity", "storage capacity"], values: capacity, order: gb },
+    { key: "ram", label: "Memory (RAM)", chip: " RAM", specs: ["memory", "ram"], values: capacity, order: gb },
+    { key: "cpu", label: "Processor", specs: ["processor", "chip", "cpu"], values: first },
+    { key: "screen", label: "Screen size", chip: " screen", specs: ["screen size", "screen", "display", "size"], order: parseFloat,
+      values: function (v) { var m = /(\d{1,3}(?:\.\d+)?)\s*(?:"|”|″|-?\s?inch)/i.exec(v); return m ? [Math.round(m[1] * 10) / 10 + '"'] : []; } },
+    { key: "network", label: "Network", specs: ["network", "mobile network"],
+      values: function (v) { return /5G/i.test(v) ? ["5G"] : /4G|LTE/i.test(v) ? ["4G"] : []; } },
+    { key: "jack", label: "Audio jack", specs: ["headphone jack", "audio jack"],
+      values: function (v) { return [/^(no|none)\b/i.test(v) ? "No headphone jack" : "3.5 mm headphone jack"]; } },
+    { key: "lens", label: "Lens type", specs: ["lens type", "lens"], values: first },
+    { key: "condition", label: "Product condition", specs: ["condition", "product condition"], values: first, fallback: "New",
+      order: function (v) { return v === "New" ? 0 : 1; } }
+  ];
+  var FACET = {};
+  FACETS.forEach(function (f) { FACET[f.key] = f; });
+  // ticked values per filter, from the URL (?colour=Black,Blue&storage=256 GB)
+  state.f = {};
+  FACETS.forEach(function (f) {
+    var v = (params.get(f.key) || "").split(",").filter(Boolean);
+    if (v.length) state.f[f.key] = v;
+  });
+
+  // a product's values for one filter (worked out once per product)
+  function facetValues(p, f) {
+    var cache = p._facets || (p._facets = {});
+    if (cache[f.key]) return cache[f.key];
+    var out = [];
+    (p.specs || []).some(function (s) {
+      if (f.specs.indexOf(String(s[0]).trim().toLowerCase()) === -1) return false;
+      out = f.values(String(s[1]).trim());
+      return out.length > 0;
+    });
+    if (!out.length && f.fallback) out = [f.fallback];
+    return (cache[f.key] = out);
+  }
+
   /* ---------- filters UI ---------- */
   function renderFilters() {
     $("f-cats").innerHTML = [{ id: "", name: "All categories" }].concat(M.categories).map(function (c) {
@@ -210,7 +270,7 @@
     }).join("");
     // brands available given every other filter, plus any already ticked
     var counts = {};
-    M.products.forEach(function (p) { if (matches(p, true)) counts[p.brand] = (counts[p.brand] || 0) + 1; });
+    M.products.forEach(function (p) { if (matches(p, "brand")) counts[p.brand] = (counts[p.brand] || 0) + 1; });
     state.brands.forEach(function (b) { if (!(b in counts)) counts[b] = 0; });
     var brands = Object.keys(counts).sort();
     $("f-brands").innerHTML = brands.length ? brands.map(function (b) {
@@ -219,10 +279,44 @@
     }).join("") : '<p class="fine">No brands match.</p>';
     $("f-min").value = state.min;
     $("f-max").value = state.max;
-    $("f-stock").checked = state.stock;
+    renderFacets();
     $("f-deals").checked = state.deals;
     $("f-wish").checked = state.wish;
     $("sort").value = state.sort;
+  }
+
+  // collapsible sections: Availability, then each product detail the products shown have
+  var opened = {}, expanded = {}; // sections opened / lists expanded by the shopper
+  var FEW = 6; // options shown before "Show all"
+  function section(key, label, on, body) {
+    var open = key in opened ? opened[key] : on > 0;
+    return '<fieldset class="facet' + (open ? " is-open" : "") + '" data-facet="' + key + '">' +
+      '<legend><button type="button" class="facet-head" aria-expanded="' + open + '" aria-controls="fb-' + key + '">' +
+        "<span>" + esc(label) + "</span>" + (on ? '<span class="facet-on" aria-label="' + on + ' selected">' + on + "</span>" : "") + M.icon.chevron +
+      "</button></legend>" +
+      '<div class="facet-body" id="fb-' + key + '"' + (open ? "" : " hidden") + ">" + body + "</div></fieldset>";
+  }
+  function renderFacets() {
+    var inStock = M.products.filter(function (p) { return p.stock > 0 && matches(p, "stock"); }).length;
+    var html = section("stock", "Availability", state.stock ? 1 : 0,
+      '<label class="check"><input type="checkbox" id="f-stock"' + (state.stock ? " checked" : "") + "> In stock <span class=\"n\">" + inStock + "</span></label>");
+    FACETS.forEach(function (f) {
+      var counts = {}, picked = state.f[f.key] || [];
+      M.products.forEach(function (p) {
+        if (matches(p, f.key)) facetValues(p, f).forEach(function (v) { counts[v] = (counts[v] || 0) + 1; });
+      });
+      picked.forEach(function (v) { if (!(v in counts)) counts[v] = 0; });
+      var vals = Object.keys(counts);
+      if (!vals.length) return; // nothing shown has this detail
+      vals.sort(function (a, b) { return f.order ? f.order(a) - f.order(b) || a.localeCompare(b) : a.localeCompare(b); });
+      var all = expanded[f.key] || vals.length <= FEW + 1 || vals.slice(FEW).some(function (v) { return picked.indexOf(v) !== -1; });
+      html += section(f.key, f.label, picked.length, vals.map(function (v, i) {
+        var sw = f.swatch ? '<span class="swatch" style="--sw:' + (SWATCH[v.toLowerCase()] || "conic-gradient(#f87171,#facc15,#4ade80,#60a5fa,#c084fc,#f87171)") + '" aria-hidden="true"></span>' : "";
+        return '<label class="check"' + (!all && i >= FEW ? " hidden" : "") + '><input type="checkbox" name="f:' + f.key + '" value="' + esc(v) + '"' +
+          (picked.indexOf(v) !== -1 ? " checked" : "") + "> " + sw + esc(v) + ' <span class="n">' + counts[v] + "</span></label>";
+      }).join("") + (all ? "" : '<button type="button" class="link-btn facet-more" data-more="' + f.key + '">Show all ' + vals.length + "</button>"));
+    });
+    $("f-specs").innerHTML = html;
   }
 
   function activeChips() {
@@ -231,6 +325,7 @@
     if (state.cat) chips.push(["cat", M.catName(state.cat)]);
     if (state.type) chips.push(["type", M.plural(state.type)]);
     state.brands.forEach(function (b) { chips.push(["brand:" + b, b]); });
+    FACETS.forEach(function (f) { (state.f[f.key] || []).forEach(function (v) { chips.push(["f:" + f.key + ":" + v, v + (f.chip || "")]); }); });
     if (state.min !== "" || state.max !== "") {
       chips.push(["price", state.min !== "" && state.max !== "" ? money(state.min) + " – " + money(state.max) :
         state.min !== "" ? "From " + money(state.min) : "Up to " + money(state.max)]);
@@ -291,7 +386,7 @@
   }
 
   function reset() {
-    state.cat = ""; state.type = ""; state.q = ""; state.brands = []; state.min = ""; state.max = "";
+    state.cat = ""; state.type = ""; state.q = ""; state.brands = []; state.min = ""; state.max = ""; state.f = {};
     state.stock = false; state.deals = false; state.wish = false;
     var q = document.getElementById("q"); if (q) q.value = "";
     render();
@@ -302,8 +397,13 @@
   document.querySelector(".shop").addEventListener("click", function () { touched = true; }, true);
   filters.addEventListener("change", function (e) {
     var t = e.target;
-    if (t.name === "cat") { state.cat = t.value; state.type = ""; state.brands = []; }
-    else if (t.name === "type") { state.type = t.value; state.brands = []; }
+    if (t.name === "cat") { state.cat = t.value; state.type = ""; state.brands = []; state.f = {}; }
+    else if (t.name === "type") { state.type = t.value; state.brands = []; state.f = {}; }
+    else if (t.name.indexOf("f:") === 0) {
+      var key = t.name.slice(2);
+      var on = Array.prototype.map.call(filters.querySelectorAll('input[name="f:' + key + '"]:checked'), function (i) { return i.value; });
+      if (on.length) state.f[key] = on; else delete state.f[key];
+    }
     else if (t.name === "brand") {
       state.brands = Array.prototype.map.call(filters.querySelectorAll('input[name="brand"]:checked'), function (i) { return i.value; });
     }
@@ -314,7 +414,28 @@
     else if (t.id === "f-stock") state.stock = t.checked;
     else if (t.id === "f-deals") state.deals = t.checked;
     else if (t.id === "f-wish") state.wish = t.checked;
+    var name = t.name, id = t.id, value = t.value;
     render();
+    // the filters are redrawn: keep the keyboard on the same option
+    var again = id ? $(id) : filters.querySelector('input[name="' + name + '"][value="' + (window.CSS && CSS.escape ? CSS.escape(value) : value) + '"]');
+    if (again && again !== document.activeElement && document.activeElement === document.body) again.focus({ preventScroll: true });
+  });
+  // open / close a section, show all of a long list
+  $("f-specs").addEventListener("click", function (e) {
+    var head = e.target.closest(".facet-head"), more = e.target.closest("[data-more]");
+    if (head) {
+      var set = head.closest(".facet"), open = head.getAttribute("aria-expanded") !== "true";
+      opened[set.getAttribute("data-facet")] = open;
+      head.setAttribute("aria-expanded", open);
+      set.classList.toggle("is-open", open);
+      set.querySelector(".facet-body").hidden = !open;
+    } else if (more) {
+      var key = more.getAttribute("data-more"), body = more.parentNode;
+      expanded[key] = true;
+      body.querySelectorAll("label[hidden]").forEach(function (l) { l.hidden = false; });
+      more.remove();
+      body.querySelectorAll("input")[FEW].focus({ preventScroll: true });
+    }
   });
   filters.addEventListener("submit", function (e) { e.preventDefault(); });
   $("clear-filters").addEventListener("click", reset);
@@ -326,6 +447,11 @@
     if (k === "q") { state.q = ""; var q = document.getElementById("q"); if (q) q.value = ""; }
     else if (k === "cat") { state.cat = ""; state.type = ""; }
     else if (k === "type") { state.type = ""; }
+    else if (k.indexOf("f:") === 0) {
+      var fk = k.split(":")[1], fv = k.slice(fk.length + 3);
+      state.f[fk] = (state.f[fk] || []).filter(function (x) { return x !== fv; });
+      if (!state.f[fk].length) delete state.f[fk];
+    }
     else if (k.indexOf("brand:") === 0) { var b = k.slice(6); state.brands = state.brands.filter(function (x) { return x !== b; }); }
     else if (k === "price") { state.min = ""; state.max = ""; }
     else state[k] = false;
