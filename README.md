@@ -133,6 +133,17 @@ PHP hosting. (If the shop pages stay on Pages and the API lives elsewhere,
 set `api` in `js/catalog.js` to the API's full address and add the Pages
 address to `cors_origins` in `api/config.php`.)
 
+## Releasing changes
+
+Each page links its stylesheet and scripts with a version, e.g.
+`css/mabs.css?v=20261022b`. When you change any CSS or JS, give every
+page a new version, which makes browsers fetch all the new files together
+instead of mixing a saved old file with a new one:
+
+```bash
+V=$(date +%Y%m%d%H%M); sed -i -E "s/\?v=[0-9a-z]+/?v=$V/g" *.html
+```
+
 ## Running locally
 
 Shop only (built-in catalogue):

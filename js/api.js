@@ -15,7 +15,10 @@
   var M = window.MABS;
   var base = (M.store && M.store.api) || "";
   var me = document.currentScript;
-  var pageScripts = ((me && me.getAttribute("data-load")) || "").split(/\s+/).filter(Boolean);
+  // page scripts get the same ?v= as this tag, so a new release never mixes old and new files
+  var version = ((me && me.getAttribute("src")) || "").split("?")[1] || "";
+  var pageScripts = ((me && me.getAttribute("data-load")) || "").split(/\s+/).filter(Boolean)
+    .map(function (src) { return version ? src + "?" + version : src; });
   var CACHE_KEY = "mabs.catalogue.v2", CACHE_MS = 5 * 60 * 1000, TIMEOUT_MS = 6000;
 
   M.api = { enabled: !!base && !!window.fetch, source: "built-in" };
