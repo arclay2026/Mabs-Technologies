@@ -13,7 +13,7 @@ label > .dd, .field .dd, .form .dd { display: flex; width: 100%; }
   transition: border-color .15s, box-shadow .15s; }
 .dd-btn:hover { border-color: #b9c0c7; }
 .dd.is-open .dd-btn { border-color: #9aa4ad; }
-.dd-btn:focus-visible { outline: 2px solid var(--dd-ink); outline-offset: 2px; } /* keyboard only */
+.dd-btn:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(34, 49, 58, .18); } /* keyboard only: a soft ring */
 .dd-btn[aria-invalid="true"] { border-color: #b91c1c; }
 .dd-btn.is-placeholder .dd-value { color: #8a949c; font-weight: 400; }
 .dd-btn:disabled { background: var(--dd-soft); color: var(--dd-mute); cursor: not-allowed; }
