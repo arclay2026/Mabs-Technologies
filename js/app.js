@@ -141,6 +141,7 @@
     arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
     flame: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c.6 3.2-1.2 4.9-2.6 6.5C8 10.1 7 11.6 7 14a5 5 0 0 0 10 0c0-1.6-.6-3-1.5-4.1-.2 1.3-.9 2.2-1.9 2.6.4-3.4-.5-7.4-1.6-10.5z"/></svg>',
     box: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 7.5L12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5L12 12l9-4.5M12 12v9"/></svg>',
+    camera: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 8h3l1.6-2.2h6.8L17 8h3a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1V9a1 1 0 011-1z"/><circle cx="12" cy="13" r="3.4"/></svg>',
     share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="M8.2 10.8l7.6-4.1M8.2 13.2l7.6 4.1"/></svg>',
     check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
     card: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></svg>',
@@ -205,12 +206,21 @@
 
   // Takealot-style card: big square image on white, two-line name, price;
   // the whole card opens the product page
-  M.card = function (p) {
+  // little camera with the number of photos, when a product has more than one
+  function photosBadge(p) {
+    var n = p.images ? p.images.length : 0;
+    return n > 1 ? '<span class="card-photos">' + ICON.camera + n + "</span>" : "";
+  }
+
+  // M.card(p) for grids; M.card(p, { rich: true }) adds brand, stock, delivery,
+  // wishlist and Add to cart (used for search results)
+  M.card = function (p, opts) {
+    if (opts && opts.rich) return richCard(p);
     var href = "product.html?id=" + encodeURIComponent(p.id);
     var note = p.stock < 1 ? '<p class="card-note is-out">Sold out</p>' :
       p.stock <= 5 ? '<p class="card-note">Only ' + p.stock + " left</p>" : "";
     return '<article class="card' + (p.stock < 1 ? " is-sold-out" : "") + '">' +
-      '<div class="card-media" aria-hidden="true">' + M.media(p) + "</div>" +
+      '<div class="card-media" aria-hidden="true">' + M.media(p) + photosBadge(p) + "</div>" +
       badge(p) +
       brandMark(p.brand) +
       '<div class="card-body">' +
@@ -265,6 +275,42 @@
       });
     });
   };
+
+  function inCartNote(id) {
+    var q = M.cart.qty(id);
+    return q ? '<a class="card-incart" href="cart.html">' + ICON.check + q + " in your cart</a>" : "";
+  }
+
+  function richCard(p) {
+    var href = "product.html?id=" + encodeURIComponent(p.id);
+    var out = p.stock < 1, wished = M.wish.has(p.id), d = M.store.delivery;
+    var save = p.was && p.was > p.price ? p.was - p.price : 0;
+    return '<article class="card card-rich' + (out ? " is-sold-out" : "") + '">' +
+      '<div class="card-media" aria-hidden="true">' + M.media(p) + photosBadge(p) + "</div>" +
+      badge(p) +
+      '<button type="button" class="card-wish' + (wished ? " is-on" : "") + '" data-wish="' + esc(p.id) + '" aria-pressed="' + wished + '" aria-label="Save ' + esc(p.name) + ' to wishlist">' + ICON.heart + "</button>" +
+      '<div class="card-body">' +
+        '<h3 class="card-title"><a href="' + href + '">' + esc(p.name) + "</a></h3>" +
+        '<a class="card-brandlink" href="index.html?brand=' + encodeURIComponent(p.brand) + '#shop">' + esc(p.brand) + "</a>" +
+        (p.rating && p.rating.count ? '<p class="card-rating">' + M.stars(p.rating.avg, "Rated " + p.rating.avg + " out of 5") + "<span>" + p.rating.avg.toFixed(1) + " (" + p.rating.count + ")</span></p>" : "") +
+        '<p class="card-price">' + M.priceHtml(p) + "</p>" +
+        '<p class="card-save">' + (save ? "Save " + money(save) : "") + "</p>" + // kept when empty so rows line up
+        '<ul class="card-facts">' +
+          "<li>" + M.stockNote(p) + "</li>" +
+          (out ? "" : '<li class="card-eta">' + ICON.truck + "<span>" + (p.price >= d.freeOver ? "Free delivery" : "Delivery") + " by <b>" + M.deliveryBy() + "</b></span></li>") +
+        "</ul>" +
+        '<div class="card-buy">' +
+          (out ? '<button type="button" class="btn card-add" disabled>Sold out</button>' :
+            '<button type="button" class="btn card-add" data-add="' + esc(p.id) + '">' + ICON.cart + "<span>Add to cart</span></button>") +
+          '<span class="card-incart-slot" data-incart="' + esc(p.id) + '">' + inCartNote(p.id) + "</span>" +
+        "</div>" +
+      "</div>" +
+    "</article>";
+  }
+  // keep "2 in your cart" under each rich card up to date
+  document.addEventListener("cart:change", function () {
+    document.querySelectorAll("[data-incart]").forEach(function (el) { el.innerHTML = inCartNote(el.getAttribute("data-incart")); });
+  });
 
   /* ---------- toast ---------- */
   var toastEl, toastTimer;
@@ -652,6 +698,8 @@
   }
   function shortDay(t) { return DAYS[t.getDay()] + " " + t.getDate() + " " + M.MONTHS[t.getMonth()]; }
   // e.g. "Mon 26 Oct – Wed 28 Oct"; orders after 15:00 go out the next day
+  // the latest expected delivery day, e.g. "Thu 29 Oct"
+  M.deliveryBy = function () { return M.deliveryEta().split(" – ")[1]; };
   M.deliveryEta = function () {
     var span = (M.store.service && M.store.service.deliveryDays) || [2, 4];
     var start = new Date();

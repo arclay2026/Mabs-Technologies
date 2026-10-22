@@ -264,7 +264,10 @@
     var bar = $("more-bar");
     bar.innerHTML = "";
     if (list.length) {
-      $("grid").innerHTML = list.slice(0, shown).map(M.card).join("");
+      // search results get the detailed card; browsing keeps the compact grid
+      var rich = !!state.q;
+      $("grid").classList.toggle("grid-rich", rich);
+      $("grid").innerHTML = list.slice(0, shown).map(function (p) { return M.card(p, { rich: rich }); }).join("");
       if (list.length > PAGE) {
         var n = Math.min(shown, list.length);
         bar.innerHTML = '<p>Showing ' + n + " of " + list.length + " products</p>" +
