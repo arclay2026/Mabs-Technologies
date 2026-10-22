@@ -24,6 +24,8 @@ label > .dd, .field .dd, .form .dd { display: flex; width: 100%; }
   border: 1px solid var(--dd-line); border-radius: 10px; background: #fff; box-shadow: 0 14px 34px -10px rgba(34, 49, 58, .28), 0 2px 6px rgba(34, 49, 58, .06);
   outline: none; animation: dd-in .14s ease-out; }
 .dd.is-up .dd-menu { top: auto; bottom: calc(100% + 6px); animation-name: dd-in-up; }
+.dd-menu::-webkit-scrollbar { width: 10px; }
+.dd-menu::-webkit-scrollbar-thumb { border-width: 3px; }
 .dd-menu li { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 8px 10px; border-radius: 6px;
   font-size: 13.5px; color: var(--dd-ink); white-space: nowrap; cursor: pointer; }
 .dd-menu li.is-active { background: var(--dd-soft); }

@@ -46,6 +46,13 @@ body.drawer-open, body.sheet-open { overflow: hidden; }
 :where(.mabs) h1, :where(.mabs) h2, :where(.mabs) h3 { color: var(--ink); letter-spacing: -.01em; line-height: 1.2; }
 :where(.mabs) ul, :where(.mabs) ol { margin: 0; padding: 0; list-style: none; }
 :where(.mabs) fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+/* scrollbars: slim, rounded, no arrow buttons (page, menus, drawers) */
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+::-webkit-scrollbar-thumb { border: 3px solid transparent; border-radius: 999px; background: #c9cfd5 padding-box; }
+::-webkit-scrollbar-thumb:hover { background-color: #9aa4ad; }
+::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+@supports not selector(::-webkit-scrollbar) { * { scrollbar-width: thin; scrollbar-color: #c9cfd5 transparent; } } /* Firefox */
 .mabs :focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(34, 49, 58, .18); border-radius: 4px; } /* keyboard only: a soft ring, not a thick border */
 .wrap { max-width: var(--max); margin: 0 auto; padding-inline: var(--gutter); }
 .sr-only { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

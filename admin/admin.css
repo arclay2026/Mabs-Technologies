@@ -25,6 +25,13 @@ small { font-size: 12px; }
 .strong { font-weight: 600; color: var(--ink); }
 .nowrap { white-space: nowrap; }
 .pre { white-space: pre-wrap; }
+/* scrollbars: slim, rounded, no arrow buttons (page, menus, drawers) */
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+::-webkit-scrollbar-thumb { border: 3px solid transparent; border-radius: 999px; background: #c9cfd5 padding-box; }
+::-webkit-scrollbar-thumb:hover { background-color: #9aa4ad; }
+::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+@supports not selector(::-webkit-scrollbar) { * { scrollbar-width: thin; scrollbar-color: #c9cfd5 transparent; } } /* Firefox */
 :focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(34, 49, 58, .18); }
 
 .wrap { max-width: var(--max); margin: 0 auto; padding: 0 20px; }
