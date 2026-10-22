@@ -250,6 +250,7 @@
   }
 
   var touched = false;
+  var shopEl = document.getElementById("shop");
   var PAGE = 24, shown = PAGE; // products shown before "Show more"
   function render(keepShown) {
     if (!keepShown) shown = PAGE;
@@ -266,6 +267,7 @@
     if (list.length) {
       // search results get the detailed card; browsing keeps the compact grid
       var rich = !!state.q;
+      shopEl.classList.toggle("is-search", rich); // and filters move into a sidebar
       $("grid").classList.toggle("grid-rich", rich);
       $("grid").innerHTML = list.slice(0, shown).map(function (p) { return M.card(p, { rich: rich }); }).join("");
       if (list.length > PAGE) {

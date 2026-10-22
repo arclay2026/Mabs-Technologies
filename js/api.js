@@ -101,8 +101,14 @@
   var searching = /[?&]q=[^&]/.test(location.search);
   function paintSkeletons() {
     var grid = document.getElementById("grid");
-    if (grid && searching) grid.classList.add("grid-rich"); // the search layout, as the results will use
-    fill("grid", '<p class="sr-only" role="status">Loading products…</p>' + repeat(searching ? 10 : 12, function () { return skCard(searching); }));
+    if (grid && searching) { // the search layout, as the results will use: sidebar + detailed cards
+      grid.classList.add("grid-rich");
+      var shop = document.getElementById("shop");
+      if (shop) shop.classList.add("is-search");
+      fill("f-cats", repeat(4, function () { return sk("sk-line sk-w70 sk-filter"); }));
+      fill("f-brands", repeat(6, function () { return sk("sk-line sk-w60 sk-filter"); }));
+    }
+    fill("grid", '<p class="sr-only" role="status">Loading products…</p>' + repeat(12, function () { return skCard(searching); }));
     fill("brand-track", repeat(9, function () { return sk("sk-logo"); }));
     fill("deal-rail", repeat(6, function () { return skCard(false); }));
     fill("cat-grid", repeat(4, function () { return '<div class="sk-tile" aria-hidden="true">' + sk("sk-tile-art") + '<div class="sk-body">' + sk("sk-line sk-w50") + sk("sk-line sk-w70") + "</div></div>"; }));
