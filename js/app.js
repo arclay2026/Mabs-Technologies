@@ -532,21 +532,34 @@
   function renderFooter() {
     var host = document.getElementById("site-footer");
     if (!host) return;
-    var s = M.store;
+    var s = M.store, d = s.delivery, svc = s.service || {};
+    var RETURN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 010 10h-3"/></svg>';
     var contact = [];
     if (s.phone) contact.push('<a href="tel:' + esc(s.phone.replace(/\s/g, "")) + '">' + esc(s.phone) + "</a>");
     if (s.whatsapp) contact.push('<a href="https://wa.me/' + esc(s.whatsapp) + '" target="_blank" rel="noopener">WhatsApp us</a>');
     if (s.email) contact.push('<a href="mailto:' + esc(s.email) + '">' + esc(s.email) + "</a>");
     if (s.address) contact.push("<p>" + esc(s.address) + "</p>");
     if (s.hours) contact.push("<p>" + esc(s.hours) + "</p>");
-    host.innerHTML = '<footer class="site-footer"><div class="wrap footer-grid">' +
-      '<div class="footer-brand"><a class="logo" href="index.html">' + logoImg(true) + "</a>" +
-        "<p>" + esc(s.tagline) + ". Shop online, get it delivered or collect in store.</p></div>" +
-      '<div class="footer-col"><h2>Your order</h2><a href="orders.html">Orders</a><a href="checkout.html">Checkout</a><a href="wishlist.html">Wishlist</a>' +
-        "<p>Courier delivery " + money(s.delivery.courierFee) + ", free over " + money(s.delivery.freeOver) + ".</p></div>" +
-      (contact.length ? '<div class="footer-col"><h2>Contact</h2>' + contact.join("") + "</div>" : "") +
+    var promise = function (icon, title, text, href) {
+      return '<a class="promise" href="' + href + '">' + icon + "<span><b>" + title + "</b>" + text + "</span></a>";
+    };
+    host.innerHTML = '<footer class="site-footer">' +
+      '<div class="footer-promises"><div class="wrap">' +
+        promise(ICON.truck, "Nationwide delivery", "Free on orders over " + money(d.freeOver), "help.html#delivery") +
+        (d.collect ? promise(ICON.store, "Free collection", "Collect in store at no cost", "help.html#collection") : "") +
+        promise(ICON.shield, "Genuine products", (svc.warranty || "Manufacturer's warranty") + " on every item", "help.html#warranty") +
+        promise(RETURN, "Easy returns", "Unused items within 7 days", "help.html#returns") +
+      "</div></div>" +
+      '<div class="wrap footer-grid">' +
+        '<div class="footer-brand"><a class="logo" href="index.html">' + logoImg(true) + "</a>" +
+          "<p>" + esc(s.tagline) + ". Shop online, get it delivered anywhere in South Africa or collect in store.</p>" +
+          (contact.length ? '<div class="footer-contact">' + contact.join("") + "</div>" : "") + "</div>" +
+        '<div class="footer-col"><h2>Help</h2><a href="help.html#delivery">Delivery</a>' + (d.collect ? '<a href="help.html#collection">Collect in store</a>' : "") +
+          '<a href="help.html#payment">Payment options</a><a href="help.html#returns">Returns</a><a href="help.html#warranty">Warranty</a><a href="help.html#contact">Contact us</a></div>' +
+        '<div class="footer-col"><h2>Your account</h2><a href="orders.html">Orders</a><a href="wishlist.html">Wishlist</a><a href="checkout.html">Checkout</a></div>' +
+        '<div class="footer-col"><h2>We accept</h2><ul class="pay-list"><li>EFT / bank transfer</li><li>Card on delivery</li><li>Cash on delivery</li></ul></div>' +
       "</div>" +
-      '<div class="footer-legal"><div class="wrap"><span>&copy; ' + new Date().getFullYear() + " " + esc(s.name) + ". All prices include VAT.</span>" +
+      '<div class="footer-legal"><div class="wrap"><span>&copy; ' + new Date().getFullYear() + " " + esc(s.name) + ". All prices in rand and include VAT.</span>" +
         '<span>Website by Web Graphs Technologies</span></div></div>' +
       "</footer>";
   }

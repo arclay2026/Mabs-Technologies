@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Page not found — Mabs Technologies</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#22313a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* self-contained: a missing page can sit at any depth, so nothing here uses relative paths */
+  :root { --ink: #22313a; --mute: #5f6b75; --accent: #0071e3; --line: #e3e3e8; }
+  * { box-sizing: border-box; margin: 0; }
+  body { min-height: 100vh; display: grid; place-items: center; padding: 32px 20px; background: #f5f5f7; color: var(--ink); font: 15px/1.6 Inter, "Segoe UI", system-ui, sans-serif; }
+  main { width: min(520px, 100%); padding: 44px 36px; border: 1px solid var(--line); border-radius: 10px; background: #fff; text-align: center; }
+  .code { font-size: 13px; font-weight: 600; letter-spacing: .14em; color: var(--accent); }
+  h1 { margin-top: 8px; font-size: 26px; letter-spacing: -.02em; }
+  p { margin-top: 8px; color: var(--mute); }
+  form { display: flex; gap: 8px; margin-top: 24px; }
+  input { flex: 1; min-width: 0; height: 44px; padding: 0 16px; border: 1.5px solid var(--line); border-radius: 999px; font: inherit; }
+  input:focus { outline: none; border-color: var(--accent); }
+  button, .btn { display: inline-flex; align-items: center; justify-content: center; height: 44px; padding: 0 20px; border: 0; border-radius: 999px; background: var(--accent); color: #fff; font: 600 14px Inter, system-ui, sans-serif; text-decoration: none; cursor: pointer; }
+  .links { display: flex; justify-content: center; gap: 18px; margin-top: 22px; font-size: 14px; }
+  .links a { color: var(--ink); }
+</style>
+</head>
+<body>
+<main>
+  <p class="code">ERROR 404</p>
+  <h1>We couldn’t find that page</h1>
+  <p>The link may be old or mistyped. Try a search, or head back to the shop.</p>
+  <form id="find" role="search"><input name="q" type="search" placeholder="Search laptops, phones, chargers…" aria-label="Search products"><button type="submit">Search</button></form>
+  <div class="links"><a id="home" href="/">Back to the shop</a><a id="help" href="/help.html">Help centre</a></div>
+</main>
+<script>
+  // works at the domain root (Hostinger) and under /Mabs-Technologies/ (GitHub Pages)
+  (function () {
+    var base = location.pathname.indexOf("/Mabs-Technologies/") === 0 ? "/Mabs-Technologies/" : "/";
+    document.getElementById("home").href = base + "index.html";
+    document.getElementById("help").href = base + "help.html";
+    document.getElementById("find").addEventListener("submit", function (e) {
+      e.preventDefault();
+      location.href = base + "index.html?q=" + encodeURIComponent(this.q.value.trim()) + "#shop";
+    });
+  })();
+</script>
+</body>
+</html>
