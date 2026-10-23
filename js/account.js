@@ -1,9 +1,9 @@
 /* =====================================================================
    MABS TECHNOLOGIES — MY ACCOUNT SHELL
    ---------------------------------------------------------------------
-   The account menu shared by orders.html and wishlist.html. Items
-   without an href need customer accounts (a database), so they show as
-   "Soon" until those features exist.
+   The account menu shared by account.html, orders.html and wishlist.html.
+   Items without an href aren't built yet, so they show as "Soon"; the
+   profile pages need the shop's server (customer accounts).
    ===================================================================== */
 (function () {
   "use strict";
@@ -13,28 +13,47 @@
     { title: "Orders", icon: I.box, items: [{ key: "orders", label: "Orders", href: "orders.html" }, { label: "Invoices" }, { label: "Returns" }] },
     { title: "My Lists", icon: I.heart, items: [{ key: "wishlist", label: "Wishlist", href: "wishlist.html", count: function () { return M.wish.all().length; } }] },
     { title: "Payments & Credit", icon: I.card, items: [{ label: "Coupons & offers" }, { label: "Credit & refunds" }] },
-    { title: "Profile", icon: I.user, items: [{ label: "Personal details" }, { label: "Address book" }, { label: "Security settings" }, { label: "Newsletter" }] }
+    { title: "Profile", icon: I.user, items: [
+      { key: "details", label: "Personal details", href: "account.html#details", account: true }, { label: "Address book" },
+      { key: "security", label: "Security settings", href: "account.html#security", account: true },
+      { key: "newsletter", label: "Newsletter", href: "account.html#newsletter", account: true }] }
   ];
 
   M.accountNav = function (current) {
     var host = document.getElementById("account-nav");
     if (!host) return;
     function draw() {
+      var c = M.customer, live = M.account && M.account.available();
       host.innerHTML =
-        '<div class="account-user"><span class="account-avatar">' + I.user + "</span>" +
-          '<span><b>Guest shopper</b><small>Sign-in coming soon</small></span></div>' +
+        '<div class="account-user"><span class="account-avatar">' + (c ? esc(c.firstName.charAt(0) + c.lastName.charAt(0)).toUpperCase() : I.user) + "</span>" +
+          (c ? "<span><b>" + esc(c.firstName + " " + c.lastName) + "</b><small>" + esc(c.email) + "</small></span>" :
+            live ? '<span><b>Guest shopper</b><a class="account-login" href="account.html?tab=signin">Login or register</a></span>' :
+            "<span><b>Guest shopper</b><small>Sign-in coming soon</small></span>") + "</div>" +
         MENU.map(function (g) {
           return '<div class="account-group"><h3>' + g.icon + esc(g.title) + "</h3><ul>" + g.items.map(function (it) {
+            // profile pages need an account: signed out, they lead to the login
+            if (it.account && !live) return '<li><span class="is-soon" aria-disabled="true">' + esc(it.label) + "<small>Soon</small></span></li>";
+            if (it.account && !c) return '<li><a href="account.html?tab=signin&amp;next=' + encodeURIComponent(it.href) + '">' + esc(it.label) + "</a></li>";
             if (!it.href) return '<li><span class="is-soon" aria-disabled="true">' + esc(it.label) + "<small>Soon</small></span></li>";
             var n = it.count ? it.count() : 0;
             return '<li><a href="' + it.href + '"' + (it.key === current ? ' aria-current="page"' : "") + ">" + esc(it.label) +
               (n ? '<span class="n">' + n + "</span>" : "") + "</a></li>";
           }).join("") + "</ul></div>";
-        }).join("");
+        }).join("") +
+        (c ? '<div class="account-group account-out"><button type="button" class="account-signout" data-sign-out>' + I.close + "Log out</button></div>" : "");
     }
     draw();
     document.addEventListener("wish:change", draw);
+    document.addEventListener("account:change", draw);
   };
+
+  // log out from any account page
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-sign-out]");
+    if (!b) return;
+    b.disabled = true;
+    M.account.signout().then(function () { location.href = "account.html?tab=signin&out=1"; }, function () { location.href = "account.html?tab=signin&out=1"; });
+  });
 
   /* realistic open cardboard box for the empty orders state: floats on a
      soft shadow, flaps sway, dust drifts out of it. Drawn in SVG so it

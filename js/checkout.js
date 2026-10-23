@@ -8,7 +8,8 @@
    browser and the confirmation screen lets the customer send it to the
    shop by WhatsApp or email, using the contact details in catalog.js.
    Either way a copy is kept in localStorage "mabs.orders.v1" for the
-   Orders page until customer accounts exist.
+   Orders page. Signed in, the customer's details are filled in and the
+   order is saved to their account (api/orders.php links it).
    ===================================================================== */
 (function () {
   "use strict";
@@ -17,6 +18,22 @@
   var form = document.getElementById("checkout-form");
   var wrap = document.getElementById("checkout");
   var d = M.store.delivery;
+
+  /* ---------- account: fill in the details, or offer to log in ---------- */
+  (function () {
+    var head = document.getElementById("h-contact");
+    var c = M.customer, f = form.elements;
+    if (c) {
+      if (!f.name.value) f.name.value = c.firstName + " " + c.lastName;
+      if (!f.email.value) f.email.value = c.email;
+      if (!f.phone.value && c.phone) f.phone.value = c.phone;
+      head.insertAdjacentHTML("afterend", '<p class="checkout-account">' + M.icon.user + "<span>Logged in as <b>" + esc(c.firstName + " " + c.lastName) +
+        "</b>. This order will be saved to your account.</span></p>");
+    } else if (M.account.available()) {
+      head.insertAdjacentHTML("afterend", '<p class="checkout-account">' + M.icon.user + "<span>Have an account? " +
+        '<a href="account.html?tab=signin&amp;next=checkout.html">Log in</a> for faster checkout, or carry on as a guest.</span></p>');
+    }
+  })();
 
   /* ---------- fulfilment options ---------- */
   document.getElementById("fulfil-options").innerHTML =

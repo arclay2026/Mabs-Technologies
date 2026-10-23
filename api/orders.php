@@ -3,7 +3,7 @@
    Body: {items:[{id,qty,size?}], customer:{name,phone,email}, fulfil, payment, address, notes}
    201 → the saved order; 409 {error: OUT_OF_STOCK|UNKNOWN_PRODUCT|BAD_SIZE, product}; 422/429 {error} */
 declare(strict_types=1);
-require __DIR__ . '/_store.php';
+require __DIR__ . '/_account.php'; // orders placed while signed in are saved to the account
 
 try {
     cors();

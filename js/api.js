@@ -46,6 +46,44 @@
     });
   };
 
+  /* ---------- customer accounts (api/account.php) ----------
+     M.customer is the signed-in customer ({firstName, lastName, email, phone,
+     verified, newsletter}) or null. A small note in localStorage remembers
+     that this browser signed in, so visitors who never have don't wait on an
+     extra request; the real check is the server's session cookie. */
+  var HINT_KEY = "mabs.signedin.v1";
+  M.customer = null;
+  function setCustomer(c) {
+    M.customer = c || null;
+    try { if (c) localStorage.setItem(HINT_KEY, "1"); else localStorage.removeItem(HINT_KEY); } catch (e) { /* storage unavailable */ }
+    document.dispatchEvent(new CustomEvent("account:change"));
+  }
+  function call(action, body) {
+    return M.api.request("account.php?action=" + action, body === undefined ? {} : { method: "POST", body: body });
+  }
+  M.account = {
+    // accounts need the shop's server (not the built-in catalogue on GitHub Pages)
+    available: function () { return M.api.source === "server"; },
+    signup: function (d) { return call("signup", d).then(function (r) { setCustomer(r.customer); return r; }); },
+    signin: function (d) { return call("signin", d).then(function (r) { setCustomer(r.customer); return r; }); },
+    signout: function () { return call("signout", {}).then(function (r) { setCustomer(null); return r; }, function (e) { setCustomer(null); throw e; }); },
+    verify: function (token) { return call("verify", { token: token }).then(function (r) { if (r.customer) setCustomer(r.customer); return r; }); },
+    resend: function () { return call("resend", {}); },
+    forgot: function (email) { return call("forgot", { email: email }); },
+    reset: function (token, password) { return call("reset", { token: token, password: password }).then(function (r) { setCustomer(r.customer); return r; }); },
+    update: function (d) { return call("update", d).then(function (r) { setCustomer(r.customer); return r; }); },
+    password: function (current, password) { return call("password", { current: current, password: password }); },
+    orders: function () { return call("orders"); },
+    // a request that found the session gone (e.g. signed out on another device)
+    signedOut: function (err) { if (err && err.code === "SIGNED_OUT") setCustomer(null); }
+  };
+  function loadCustomer() {
+    var hint = null;
+    try { hint = localStorage.getItem(HINT_KEY); } catch (e) { /* storage unavailable */ }
+    if (!M.api.enabled || !hint) return Promise.resolve();
+    return call("me").then(function (r) { M.customer = r.customer || null; if (!r.customer) setCustomer(null); }, function () { /* offline: stay signed out */ });
+  }
+
   // forget the cached catalogue (after an order, so stock is fresh)
   M.api.refresh = function () { try { sessionStorage.removeItem(CACHE_KEY); } catch (e) { /* storage unavailable */ } };
 
@@ -151,5 +189,5 @@
     var wait = searching ? Math.max(0, 350 - (Date.now() - paintedAt)) : 0;
     setTimeout(startPage, wait);
   }
-  loadCatalogue().then(whenReady, whenReady);
+  Promise.all([loadCatalogue(), loadCustomer()]).then(whenReady, whenReady);
 })();

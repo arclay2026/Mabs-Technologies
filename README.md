@@ -70,8 +70,9 @@ each placed order for the Orders page (until customer accounts exist).
   Replace them with real photos in the admin panel, or edit `image` /
   `images` in `js/catalog.js`.
 - `js/api.js` — connects the shop to the backend (see Backend below).
-- `api/` — the backend: `catalogue.php`, `orders.php` and `reviews.php`
-  (the shop's API), `_store.php` (order rules and emails), `_reviews.php`, `_bootstrap.php` (database
+- `api/` — the backend: `catalogue.php`, `orders.php`, `reviews.php` and
+  `account.php` (the shop's API), `_store.php` (order rules and emails),
+  `_account.php` (customer accounts), `_reviews.php`, `_bootstrap.php` (database
   connection), `config.sample.php` (settings template).
 - `database/schema.sql`, `database/seed.sql` — the MySQL tables and the
   starting catalogue (installed for you by `admin/setup.php`). `seed.sql`
@@ -121,6 +122,27 @@ each placed order for the Orders page (until customer accounts exist).
   Limits: 10 of one item per order (`maxPerItem` in `js/catalog.js` and
   `MAX_PER_ITEM` in `api/_store.php`), 3 unconfirmed orders per email or
   phone per day, 8 orders per visitor per 10 minutes.
+- Customer accounts (`account.html`, `api/account.php`, `api/_account.php`):
+  - **Register** with first name, surname, email, optional cellphone and a
+    password (8+ characters), and choose newsletter emails. A welcome email
+    asks them to confirm their address; confirming it also adds any guest
+    orders they placed with that address to the account.
+  - **Login**, with "Keep me logged in" (30 days from their last visit;
+    otherwise until the browser closes or 12 hours idle). 5 wrong passwords
+    for one account, or 20 from one visitor, in 15 minutes means a wait.
+  - **Forgot your password?** emails a link that works once, for an hour,
+    and always answers the same so nobody can find out who has an account.
+    Changing or resetting a password logs out the account's other devices.
+  - **My Account**: personal details, newsletter and password; the Orders
+    page shows the account's orders on any device, with their live status.
+    Checkout fills in their details and saves the order to the account;
+    guest checkout still works.
+  - Passwords are stored as bcrypt hashes and emailed links as SHA-256
+    hashes. Customers stay signed in with their own session cookie
+    (`mabs_shop`: HttpOnly, SameSite=Lax, Secure over HTTPS), separate from
+    the admin panel's; changes are only accepted as JSON from the shop's own
+    pages. Accounts need the shop and `api/` on the same domain (not GitHub
+    Pages), and the emails need `mail` set up in `api/config.php`.
 - `admin/` — password-protected admin panel:
   - **Orders**: new/open/completed tabs, search, sales totals, low-stock
     alert; each order's items, customer and address, status (Placed →
@@ -143,6 +165,8 @@ each placed order for the Orders page (until customer accounts exist).
     a short description and a drawing for its tile), and add or rename
     brands. A department appears in the shop once it has a product; one
     with products, or a brand in use, can't be removed
+  - **Customers**: everyone with an account, with their contact details,
+    whether they confirmed their email, newsletter choice, orders and spend
   - **Settings**: courier fee, free-delivery threshold, in-store collection,
     and your password
 - If the backend can't be reached, the shop falls back to the built-in

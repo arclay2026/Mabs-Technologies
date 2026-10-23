@@ -15,8 +15,19 @@
 
   M.accountNav("orders");
 
-  var all = M.read("mabs.orders.v1", []).filter(function (o) { return o && o.number && o.items; })
-    .sort(function (a, b) { return (b.placed || "").localeCompare(a.placed || ""); });
+  var local = M.read("mabs.orders.v1", []).filter(function (o) { return o && o.number && o.items; });
+  var all = sorted(local);
+  function sorted(list) { return list.slice().sort(function (a, b) { return (b.placed || "").localeCompare(a.placed || ""); }); }
+
+  // signed in: the account's orders (with their real status) plus any others placed on this device
+  if (M.customer) {
+    M.account.orders().then(function (r) {
+      var seen = {};
+      r.orders.forEach(function (o) { seen[o.number] = 1; });
+      all = sorted(r.orders.concat(local.filter(function (o) { return !seen[o.number]; })));
+      render();
+    }, function (err) { M.account.signedOut(err); });
+  }
 
   function when(iso) {
     var d = new Date(iso);
@@ -37,8 +48,15 @@
     return period.value === "all" ? "" : " in the " + period.options[period.selectedIndex].text.toLowerCase();
   }
 
-  // order progress; step 0 (Placed) until real statuses exist
+  // where an order is: its step on the tracker, and the label beside it
+  var STATUS = {
+    placed: [0, "Awaiting confirmation"], confirmed: [1, "Confirmed"], out_for_delivery: [2, "Out for delivery"],
+    ready_for_collection: [2, "Ready for collection"], delivered: [3, "Delivered"], collected: [3, "Collected"], cancelled: [-1, "Cancelled"]
+  };
+  function status(o) { return STATUS[o.status] || STATUS.placed; }
+
   function tracker(o, step) {
+    if (step < 0) return "";
     var steps = ["Placed", "Confirmed", o.fulfil === "collect" ? "Ready for collection" : "Out for delivery", o.fulfil === "collect" ? "Collected" : "Delivered"];
     return '<ol class="track" aria-label="Order progress">' + steps.map(function (s, i) {
       var state = i < step ? "done" : i === step ? "now" : "todo";
@@ -60,9 +78,9 @@
         '<div class="order-meta"><span>Order number</span><b>' + esc(o.number) + "</b></div>" +
         '<div class="order-meta"><span>Placed</span><b>' + when(o.placed) + "</b></div>" +
         '<div class="order-meta"><span>Total</span><b>' + money(o.total) + "</b></div>" +
-        '<span class="order-status">Awaiting confirmation</span>' +
+        '<span class="order-status is-' + esc(o.status || "placed") + '">' + status(o)[1] + "</span>" +
       "</header>" +
-      tracker(o, 0) +
+      tracker(o, status(o)[0]) +
       '<div class="order-body">' +
         '<ul class="order-items">' + o.items.map(function (i) {
           var p = M.byId(i.id);
@@ -100,8 +118,10 @@
         '<a class="btn btn-primary" href="index.html#shop">Start shopping</a></div>';
       return;
     }
-    host.innerHTML = '<p class="orders-intro">' + list.length + (list.length === 1 ? " order" : " orders") + periodLabel() +
-      ". Orders placed on this device; sign-in and live tracking are coming soon.</p>" +
+    var where = M.customer ? ". Orders from your account, and any placed on this device." :
+      M.account.available() ? '. Orders placed on this device. <a href="account.html?tab=signin&amp;next=orders.html">Log in</a> to see your account’s orders on any device.' :
+      ". Orders placed on this device.";
+    host.innerHTML = '<p class="orders-intro">' + list.length + (list.length === 1 ? " order" : " orders") + periodLabel() + where + "</p>" +
       '<div class="orders-list">' + list.map(orderCard).join("") + "</div>";
   }
 

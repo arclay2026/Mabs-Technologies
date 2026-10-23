@@ -235,6 +235,9 @@ function place_order(array $input): array
                        $address ? json_encode($address, JSON_UNESCAPED_UNICODE) : null, $notes !== '' ? $notes : null,
                        $subtotal, $fee, $subtotal + $fee, ip_hash()]);
         $orderId = (int) $pdo->lastInsertId();
+        // signed in: the order is saved to the account (once the database has been updated for accounts)
+        $me = function_exists('current_customer') && has_column('orders', 'customer_id') ? current_customer() : null;
+        if ($me) $pdo->prepare('UPDATE orders SET customer_id = ? WHERE id = ?')->execute([$me['id'], $orderId]);
 
         // shops that haven't run the "Sizes on orders" update keep the size in the item's name
         $sized = has_column('order_items', 'size');

@@ -158,6 +158,11 @@ const UPGRADES = [
     ['Sizes on orders (clothing and shoes)',
      "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'order_items' AND column_name = 'size'",
      'ALTER TABLE order_items ADD COLUMN size VARCHAR(60) NULL AFTER name'],
+    ['Customer accounts', "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'customers'", 'schema'],
+    ['Orders saved to customer accounts',
+     "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'orders' AND column_name = 'customer_id'",
+     ['ALTER TABLE orders ADD COLUMN customer_id INT UNSIGNED NULL AFTER ip_hash, ADD KEY orders_customer (customer_id, created_at), '
+      . 'ADD CONSTRAINT orders_customer_fk FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE SET NULL']],
     ['Department pictures',
      "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'categories' AND column_name = 'art'",
      'ALTER TABLE categories ADD COLUMN art TEXT NULL AFTER blurb'],
@@ -285,7 +290,7 @@ function page_start(string $title, string $active = ''): void
     if ($admin) {
         echo '<nav class="nav" aria-label="Admin">',
              nav_link('orders.php', 'Orders', $active), nav_link('products.php', 'Products', $active),
-             nav_link('departments.php', 'Departments', $active),
+             nav_link('departments.php', 'Departments', $active), nav_link('customers.php', 'Customers', $active),
              nav_link('reviews.php', 'Reviews', $active, pending_reviews()), nav_link('settings.php', 'Settings', $active),
              '</nav><div class="who"><a href="../index.html" target="_blank" rel="noopener">View shop</a>',
              '<form method="post" action="logout.php">', csrf_field(), '<button type="submit" class="link">Sign out</button></form></div>';

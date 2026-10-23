@@ -1,4 +1,4 @@
-# Only the public endpoints (catalogue.php, orders.php, reviews.php) may be requested;
+# Only the public endpoints (catalogue.php, orders.php, reviews.php, account.php) may be requested;
 # settings and helper files (config*, _*) never, including editor backups.
 Options -Indexes
 <FilesMatch "^(_|config)">

@@ -69,6 +69,50 @@ CREATE TABLE IF NOT EXISTS store_settings (
 
 INSERT IGNORE INTO store_settings (id) VALUES (1);
 
+-- shoppers' accounts (sign up / sign in on account.html)
+CREATE TABLE IF NOT EXISTS customers (
+  id                INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  email             VARCHAR(190) NOT NULL,              -- stored in lower case
+  first_name        VARCHAR(60)  NOT NULL,
+  last_name         VARCHAR(60)  NOT NULL,
+  phone             VARCHAR(30)  NULL,
+  password_hash     VARCHAR(255) NOT NULL,
+  email_verified_at DATETIME     NULL,                  -- set when they open the link in the welcome email
+  newsletter        TINYINT(1)   NOT NULL DEFAULT 0,
+  created_at        DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  last_login_at     DATETIME     NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY customers_email (email)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- one-time links emailed to customers: confirm the email address, or reset the password.
+-- Only a hash of each token is kept, so a copy of the database can't be used to sign in.
+CREATE TABLE IF NOT EXISTS customer_tokens (
+  id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  customer_id INT UNSIGNED NOT NULL,
+  purpose     ENUM('verify','reset') NOT NULL,
+  token_hash  CHAR(64)     NOT NULL,
+  expires_at  DATETIME     NOT NULL,
+  used_at     DATETIME     NULL,
+  created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY customer_tokens_hash (token_hash),
+  KEY customer_tokens_customer (customer_id, purpose),
+  CONSTRAINT customer_tokens_customer_fk FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- failed customer sign-ins and other limited actions (sign-ups, reset emails), for throttling
+CREATE TABLE IF NOT EXISTS customer_attempts (
+  id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  action     VARCHAR(20)  NOT NULL,                   -- 'signin', 'signup', 'forgot', 'resend'
+  ip_hash    CHAR(64)     NOT NULL,
+  email_hash CHAR(64)     NULL,
+  at         DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY customer_attempts_ip (action, ip_hash, at),
+  KEY customer_attempts_email (action, email_hash, at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS orders (
   id             INT UNSIGNED  NOT NULL AUTO_INCREMENT,
   number         VARCHAR(20)   NOT NULL,              -- e.g. 'MB261022-4821'
@@ -86,6 +130,7 @@ CREATE TABLE IF NOT EXISTS orders (
   delivery_fee   DECIMAL(12,2) NOT NULL,
   total          DECIMAL(12,2) NOT NULL,
   ip_hash        CHAR(64)      NULL,                  -- hashed, for rate limiting only
+  customer_id    INT UNSIGNED  NULL,                  -- the account it was placed from (NULL for guests)
   created_at     DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at     DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
@@ -93,7 +138,9 @@ CREATE TABLE IF NOT EXISTS orders (
   KEY orders_status (status, created_at),
   KEY orders_created (created_at),
   KEY orders_ip (ip_hash, created_at),
-  KEY orders_email (customer_email)
+  KEY orders_email (customer_email),
+  KEY orders_customer (customer_id, created_at),
+  CONSTRAINT orders_customer_fk FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS order_items (

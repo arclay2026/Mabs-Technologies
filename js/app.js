@@ -433,6 +433,20 @@
     });
   }
 
+  // header: "Login | Register" or "Hi, Thabo" once accounts are available (the shop's server)
+  function accountLinks() {
+    var page = document.body.getAttribute("data-page");
+    if (!M.account || !M.account.available()) return '<a class="orders-link" href="orders.html">My Account</a>';
+    if (M.customer) return '<a class="orders-link acct-hi" href="account.html"' + (page === "account" ? ' aria-current="page"' : "") + ">" + ICON.user + "<span>Hi, " + esc(M.customer.firstName) + "</span></a>";
+    var next = page && page !== "account" ? "&next=" + encodeURIComponent(location.pathname.split("/").pop() + location.search) : "";
+    return '<a class="orders-link" href="account.html?tab=signin' + next + '">Login</a>' +
+      '<a class="orders-link" href="account.html?tab=register' + next + '">Register</a>';
+  }
+  document.addEventListener("account:change", function () {
+    var el = document.getElementById("acct-links");
+    if (el) el.innerHTML = accountLinks();
+  });
+
   function renderHeader() {
     var host = document.getElementById("site-header");
     if (!host) return;
@@ -464,7 +478,7 @@
         '<div class="actions">' +
           '<a class="orders-link" href="orders.html"' + (page === "orders" ? ' aria-current="page"' : "") + ">Orders</a>" +
           '<span class="links-sep" aria-hidden="true"></span>' +
-          '<a class="orders-link" href="orders.html">My Account</a>' +
+          '<span class="acct-links" id="acct-links">' + accountLinks() + "</span>" +
           '<a class="act wish-link" href="wishlist.html" aria-label="Wishlist"' + (page === "wishlist" ? ' aria-current="page"' : "") + ">" +
             '<span class="act-icon">' + ICON.heart + '</span><span class="act-label">Wishlist</span><span class="count" data-wish-count hidden></span></a>' +
           '<span class="act-sep" aria-hidden="true"></span>' +
@@ -695,7 +709,9 @@
         '<a class="menu-link menu-deals" href="index.html?deals=1#shop" data-close-drawer>' + ICON.flame + "On sale" +
           (dealCount ? '<span class="deals-n">' + dealCount + "</span>" : "") + "</a>" +
         '<div class="menu-extra">' +
-          '<a href="orders.html">' + ICON.user + "My Account</a>" +
+          (M.account && M.account.available() ?
+            '<a href="account.html">' + ICON.user + (M.customer ? "My Account" : "Login or register") + "</a>" :
+            '<a href="orders.html">' + ICON.user + "My Account</a>") +
           '<a href="orders.html">' + ICON.box + "Orders</a>" +
           '<a href="wishlist.html">' + ICON.heart + "Wishlist</a>" +
           '<a href="checkout.html">' + ICON.cart + "Checkout</a>" +
@@ -732,7 +748,7 @@
           (contact.length ? '<div class="footer-contact">' + contact.join("") + "</div>" : "") + "</div>" +
         '<div class="footer-col"><h2>Help</h2><a href="help.html#delivery">Delivery</a>' + (d.collect ? '<a href="help.html#collection">Collect in store</a>' : "") +
           '<a href="help.html#payment">Payment options</a><a href="help.html#returns">Returns</a><a href="help.html#warranty">Warranty</a><a href="help.html#contact">Contact us</a></div>' +
-        '<div class="footer-col"><h2>Your account</h2><a href="orders.html">Orders</a><a href="wishlist.html">Wishlist</a><a href="checkout.html">Checkout</a></div>' +
+        '<div class="footer-col"><h2>Your account</h2>' + (M.account && M.account.available() ? '<a href="account.html">' + (M.customer ? "My Account" : "Login or register") + "</a>" : "") + '<a href="orders.html">Orders</a><a href="wishlist.html">Wishlist</a><a href="checkout.html">Checkout</a></div>' +
         '<div class="footer-col"><h2>We accept</h2><ul class="pay-list"><li>EFT / bank transfer</li><li>Card on delivery</li><li>Cash on delivery</li></ul></div>' +
       "</div>" +
       '<div class="footer-legal"><div class="wrap"><span>&copy; ' + new Date().getFullYear() + " " + esc(s.name) + ". All prices in rand and include VAT.</span>" +
@@ -948,4 +964,9 @@
   renderFooter();
   renderDrawer();
   updateCounts();
+  // a message left by the previous page (e.g. "Welcome, Thabo!" after registering)
+  try {
+    var flash = sessionStorage.getItem("mabs.flash");
+    if (flash) { sessionStorage.removeItem("mabs.flash"); setTimeout(function () { M.toast(flash); }, 300); }
+  } catch (e) { /* storage unavailable */ }
 })();
