@@ -38,14 +38,14 @@
       '<div class="wl-info">' +
         '<a class="wl-name" href="' + href + '">' + esc(p.name) + "</a>" +
         '<a class="wl-brand" href="index.html?brand=' + encodeURIComponent(p.brand) + '#shop">' + esc(p.brand) + "</a>" +
-        '<p class="wl-specs">' + p.specs.slice(0, 2).map(function (s) { return esc(s[1]); }).join(" · ") + "</p>" +
+        '<p class="wl-specs">' + M.keySpecs(p).slice(0, 2).map(function (s) { return esc(s[1]); }).join(" · ") + "</p>" +
         stock(p) +
       "</div>" +
       '<div class="wl-buy">' +
         '<p class="wl-price">' + M.priceHtml(p) + "</p>" +
         (saving ? '<p class="wl-save">You save ' + money(saving) + "</p>" : "") +
         '<button type="button" class="btn btn-primary wl-add" data-add="' + esc(p.id) + '"' + (p.stock < 1 ? " disabled" : "") + ">" +
-          (p.stock < 1 ? "Sold out" : I.cart + "Add to cart") + "</button>" +
+          (p.stock < 1 ? "Sold out" : I.cart + (M.sizesOf(p).length ? "Choose size" : "Add to cart")) + "</button>" + // sized: opens its page
         (isShared ? "" : '<button type="button" class="wl-remove" data-wl-remove="' + esc(p.id) + '">' + I.trash + "Remove</button>") +
       "</div>" +
     "</article>";
@@ -81,9 +81,15 @@
       M.wish.toggle(p.id);
       M.toast("<b>" + esc(p.name) + "</b> removed from your wishlist.");
     } else if (t.hasAttribute("data-add-all")) {
-      var added = 0;
-      products().forEach(function (p) { if (p.stock > 0 && M.cart.qty(p.id) === 0 && M.cart.add(p.id, 1)) added++; });
-      M.toast(added ? added + (added === 1 ? " item" : " items") + ' added to your cart. <button type="button" class="toast-link" data-open-cart>View cart</button>' : "Everything here is already in your cart.");
+      var added = 0, sized = 0;
+      products().forEach(function (p) {
+        if (p.stock < 1 || M.cart.qty(p.id) > 0) return;
+        if (M.sizesOf(p).length) { sized++; return; } // needs a size chosen on its page
+        if (M.cart.add(p.id, 1)) added++;
+      });
+      var more = sized ? " Choose a size for " + (sized === 1 ? "the clothing item" : "the " + sized + " clothing and shoe items") + " on " + (sized === 1 ? "its page." : "their pages.") : "";
+      M.toast(added ? added + (added === 1 ? " item" : " items") + " added to your cart." + more + ' <button type="button" class="toast-link" data-open-cart>View cart</button>' :
+        sized ? more.trim() : "Everything here is already in your cart.");
     } else if (t.hasAttribute("data-save-all")) {
       shared.forEach(function (id) { if (!M.wish.has(id)) M.wish.toggle(id); });
       M.toast('Saved to your wishlist. <a class="toast-link" href="wishlist.html">View wishlist</a>');

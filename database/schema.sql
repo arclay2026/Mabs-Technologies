@@ -101,6 +101,7 @@ CREATE TABLE IF NOT EXISTS order_items (
   order_id   INT UNSIGNED  NOT NULL,
   product_id VARCHAR(80)   NULL,       -- NULL if the product is later deleted
   name       VARCHAR(200)  NOT NULL,   -- copied at order time
+  size       VARCHAR(60)   NULL,       -- the size chosen, for products sold in sizes
   unit_price DECIMAL(12,2) NOT NULL,
   qty        INT           NOT NULL,
   PRIMARY KEY (id),

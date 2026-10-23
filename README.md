@@ -53,6 +53,12 @@ each placed order for the Orders page (until customer accounts exist).
   built-in catalogue the shop falls back to without the backend. Once the
   backend is live, products, prices, stock and delivery charges are managed
   in the admin panel instead.
+  Clothing and shoes come in sizes: give the product a spec line listing
+  them (`Size: S, M, L, XL` or `Shoe size: UK 6, UK 7, UK 8`) and the
+  product page asks the shopper to choose one. Each size is its own line in
+  the cart and on the order (the admin panel, emails and the customer's
+  order history show it); stock is shared between the sizes, and the
+  backend checks the size is one the product comes in.
   It starts with 13 departments and 64 sample products (real brands,
   sample prices) to show how each department looks; replace them with your
   own stock. Products and departments show a drawn illustration until they

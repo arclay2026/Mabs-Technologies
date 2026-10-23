@@ -13,37 +13,47 @@
   var root = document.getElementById("cart-root");
   var d = M.store.delivery;
   var RETURN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 010 10h-3"/></svg>';
-  var notices = {}; // product id → message shown on its line this visit
+  var notices = {}; // line key (product id, plus size) → message shown on that line this visit
   var lastRemoved = null;
 
   // quantities above what's in stock (or the per-item limit) come down to what's possible
   M.cart.lines().forEach(function (l) {
-    var max = M.maxQty(l.product);
+    var max = M.cart.room(l.product.id, l.size); // sizes of one product share its stock
     if (max > 0 && l.qty > max) {
-      M.cart.set(l.product.id, max);
-      notices[l.product.id] = max < l.product.stock ?
+      M.cart.set(l.product.id, max, l.size);
+      notices[l.key] = M.maxQty(l.product) < l.product.stock ?
         "You can order up to " + max + " of this item, so we've updated the quantity." :
         "Only " + max + " left in stock, so we've updated the quantity.";
     }
   });
 
+  // "adidas Grand Court 2.0 Sneakers (size UK 8)"
+  function label(l) { return l.product.name + (l.size ? " (size " + l.size + ")" : ""); }
+  // the cart line a button or menu belongs to
+  function lineOf(key) {
+    var lines = M.cart.lines();
+    for (var i = 0; i < lines.length; i++) if (lines[i].key === key) return lines[i];
+    return null;
+  }
+
   function keyline(p) {
-    return [p.brand].concat(p.specs.slice(0, 3).map(function (s) { return s[1]; })).map(esc).join(" · ");
+    return [p.brand].concat(M.keySpecs(p).slice(0, 3).map(function (s) { return s[1]; })).map(esc).join(" · ");
   }
 
   function lineHtml(l) {
     var p = l.product, href = "product.html?id=" + encodeURIComponent(p.id);
-    var out = p.stock < 1, max = M.maxQty(p);
+    var out = p.stock < 1, max = M.cart.room(p.id, l.size), k = esc(l.key);
     var save = p.was && p.was > p.price ? (p.was - p.price) * l.qty : 0;
     var opts = "";
     for (var n = 1; n <= Math.max(max, l.qty); n++) opts += '<option value="' + n + '"' + (n === l.qty ? " selected" : "") + ">" + n + "</option>";
-    var alert = out ? "This item is sold out. Remove it, or move it to your wishlist to buy later." : notices[p.id];
-    return '<li class="cl' + (out ? " is-out" : "") + '" data-line="' + esc(p.id) + '">' +
+    var alert = out ? "This item is sold out. Remove it, or move it to your wishlist to buy later." : notices[l.key];
+    return '<li class="cl' + (out ? " is-out" : "") + '" data-line="' + k + '">' +
       (alert ? '<p class="cl-alert' + (out ? " is-error" : "") + '" role="status">' + esc(alert) + "</p>" : "") +
       '<div class="cl-main">' +
         '<a class="cl-media" href="' + href + '" tabindex="-1" aria-hidden="true">' + M.media(p) + "</a>" +
         '<div class="cl-info">' +
           '<a class="cl-name" href="' + href + '">' + esc(p.name) + "</a>" +
+          (l.size ? '<p class="cl-size">Size <b>' + esc(l.size) + "</b></p>" : "") +
           '<p class="cl-meta">' + keyline(p) + "</p>" +
           '<ul class="cl-tags">' +
             (out ? "" : "<li>" + M.stockNote(p) + "</li>") +
@@ -56,9 +66,9 @@
           (l.qty > 1 ? "<span>" + money(p.price) + " each</span>" : "") + "</div>" +
       "</div>" +
       '<div class="cl-actions">' +
-        '<button type="button" class="cl-btn" data-cart-remove="' + esc(p.id) + '" aria-label="Remove ' + esc(p.name) + '">' + I.trash + "<span>Remove</span></button>" +
-        '<button type="button" class="cl-btn" data-cart-wish="' + esc(p.id) + '" aria-label="Move ' + esc(p.name) + ' to wishlist">' + I.heart + "<span>" + (M.wish.has(p.id) ? "Remove from cart (saved)" : "Move to wishlist") + "</span></button>" +
-        (out ? "" : '<label class="cl-qty"><span>Qty</span><select data-cart-qty="' + esc(p.id) + '" aria-label="Quantity of ' + esc(p.name) + '">' + opts + "</select></label>") +
+        '<button type="button" class="cl-btn" data-cart-remove="' + k + '" aria-label="Remove ' + esc(label(l)) + '">' + I.trash + "<span>Remove</span></button>" +
+        '<button type="button" class="cl-btn" data-cart-wish="' + k + '" aria-label="Move ' + esc(label(l)) + ' to wishlist">' + I.heart + "<span>" + (M.wish.has(p.id) ? "Remove from cart (saved)" : "Move to wishlist") + "</span></button>" +
+        (out ? "" : '<label class="cl-qty"><span>Qty</span><select data-cart-qty="' + k + '" aria-label="Quantity of ' + esc(label(l)) + '">' + opts + "</select></label>") +
       "</div>" +
     "</li>";
   }
@@ -125,15 +135,16 @@
     document.getElementById("recs").hidden = !picks.length;
   }
 
-  function name(id) { var p = M.byId(id); return p ? p.name : "Item"; }
+  function sel(attr, key) { return "[" + attr + '="' + (window.CSS && CSS.escape ? CSS.escape(key) : key) + '"]'; }
 
   root.addEventListener("change", function (e) {
-    var sel = e.target.closest("[data-cart-qty]");
-    if (!sel) return;
-    var id = sel.getAttribute("data-cart-qty");
-    delete notices[id];
-    M.cart.set(id, parseInt(sel.value, 10));
-    var again = root.querySelector('[data-cart-qty="' + id + '"]');
+    var box = e.target.closest("[data-cart-qty]");
+    if (!box) return;
+    var key = box.getAttribute("data-cart-qty"), l = lineOf(key);
+    if (!l) return;
+    delete notices[key];
+    M.cart.set(l.product.id, parseInt(box.value, 10), l.size);
+    var again = root.querySelector(sel("data-cart-qty", key));
     if (again) again.focus();
   });
 
@@ -141,39 +152,41 @@
     var dis = e.target.closest(".is-disabled");
     if (dis) { e.preventDefault(); return; }
     var rm = e.target.closest("[data-cart-remove]"), mv = e.target.closest("[data-cart-wish]");
-    var id = (rm || mv) && (rm || mv).getAttribute(rm ? "data-cart-remove" : "data-cart-wish");
-    if (!id) return;
-    if (mv) { takeOut(id, true); return; }
-    var p = M.byId(id);
+    var key = (rm || mv) && (rm || mv).getAttribute(rm ? "data-cart-remove" : "data-cart-wish");
+    var l = key && lineOf(key);
+    if (!l) return;
+    if (mv) { takeOut(l, true); return; }
+    var p = l.product;
     M.confirm({
       title: "Remove this item from your cart?",
-      media: p ? M.media(p) : "",
-      html: "<b>" + esc(name(id)) + "</b>" + (M.cart.qty(id) > 1 ? " × " + M.cart.qty(id) : "") +
-        (p && p.stock > 0 ? " will be taken out of your cart. You can move it to your wishlist instead to buy it later." : " will be taken out of your cart."),
+      media: M.media(p),
+      html: "<b>" + esc(label(l)) + "</b>" + (l.qty > 1 ? " × " + l.qty : "") +
+        (p.stock > 0 ? " will be taken out of your cart. You can move it to your wishlist instead to buy it later." : " will be taken out of your cart."),
       confirm: "Remove", cancel: "Keep it", danger: true
-    }).then(function (yes) { if (yes) takeOut(id, false); });
+    }).then(function (yes) { if (yes) takeOut(l, false); });
   });
 
   // take a line out of the cart (and onto the wishlist when moving it), with Undo
-  function takeOut(id, mv) {
-    var line = root.querySelector('[data-line="' + id + '"]');
-    lastRemoved = { id: id, qty: M.cart.qty(id), unwish: !!mv && !M.wish.has(id) };
+  function takeOut(l, mv) {
+    var id = l.product.id;
+    var line = root.querySelector(sel("data-line", l.key));
+    lastRemoved = { id: id, size: l.size, qty: l.qty, unwish: !!mv && !M.wish.has(id) };
     var next = line && (line.nextElementSibling || line.previousElementSibling);
     if (mv && !M.wish.has(id)) M.wish.toggle(id);
-    M.cart.set(id, 0);
-    var canUndo = M.byId(id) && M.byId(id).stock > 0; // a sold-out item can't go back in the cart
+    M.cart.set(id, 0, l.size);
+    var canUndo = l.product.stock > 0; // a sold-out item can't go back in the cart
     if (!canUndo) lastRemoved = null;
-    M.toast((mv ? "Moved <b>" + esc(name(id)) + "</b> to your wishlist." : "Removed <b>" + esc(name(id)) + "</b>.") +
+    M.toast((mv ? "Moved <b>" + esc(label(l)) + "</b> to your wishlist." : "Removed <b>" + esc(label(l)) + "</b>.") +
       (canUndo ? ' <button type="button" class="toast-link" data-cart-undo>Undo</button>' : ""));
     // keep the keyboard close to where it was
-    var target = next && root.querySelector('[data-line="' + next.getAttribute("data-line") + '"] .cl-name');
+    var target = next && root.querySelector(sel("data-line", next.getAttribute("data-line")) + " .cl-name");
     (target || document.querySelector(".cart-head h1")).focus();
   }
 
   document.addEventListener("click", function (e) {
     if (!e.target.closest("[data-cart-undo]") || !lastRemoved) return;
     if (lastRemoved.unwish && M.wish.has(lastRemoved.id)) M.wish.toggle(lastRemoved.id);
-    M.cart.set(lastRemoved.id, lastRemoved.qty);
+    M.cart.set(lastRemoved.id, lastRemoved.qty, lastRemoved.size);
     M.toast("Back in your cart.");
     lastRemoved = null;
   });

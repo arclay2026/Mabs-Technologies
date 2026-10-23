@@ -78,7 +78,7 @@
       "</div>" +
     "</div>";
 
-  var keyline = p.specs.slice(0, 5).map(function (s) { return "<li>" + esc(s[1]) + "</li>"; }).join("");
+  var keyline = M.keySpecs(p).slice(0, 5).map(function (s) { return "<li>" + esc(s[1]) + "</li>"; }).join("");
 
   var perks =
     '<ul class="pdp-perks">' +
@@ -91,6 +91,7 @@
       (svc.returns ? "<li>" + ICON_RETURN + "<span><b>Returns</b>" + esc(svc.returns) + "</span></li>" : "") +
     "</ul>";
 
+  var sizes = M.sizesOf(p);
   var buy =
     '<section class="pdp-panel pdp-buy" aria-label="Price and buying options">' +
       '<p class="pdp-price">' + M.priceHtml(p) + "</p>" +
@@ -99,6 +100,14 @@
       (inStock ? '<p class="pdp-eta">' + ICON_CAL + "<span>Delivery <b>" + eta + "</b></span></p>" : "") +
       '<p class="pdp-free">' + (p.price >= d.freeOver ? "Free delivery <span>on this item</span>" : "Free delivery <span>on orders over " + money(d.freeOver) + "</span>") + "</p>" +
       '<div class="pdp-stock">' + M.stockNote(p) + "</div>" +
+      (inStock && sizes.length ?
+        '<fieldset class="pdp-size" id="size" data-size-for="' + esc(p.id) + '" tabindex="-1">' +
+          '<legend>Size: <b id="size-chosen">Choose a size</b></legend>' +
+          '<div class="size-opts">' + sizes.map(function (z) {
+            return '<label class="size-opt"><input type="radio" name="size" value="' + esc(z) + '"><span>' + esc(z) + "</span></label>";
+          }).join("") + "</div>" +
+          '<p class="size-error" id="size-error" role="alert" hidden>Please choose a size first.</p>' +
+        "</fieldset>" : "") +
       (inStock ?
         '<div class="pdp-actions">' +
           // adds one; quantities are changed on the cart page
@@ -273,9 +282,31 @@
     var more = e.target.closest("[data-more]");
     if (more) { openViewer(+more.getAttribute("data-more")); return; }
   });
+  /* ---------- size ---------- */
+  var sizeBox = document.getElementById("size"), chosen = "";
+  function needSize() {
+    var err = document.getElementById("size-error");
+    err.hidden = false;
+    sizeBox.classList.add("is-invalid");
+    sizeBox.scrollIntoView({ block: "center", behavior: "smooth" });
+    sizeBox.querySelector("input").focus({ preventScroll: true });
+  }
+  if (sizeBox) {
+    sizeBox.addEventListener("change", function (e) {
+      chosen = e.target.value;
+      document.getElementById("size-chosen").textContent = chosen;
+      document.getElementById("size-error").hidden = true;
+      sizeBox.classList.remove("is-invalid");
+      host.querySelectorAll('.pdp-actions [data-add="' + p.id + '"]').forEach(function (b) { b.setAttribute("data-size", chosen); });
+    });
+    sizeBox.addEventListener("size:needed", needSize); // Add to cart before choosing (js/app.js)
+    if (location.hash === "#size") setTimeout(function () { sizeBox.scrollIntoView({ block: "center" }); sizeBox.focus({ preventScroll: true }); }, 0);
+  }
+
   var buyNow = document.getElementById("buy-now");
   if (buyNow) buyNow.addEventListener("click", function () {
-    if (!M.cart.qty(p.id)) M.cart.set(p.id, 1); // already in the cart: keep its quantity
+    if (sizes.length && !chosen) { needSize(); return; }
+    if (!M.cart.qty(p.id, chosen)) M.cart.set(p.id, 1, chosen); // already in the cart: keep its quantity
     location.href = "checkout.html";
   });
 

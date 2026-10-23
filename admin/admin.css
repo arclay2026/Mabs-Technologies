@@ -248,3 +248,4 @@ label > .dd { margin-top: 6px; }
 .form-inline { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; }
 .form-inline label { flex: 1 1 180px; }
 .form-inline .span-all { flex-basis: 100%; }
+.pill-size { margin-top: 4px; background: #eef2f6; color: var(--slate); }

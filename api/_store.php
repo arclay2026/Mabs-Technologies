@@ -87,6 +87,37 @@ function catalogue(): array
     return ['categories' => $categories, 'brands' => $brands, 'products' => $products, 'delivery' => store_settings()];
 }
 
+/* ---------- sizes ---------- */
+
+/**
+ * The sizes a product comes in, from its specs: "Size: S, M, L, XL" or
+ * "Shoe size: UK 6, UK 7". Two or more means the shopper must choose one
+ * (js/app.js M.sizesOf follows the same rule). A screen size like 24" isn't one.
+ */
+function product_sizes(?string $specsJson): array
+{
+    foreach (json_decode($specsJson ?: '[]', true) ?: [] as $s) {
+        if (!is_array($s) || count($s) < 2) continue;
+        $v = (string) $s[1];
+        if (!in_array(strtolower(trim((string) $s[0])), ['size', 'clothing size', 'shoe size'], true) || preg_match('/\d\s*("|\x{201D}|\x{2033}|inch)/iu', $v)) continue;
+        $sizes = array_values(array_filter(array_map('trim', preg_split('/\s*[,\/]\s*/', $v)), 'strlen'));
+        return count($sizes) > 1 ? $sizes : [];
+    }
+    return [];
+}
+
+function has_column(string $table, string $column): bool
+{
+    static $seen = [];
+    $key = "$table.$column";
+    if (!isset($seen[$key])) {
+        $q = db()->prepare('SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = ? AND column_name = ?');
+        $q->execute([$table, $column]);
+        $seen[$key] = (int) $q->fetchColumn() > 0;
+    }
+    return $seen[$key];
+}
+
 /* ---------- placing an order ---------- */
 
 // any JSON value → trimmed text (arrays and objects become empty)
@@ -98,21 +129,25 @@ function clean($s, int $max): string
 /**
  * Validates the cart and details, prices every line from the database,
  * saves the order and reduces stock in one transaction.
- * $input: {items:[{id,qty}], customer:{name,phone,email}, fulfil, payment, address, notes}
+ * $input: {items:[{id,qty,size?}], customer:{name,phone,email}, fulfil, payment, address, notes}
  */
 function place_order(array $input): array
 {
-    // cart: merge repeated lines, cap sizes
-    $wanted = [];
+    // cart: merge repeated lines (one per product and size), cap quantities per product
+    $lines = [];
+    $perProduct = [];
     foreach ((array) ($input['items'] ?? []) as $line) {
         $id = is_array($line) ? clean($line['id'] ?? '', 80) : '';
-
+        $size = is_array($line) ? clean($line['size'] ?? '', 60) : '';
         $qty = is_array($line) ? filter_var($line['qty'] ?? null, FILTER_VALIDATE_INT) : false;
         if ($id === '' || $qty === false || $qty < 1 || $qty > MAX_PER_ITEM) throw new ShopError('BAD_ITEM');
-        $wanted['x' . $id] = ($wanted['x' . $id] ?? 0) + $qty; // "x" keeps ids like "123" as text keys
+        $key = 'x' . $id . "\n" . $size; // "x" keeps ids like "123" as text keys
+        $lines[$key] ??= ['id' => $id, 'size' => $size, 'qty' => 0];
+        $lines[$key]['qty'] += $qty;
+        $perProduct['x' . $id] = ($perProduct['x' . $id] ?? 0) + $qty;
     }
-    if (!$wanted) throw new ShopError('EMPTY_CART');
-    if (count($wanted) > MAX_LINES || max($wanted) > MAX_PER_ITEM) throw new ShopError('BAD_ITEM');
+    if (!$lines) throw new ShopError('EMPTY_CART');
+    if (count($lines) > MAX_LINES || max($perProduct) > MAX_PER_ITEM) throw new ShopError('BAD_ITEM');
 
     $fulfil = clean($input['fulfil'] ?? '', 20);
     $payment = clean($input['payment'] ?? '', 20);
@@ -159,23 +194,27 @@ function place_order(array $input): array
     $pdo->beginTransaction();
     try {
         // lock the rows so two shoppers can't buy the last unit at once
-        $ids = array_map(fn ($k) => substr($k, 1), array_keys($wanted));
+        $ids = array_map(fn ($k) => substr($k, 1), array_keys($perProduct));
         sort($ids);
         $marks = implode(',', array_fill(0, count($ids), '?'));
-        $stmt = $pdo->prepare("SELECT id, name, price, stock FROM products WHERE active = 1 AND id IN ($marks) ORDER BY id FOR UPDATE");
+        $stmt = $pdo->prepare("SELECT id, name, price, stock, specs FROM products WHERE active = 1 AND id IN ($marks) ORDER BY id FOR UPDATE");
         $stmt->execute($ids);
         $found = [];
         foreach ($stmt as $row) $found[$row['id']] = $row;
 
-        $items = [];
-        $subtotal = 0.0;
         foreach ($ids as $id) {
             if (!isset($found[$id])) throw new ShopError('UNKNOWN_PRODUCT', 409, $id);
-            $p = $found[$id];
-            if ((int) $p['stock'] < $wanted["x" . $id]) throw new ShopError('OUT_OF_STOCK', 409, $id);
+            if ((int) $found[$id]['stock'] < $perProduct['x' . $id]) throw new ShopError('OUT_OF_STOCK', 409, $id); // sizes share the stock
+        }
+        $items = [];
+        $subtotal = 0.0;
+        foreach ($lines as $l) {
+            $p = $found[$l['id']];
+            $sizes = product_sizes($p['specs']);
+            if ($sizes && !in_array($l['size'], $sizes, true)) throw new ShopError('BAD_SIZE', 409, $l['id']);
             $price = (float) $p['price'];
-            $items[] = ['id' => $id, 'name' => $p['name'], 'price' => $price, 'qty' => $wanted["x" . $id]];
-            $subtotal += $price * $wanted["x" . $id];
+            $items[] = ['id' => $l['id'], 'name' => $p['name'], 'size' => $sizes ? $l['size'] : '', 'price' => $price, 'qty' => $l['qty']];
+            $subtotal += $price * $l['qty'];
         }
         $subtotal = round($subtotal, 2);
         $fee = delivery_fee($subtotal, $fulfil, $settings);
@@ -197,10 +236,14 @@ function place_order(array $input): array
                        $subtotal, $fee, $subtotal + $fee, ip_hash()]);
         $orderId = (int) $pdo->lastInsertId();
 
-        $addItem = $pdo->prepare('INSERT INTO order_items (order_id, product_id, name, unit_price, qty) VALUES (?, ?, ?, ?, ?)');
+        // shops that haven't run the "Sizes on orders" update keep the size in the item's name
+        $sized = has_column('order_items', 'size');
+        $addItem = $pdo->prepare($sized ? 'INSERT INTO order_items (order_id, product_id, name, size, unit_price, qty) VALUES (?, ?, ?, ?, ?, ?)'
+                                        : 'INSERT INTO order_items (order_id, product_id, name, unit_price, qty) VALUES (?, ?, ?, ?, ?)');
         $takeStock = $pdo->prepare('UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?');
         foreach ($items as $i) {
-            $addItem->execute([$orderId, $i['id'], $i['name'], $i['price'], $i['qty']]);
+            $addItem->execute($sized ? [$orderId, $i['id'], $i['name'], $i['size'] !== '' ? $i['size'] : null, $i['price'], $i['qty']]
+                                     : [$orderId, $i['id'], $i['name'] . ($i['size'] !== '' ? ' (size ' . $i['size'] . ')' : ''), $i['price'], $i['qty']]);
             $takeStock->execute([$i['qty'], $i['id'], $i['qty']]);
             if ($takeStock->rowCount() !== 1) throw new ShopError('OUT_OF_STOCK', 409, $i['id']);
         }
@@ -234,7 +277,9 @@ function cancel_order(string $number): bool
             $pdo->rollBack();
             return false;
         }
-        $pdo->prepare('UPDATE products p JOIN order_items i ON i.product_id = p.id SET p.stock = p.stock + i.qty WHERE i.order_id = ?')
+        // summed per product first: one order can hold several sizes of the same product
+        $pdo->prepare('UPDATE products p JOIN (SELECT product_id, SUM(qty) AS qty FROM order_items WHERE order_id = ? GROUP BY product_id) i
+                         ON i.product_id = p.id SET p.stock = p.stock + i.qty')
             ->execute([$order['id']]);
         $pdo->prepare("UPDATE orders SET status = 'cancelled' WHERE id = ?")->execute([$order['id']]);
         $pdo->commit();
@@ -252,7 +297,7 @@ function order_text(array $o, bool $forShop = true): string
 {
     $lines = [];
     foreach ($o['items'] as $i) {
-        $lines[] = sprintf('%d × %s — %s', $i['qty'], $i['name'], money($i['price'] * $i['qty']));
+        $lines[] = sprintf('%d × %s%s — %s', $i['qty'], $i['name'], ($i['size'] ?? '') !== '' ? ' (size ' . $i['size'] . ')' : '', money($i['price'] * $i['qty']));
     }
     $how = $o['fulfil'] === 'collect' ? 'Collect in store' :
         'Courier to ' . implode(', ', array_filter([$o['address']['street'] ?? '', $o['address']['suburb'] ?? '', $o['address']['city'] ?? '',

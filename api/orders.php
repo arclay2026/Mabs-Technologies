@@ -1,7 +1,7 @@
 <?php
 /* POST api/orders.php — place an order
-   Body: {items:[{id,qty}], customer:{name,phone,email}, fulfil, payment, address, notes}
-   201 → the saved order; 409 {error: OUT_OF_STOCK|UNKNOWN_PRODUCT, product}; 422/429 {error} */
+   Body: {items:[{id,qty,size?}], customer:{name,phone,email}, fulfil, payment, address, notes}
+   201 → the saved order; 409 {error: OUT_OF_STOCK|UNKNOWN_PRODUCT|BAD_SIZE, product}; 422/429 {error} */
 declare(strict_types=1);
 require __DIR__ . '/_store.php';
 

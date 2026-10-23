@@ -75,6 +75,7 @@ page_start('Order ' . $o['number'], 'orders');
         <?php foreach ($items as $i): ?>
           <tr>
             <td><?= $i['product_id'] ? '<a href="product.php?id=' . h(rawurlencode($i['product_id'])) . '">' . h($i['name']) . '</a>' : h($i['name']) ?>
+              <?php if (!empty($i['size'])): ?><br><span class="pill pill-size">Size <?= h($i['size']) ?></span><?php endif; ?>
               <?php if ($i['product_id'] && $o['status'] !== 'cancelled'): ?><br><small class="muted"><?= (int) $i['stock'] ?> left in stock</small><?php endif; ?></td>
             <td class="num nowrap"><?= h(money((float) $i['unit_price'])) ?></td>
             <td class="num"><?= (int) $i['qty'] ?></td>

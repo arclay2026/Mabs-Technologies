@@ -113,7 +113,7 @@
     return M.api.request("orders.php", {
       method: "POST",
       body: {
-        items: order.items.map(function (i) { return { id: i.id, qty: i.qty }; }),
+        items: order.items.map(function (i) { return i.size ? { id: i.id, qty: i.qty, size: i.size } : { id: i.id, qty: i.qty }; }),
         customer: order.customer, fulfil: order.fulfil,
         payment: order.payment === "on-receipt" ? "on_receipt" : order.payment,
         address: order.address, notes: order.notes,
@@ -123,7 +123,7 @@
       // the server's numbers win: order number, prices, fee and total
       order.number = saved.number;
       order.placed = saved.placed;
-      order.items = saved.items.map(function (i) { return { id: i.id, name: i.name, price: +i.price, qty: i.qty }; });
+      order.items = saved.items.map(function (i) { return { id: i.id, name: i.name, price: +i.price, qty: i.qty, size: i.size || "" }; });
       order.subtotal = +saved.subtotal; order.fee = +saved.fee; order.total = +saved.total;
       order.received = true;
       order.emailed = !!saved.emailed;
@@ -142,6 +142,11 @@
         (code === "OUT_OF_STOCK" ? " doesn't have enough stock left for your order." : " is no longer available.") +
         " Please update your cart and try again.";
     }
+    if (code === "BAD_SIZE") {
+      var sp = M.byId(err.data && err.data.product);
+      M.api.refresh();
+      return (sp ? "<b>" + esc(sp.name) + "</b>" : "One of your items") + " isn't available in the size in your cart any more. Please remove it and choose another size.";
+    }
     if (code === "MISSING_DETAILS") return "Please check your name, cellphone number and email address.";
     if (code === "MISSING_ADDRESS") return "Please check your delivery address, province and postal code.";
     if (code === "BAD_ITEM") return "One of the quantities in your cart isn't allowed (up to " + (M.store.maxPerItem || 10) + " of each item). Please update your cart.";
@@ -151,7 +156,7 @@
 
   function orderText(o) {
     var t = "New order " + o.number + " — " + M.store.name + "\n\n";
-    o.items.forEach(function (i) { t += i.qty + " × " + i.name + " @ " + money(i.price) + " = " + money(i.price * i.qty) + "\n"; });
+    o.items.forEach(function (i) { t += i.qty + " × " + i.name + (i.size ? " (size " + i.size + ")" : "") + " @ " + money(i.price) + " = " + money(i.price * i.qty) + "\n"; });
     t += "\nSubtotal: " + money(o.subtotal) + "\n" + (o.fulfil === "collect" ? "Collection" : "Delivery") + ": " + (o.fee ? money(o.fee) : "Free") +
       "\nTotal: " + money(o.total) + "\n\n";
     t += "Name: " + o.customer.name + "\nPhone: " + o.customer.phone + "\nEmail: " + o.customer.email + "\n";
@@ -184,7 +189,7 @@
           "<p>We'll contact you on " + esc(o.customer.phone) + " to confirm stock" + (o.payment === "eft" ? " and share our banking details" : "") + ".</p>") +
         '<ul class="lines lines-compact">' + o.items.map(function (i) {
           var p = M.byId(i.id);
-          return M.lineHtml({ product: p || { id: i.id, name: i.name, price: i.price, art: { kind: "phone" } }, qty: i.qty, total: i.price * i.qty });
+          return M.lineHtml({ product: p || { id: i.id, name: i.name, price: i.price, art: { kind: "bag" } }, qty: i.qty, total: i.price * i.qty, size: i.size });
         }).join("") + "</ul>" +
         '<dl class="totals">' +
           "<div><dt>Subtotal</dt><dd>" + money(o.subtotal) + "</dd></div>" +
@@ -213,7 +218,7 @@
     var order = {
       number: orderNumber(),
       placed: new Date().toISOString(),
-      items: lines.map(function (l) { return { id: l.product.id, name: l.product.name, price: l.product.price, qty: l.qty }; }),
+      items: lines.map(function (l) { return { id: l.product.id, name: l.product.name, price: l.product.price, qty: l.qty, size: l.size }; }),
       subtotal: sub, fee: fee, total: sub + fee,
       fulfil: method(),
       payment: form.querySelector('input[name="payment"]:checked').value,

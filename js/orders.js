@@ -69,7 +69,7 @@
           var media = p ? M.media(p) : "";
           var name = p ? '<a href="product.html?id=' + encodeURIComponent(p.id) + '">' + esc(i.name) + "</a>" : esc(i.name);
           return '<li><span class="order-thumb">' + media + "</span>" +
-            '<span class="order-item-text">' + name + "<small>Qty " + i.qty + " · " + money(i.price) + " each</small></span>" +
+            '<span class="order-item-text">' + name + "<small>" + (i.size ? "Size " + esc(i.size) + " · " : "") + "Qty " + i.qty + " · " + money(i.price) + " each</small></span>" +
             '<b class="order-item-total">' + money(i.price * i.qty) + "</b></li>";
         }).join("") + "</ul>" +
         '<div class="order-side">' +
@@ -109,7 +109,7 @@
     var b = e.target.closest("[data-reorder]"); if (!b) return;
     var o = all.filter(function (x) { return x.number === b.getAttribute("data-reorder"); })[0];
     var added = 0, missing = 0;
-    o.items.forEach(function (i) { var p = M.byId(i.id); if (p && p.stock > 0 && M.cart.add(i.id, i.qty)) added++; else missing++; });
+    o.items.forEach(function (i) { var p = M.byId(i.id); if (p && p.stock > 0 && M.cart.add(i.id, i.qty, i.size)) added++; else missing++; });
     if (added) M.openCart();
     M.toast(added ? "Items from " + esc(o.number) + " added to your cart." + (missing ? " Some are no longer available." : "") : "These items are no longer available.");
   });

@@ -67,43 +67,83 @@
   M.esc = esc; M.money = money; M.byId = byId; M.catName = catName;
   M.matchQuery = matchQuery; M.typesOf = typesOf; M.plural = plural; M.read = read; M.write = write;
 
+  /* ---------- sizes ----------
+     A product whose specs list two or more sizes ("Size: S, M, L, XL" or
+     "Shoe size: UK 6, UK 7, UK 8") asks the shopper to choose one. Each size
+     is its own cart line; stock is shared between them. */
+  var SIZE_SPECS = ["size", "clothing size", "shoe size"];
+  M.sizesOf = function (p) {
+    if (!p) return [];
+    if (p._sizes) return p._sizes;
+    var out = [];
+    (p.specs || []).some(function (s) {
+      var v = String(s[1]);
+      if (SIZE_SPECS.indexOf(String(s[0]).trim().toLowerCase()) === -1 || /\d\s*("|\u201d|\u2033|inch)/i.test(v)) return false; // 24" is a screen
+      out = v.split(/\s*[,\/]\s*/).filter(Boolean);
+      return true;
+    });
+    return (p._sizes = out.length > 1 ? out : []);
+  };
+  // specs for one-line summaries: the size list is left out when there's a size picker
+  M.keySpecs = function (p) {
+    var sized = M.sizesOf(p).length;
+    return (p.specs || []).filter(function (s) { return !(sized && SIZE_SPECS.indexOf(String(s[0]).trim().toLowerCase()) !== -1); });
+  };
+  // a cart line's own name: the product id, plus the size when it has one
+  M.lineKey = function (id, size) { return size ? id + "|" + size : id; };
+
   /* ---------- cart ---------- */
   var CART_KEY = "mabs.cart.v1";
-  var cartItems = read(CART_KEY, []).filter(function (it) { return byId(it.id); });
+  // keep lines whose product still exists, with a size it still comes in (or none, if it has no sizes)
+  var cartItems = read(CART_KEY, []).filter(function (it) {
+    var p = byId(it.id), sizes = M.sizesOf(p);
+    return p && (sizes.length ? sizes.indexOf(it.size) !== -1 : !it.size);
+  });
 
   // the most of a product one order may have: what's in stock, up to the shop's per-item limit
   M.maxQty = function (p) { return Math.min(p.stock, M.store.maxPerItem || 10); };
 
+  function units(id) { return cartItems.reduce(function (n, it) { return n + (it.id === id ? it.qty : 0); }, 0); }
+  function lineAt(id, size) {
+    for (var i = 0; i < cartItems.length; i++) if (cartItems[i].id === id && (cartItems[i].size || "") === (size || "")) return i;
+    return -1;
+  }
+
   M.cart = {
-    qty: function (id) {
-      for (var i = 0; i < cartItems.length; i++) if (cartItems[i].id === id) return cartItems[i].qty;
-      return 0;
+    // qty(id): all of a product, whatever the size; qty(id, size): one line
+    qty: function (id, size) {
+      if (size === undefined) return units(id);
+      var i = lineAt(id, size);
+      return i === -1 ? 0 : cartItems[i].qty;
     },
-    set: function (id, qty) {
+    // the most one line can hold: the product's limit, less what its other sizes take
+    room: function (id, size) {
+      var p = byId(id);
+      return p ? Math.max(0, M.maxQty(p) - units(id) + this.qty(id, size || "")) : 0;
+    },
+    set: function (id, qty, size) {
       var p = byId(id); if (!p) return 0;
-      qty = Math.max(0, Math.min(Math.floor(qty) || 0, M.maxQty(p)));
-      cartItems = cartItems.filter(function (it) { return it.id !== id; });
-      if (qty > 0) cartItems.push({ id: id, qty: qty });
+      var sizes = M.sizesOf(p);
+      size = sizes.length ? size || "" : "";
+      if (sizes.length && sizes.indexOf(size) === -1) return 0; // must be one of its sizes
+      qty = Math.max(0, Math.min(Math.floor(qty) || 0, this.room(id, size)));
+      var i = lineAt(id, size);
+      if (i === -1) { if (qty > 0) cartItems.push(size ? { id: id, qty: qty, size: size } : { id: id, qty: qty }); }
+      else if (qty > 0) cartItems[i].qty = qty; // keeps its place in the cart
+      else cartItems.splice(i, 1);
       write(CART_KEY, cartItems); emit("cart:change");
       return qty;
     },
-    add: function (id, qty) {
+    add: function (id, qty, size) {
       var p = byId(id); if (!p || p.stock < 1) return 0;
-      var before = this.qty(id);
-      // keep the line in its original position when topping it up
-      var after = Math.min(before + (qty || 1), M.maxQty(p));
-      if (before) {
-        cartItems.forEach(function (it) { if (it.id === id) it.qty = after; });
-        write(CART_KEY, cartItems); emit("cart:change");
-      } else {
-        this.set(id, after);
-      }
-      return after - before;
+      var before = this.qty(id, size || "");
+      var after = this.set(id, before + (qty || 1), size);
+      return Math.max(0, after - before);
     },
     lines: function () {
       return cartItems.map(function (it) {
         var p = byId(it.id);
-        return { product: p, qty: it.qty, total: p.price * it.qty };
+        return { product: p, qty: it.qty, total: p.price * it.qty, size: it.size || "", key: M.lineKey(it.id, it.size) };
       });
     },
     count: function () { return cartItems.reduce(function (n, it) { return n + it.qty; }, 0); },
@@ -304,6 +344,7 @@
         "</ul>" +
         '<div class="card-buy">' +
           (out ? '<button type="button" class="btn card-add" disabled>Sold out</button>' :
+            M.sizesOf(p).length ? '<a class="btn card-add" href="' + href + '#size">' + ICON.cart + "<span>Choose size</span></a>" : // sizes are picked on the product page
             '<button type="button" class="btn card-add" data-add="' + esc(p.id) + '">' + ICON.cart + "<span>Add to cart</span></button>") +
         "</div>" +
       "</div>" +
@@ -723,6 +764,7 @@
     return '<li class="line">' +
       '<a class="line-media" href="' + href + '" style="' + M.tileStyle(p) + '" tabindex="-1" aria-hidden="true">' + M.media(p) + "</a>" +
       '<div class="line-info"><a class="line-name" href="' + href + '">' + esc(p.name) + "</a>" +
+        (l.size ? '<span class="line-size">Size ' + esc(l.size) + "</span>" : "") +
         '<span class="line-unit">' + money(p.price) + " each</span>" +
         '<span class="line-unit">Qty ' + l.qty + "</span>" +
       "</div>" +
@@ -847,11 +889,18 @@
     var t = e.target.closest("[data-add],[data-wish],[data-open-cart],[data-open-menu],[data-close-drawer]");
     if (!t) return;
     if (t.hasAttribute("data-add")) {
-      var id = t.getAttribute("data-add");
+      var id = t.getAttribute("data-add"), size = t.getAttribute("data-size") || "";
       var p = byId(id);
-      var added = M.cart.add(id, 1);
-      if (added) M.toast("<b>" + esc(p.name) + '</b> added to your cart. <button type="button" class="toast-link" data-open-cart>View cart</button>');
-      else M.toast(M.maxQty(p) < p.stock ? "You can order up to " + M.maxQty(p) + " of this item per order." : "You already have all " + p.stock + " in stock in your cart.");
+      if (M.sizesOf(p).length && !size) {
+        // no size chosen yet: the product page's size picker asks for one; elsewhere, go there
+        var picker = document.querySelector('[data-size-for="' + (window.CSS && CSS.escape ? CSS.escape(id) : id) + '"]');
+        if (picker) picker.dispatchEvent(new CustomEvent("size:needed"));
+        else location.href = "product.html?id=" + encodeURIComponent(id) + "#size";
+        return;
+      }
+      var added = M.cart.add(id, 1, size);
+      if (added) M.toast("<b>" + esc(p.name) + "</b>" + (size ? " (size " + esc(size) + ")" : "") + ' added to your cart. <button type="button" class="toast-link" data-open-cart>View cart</button>');
+      else M.toast(M.maxQty(p) < p.stock ? "You can order up to " + M.maxQty(p) + " of this item per order" + (M.sizesOf(p).length ? ", in any sizes." : ".") : "You already have all " + p.stock + " in stock in your cart.");
     } else if (t.hasAttribute("data-wish")) {
       var wid = t.getAttribute("data-wish");
       var on = M.wish.toggle(wid);
