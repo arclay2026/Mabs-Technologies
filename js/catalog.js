@@ -14,7 +14,7 @@
 
   MABS.store = {
     name: "Mabs Technologies",
-    tagline: "Computers, phones, accessories & electronics",
+    tagline: "Everything you need, from tech to home, fashion and more",
     // Fill these in to show them in the footer and to let customers send
     // their order straight to the shop from the confirmation screen.
     email: "",      // e.g. "orders@mabstech.co.za"
@@ -27,7 +27,7 @@
     api: "api/",
     // shown under "Popular searches" when someone opens the search box;
     // swap for real trending searches once searches are logged in a database
-    popularSearches: ["Laptops", "Samsung Galaxy", "iPhone", "Gaming", "Smart TV", "Wireless headphones"],
+    popularSearches: ["Laptops", "Samsung Galaxy", "Air fryer", "Sneakers", "LEGO", "Kettle"],
     maxPerItem: 10,      // most of one product a single order can hold (the backend enforces it too)
     delivery: {
       courierFee: 120,   // flat courier fee per order
@@ -39,7 +39,8 @@
       deliveryDays: [2, 4],  // courier: working days from order to door
       collectNote: "Usually ready within 1 working day. We'll let you know.",
       returns: "Changed your mind? Return unused items in their original packaging within 7 days.",
-      warranty: "Manufacturer's warranty"  // used when a product has no "Warranty" spec
+      warranty: "Manufacturer's warranty",  // used when a product has no "Warranty" spec…
+      warrantyDepartments: ["computers", "phones", "electronics", "accessories", "appliances", "diy"] // …in these departments
     }
   };
 
@@ -69,11 +70,22 @@
     { name: "Huawei", logo: "assets/brands/huawei.svg", h: 27 }
   ];
 
+  // departments, in menu order. `art` draws the department's tile (any kind
+  // from the product drawings below). Add or rename departments in the admin panel.
   MABS.categories = [
     { id: "computers", name: "Computers", blurb: "Laptops, desktops & monitors", art: { kind: "laptop", color: "#2563eb", body: "silver" } },
     { id: "phones", name: "Phones & Tablets", blurb: "Smartphones & tablets", art: { kind: "phone", color: "#7c3aed" } },
-    { id: "accessories", name: "Accessories", blurb: "Chargers, audio, storage & more", art: { kind: "headphones", color: "#0d9488" } },
-    { id: "electronics", name: "Electronics", blurb: "TVs, speakers, wearables & gaming", art: { kind: "tv", color: "#ea580c" } }
+    { id: "electronics", name: "TV, Audio & Gaming", blurb: "TVs, speakers, wearables, printers & gaming", art: { kind: "tv", color: "#ea580c" } },
+    { id: "accessories", name: "Tech Accessories", blurb: "Chargers, headphones, storage & more", art: { kind: "headphones", color: "#0d9488" } },
+    { id: "appliances", name: "Home Appliances", blurb: "Kettles, air fryers, microwaves & more", art: { kind: "kettle", color: "#dc2626" } },
+    { id: "home", name: "Home & Kitchen", blurb: "Cookware, coffee & food storage", art: { kind: "pan", color: "#f97316" } },
+    { id: "fashion", name: "Fashion", blurb: "Clothing, shoes & bags", art: { kind: "tshirt", color: "#2563eb" } },
+    { id: "beauty", name: "Beauty & Personal Care", blurb: "Hair care, oral care & skincare", art: { kind: "hairdryer", color: "#db2777" } },
+    { id: "baby", name: "Baby & Toddler", blurb: "Nappies, feeding & baby care", art: { kind: "babybottle", color: "#0ea5e9" } },
+    { id: "toys", name: "Toys & Games", blurb: "Building sets, plush toys & puzzles", art: { kind: "teddy", color: "#b45309" } },
+    { id: "sport", name: "Sport & Fitness", blurb: "Training, balls & yoga", art: { kind: "ball", color: "#16a34a" } },
+    { id: "office", name: "Office & Stationery", blurb: "Notebooks, pens & calculators", art: { kind: "notebook", color: "#4f46e5" } },
+    { id: "diy", name: "DIY & Tools", blurb: "Power tools & tool storage", art: { kind: "drill", color: "#16a34a" } }
   ];
 
   // stock: units on hand (0 = sold out). was: previous price, shows a sale badge.
@@ -375,11 +387,196 @@
       specs: [["Functions", "Print, scan, copy"], ["Connectivity", "Wi-Fi, USB"], ["Ink", "Refillable MegaTank"], ["Colour", "Black"]]
     },
     {
-      id: "deli-scientific-calculator", name: "Deli Scientific Calculator (240 functions)", brand: "Deli", category: "accessories", type: "Calculator",
+      id: "deli-scientific-calculator", name: "Deli Scientific Calculator (240 functions)", brand: "Deli", category: "office", type: "Calculator",
       price: 229, stock: 45,
       art: { kind: "calculator", color: "#cb0a3d", body: "dark" },
       summary: "Exam-friendly scientific calculator for high school and university.",
       specs: [["Functions", "240"], ["Display", "2-line"], ["Power", "Battery"], ["Colour", "Black"]]
+    },
+    /* ---------- home appliances ---------- */
+    {
+      id: "russell-hobbs-cordless-kettle", name: "Russell Hobbs 1.7L Cordless Kettle", brand: "Russell Hobbs", category: "appliances", type: "Kettle",
+      price: 449, was: 549, stock: 25, featured: true,
+      art: { kind: "kettle", color: "#334155" },
+      summary: "Fast-boiling cordless kettle with a 360° base and automatic shut-off.",
+      specs: [["Capacity", "1.7 L"], ["Power", "2200 W"], ["Features", "360° cordless base, auto shut-off, water window"], ["Colour", "Black"]]
+    },
+    {
+      id: "philips-essential-airfryer", name: "Philips Essential Airfryer 4.1L", brand: "Philips", category: "appliances", type: "Air fryer",
+      price: 1799, was: 2199, stock: 12, featured: true,
+      art: { kind: "airfryer", color: "#e11d48", body: "dark" },
+      summary: "Crispy results with little or no oil, and a basket that goes in the dishwasher.",
+      specs: [["Capacity", "4.1 L"], ["Power", "1400 W"], ["Features", "Rapid Air, timer, dishwasher-safe basket"], ["Colour", "Black"]]
+    },
+    {
+      id: "defy-20l-manual-microwave", name: "Defy 20L Manual Microwave", brand: "Defy", category: "appliances", type: "Microwave",
+      price: 1199, stock: 9,
+      art: { kind: "microwave", color: "#475569", body: "white" },
+      summary: "Simple dial controls and five power levels for everyday heating and defrosting.",
+      specs: [["Capacity", "20 L"], ["Power", "700 W"], ["Controls", "Manual dials, 5 power levels"], ["Colour", "White"]]
+    },
+
+    /* ---------- home & kitchen ---------- */
+    {
+      id: "tefal-easy-cook-clean-pan-28", name: "Tefal Easy Cook & Clean Frying Pan 28cm", brand: "Tefal", category: "home", type: "Frying pan",
+      price: 399, was: 499, stock: 30,
+      art: { kind: "pan", color: "#475569" },
+      summary: "Non-stick frying pan that heats evenly and wipes clean in seconds.",
+      specs: [["Diameter", "28 cm"], ["Material", "Aluminium, non-stick coating"], ["Hob", "Gas, electric and ceramic"], ["Colour", "Black"]]
+    },
+    {
+      id: "locknlock-6-piece-storage-set", name: "LocknLock 6-Piece Food Storage Set", brand: "LocknLock", category: "home", type: "Food storage",
+      price: 349, stock: 22,
+      art: { kind: "container", color: "#0ea5e9" },
+      summary: "Airtight, leak-proof containers with four-sided locking lids.",
+      specs: [["Pieces", "6 (3 containers, 3 lids)"], ["Material", "BPA-free plastic"], ["Care", "Microwave, freezer and dishwasher safe"], ["Colour", "Clear"]]
+    },
+    {
+      id: "bodum-chambord-french-press-1l", name: "Bodum Chambord French Press 1L", brand: "Bodum", category: "home", type: "Coffee maker",
+      price: 699, was: 799, stock: 10,
+      art: { kind: "frenchpress", color: "#94a3b8" },
+      summary: "The classic French press: eight cups of rich coffee in four minutes.",
+      specs: [["Capacity", "1 L (8 cups)"], ["Material", "Borosilicate glass, stainless steel"], ["Colour", "Silver"]]
+    },
+
+    /* ---------- fashion ---------- */
+    {
+      id: "adidas-grand-court-2-sneakers", name: "adidas Grand Court 2.0 Sneakers", brand: "adidas", category: "fashion", type: "Sneakers",
+      price: 1199, was: 1499, stock: 20, featured: true,
+      art: { kind: "sneaker", color: "#1e293b", body: "white" },
+      summary: "Clean, court-inspired sneakers with a cushioned sole for all-day wear.",
+      specs: [["Size", "UK 6, UK 7, UK 8, UK 9, UK 10, UK 11"], ["Upper", "Synthetic leather"], ["Sole", "Rubber"], ["Colour", "White"]]
+    },
+    {
+      id: "levis-original-housemark-tee", name: "Levi's Original Housemark T-Shirt", brand: "Levi's", category: "fashion", type: "T-shirt",
+      price: 499, stock: 35,
+      art: { kind: "tshirt", color: "#1e3a8a" },
+      summary: "A soft, everyday cotton tee with the small Housemark logo on the chest.",
+      specs: [["Size", "S, M, L, XL, XXL"], ["Material", "100% cotton"], ["Fit", "Regular"], ["Colour", "Navy"]]
+    },
+    {
+      id: "herschel-classic-backpack", name: "Herschel Classic Backpack 24L", brand: "Herschel", category: "fashion", type: "Backpack",
+      price: 899, stock: 14,
+      art: { kind: "backpack", color: "#b91c1c", body: "dark" },
+      summary: "A simple, durable everyday backpack with a padded laptop sleeve.",
+      specs: [["Capacity", "24 L"], ["Laptop sleeve", "Fits up to 15 inch"], ["Material", "Polyester"], ["Colour", "Black"]]
+    },
+
+    /* ---------- beauty & personal care ---------- */
+    {
+      id: "philips-3000-hair-dryer", name: "Philips 3000 Series Hair Dryer", brand: "Philips", category: "beauty", type: "Hair dryer",
+      price: 499, was: 599, stock: 18,
+      art: { kind: "hairdryer", color: "#7c3aed" },
+      summary: "Fast drying with three heat and speed settings and a styling nozzle.",
+      specs: [["Power", "1600 W"], ["Settings", "3 heat and speed"], ["Includes", "Concentrator nozzle"], ["Colour", "Purple"]]
+    },
+    {
+      id: "oral-b-vitality-pro", name: "Oral-B Vitality Pro Electric Toothbrush", brand: "Oral-B", category: "beauty", type: "Electric toothbrush",
+      price: 599, was: 749, stock: 16,
+      art: { kind: "toothbrush", color: "#0ea5e9" },
+      summary: "Round-head cleaning with three modes and a two-minute timer.",
+      specs: [["Modes", "Daily clean, sensitive, whitening"], ["Timer", "2 minutes"], ["Battery", "Rechargeable"], ["Colour", "Blue"]]
+    },
+    {
+      id: "nivea-express-hydration-lotion-400", name: "NIVEA Express Hydration Body Lotion 400ml", brand: "NIVEA", category: "beauty", type: "Body lotion",
+      price: 109, stock: 60,
+      art: { kind: "bottle", color: "#1d4ed8" },
+      summary: "Light, quick-absorbing lotion that keeps normal skin moisturised for 48 hours.",
+      specs: [["Volume", "400 ml"], ["Skin type", "Normal skin"]]
+    },
+
+    /* ---------- baby & toddler ---------- */
+    {
+      id: "pampers-premium-care-size-3", name: "Pampers Premium Care Nappies Size 3 (60 pack)", brand: "Pampers", category: "baby", type: "Nappies",
+      price: 349, was: 399, stock: 40,
+      art: { kind: "nappies", color: "#0d9488" },
+      summary: "Soft, breathable nappies with up to 12 hours of dryness.",
+      specs: [["Nappy size", "Size 3 (6–10 kg)"], ["Count", "60 nappies"]]
+    },
+    {
+      id: "philips-avent-natural-bottle-260", name: "Philips Avent Natural Baby Bottle 260ml (2 pack)", brand: "Philips", category: "baby", type: "Baby bottle",
+      price: 329, stock: 20,
+      art: { kind: "babybottle", color: "#38bdf8" },
+      summary: "A wide, breast-shaped teat makes it easy to combine breast and bottle feeding.",
+      specs: [["Volume", "260 ml"], ["Age", "1 month+"], ["Material", "BPA-free polypropylene"]]
+    },
+
+    /* ---------- toys & games ---------- */
+    {
+      id: "lego-classic-medium-brick-box", name: "LEGO Classic Medium Creative Brick Box 10696", brand: "LEGO", category: "toys", type: "Building set",
+      price: 699, was: 799, stock: 15, featured: true,
+      art: { kind: "bricks", color: "#f59e0b" },
+      summary: "484 bricks in 35 colours, with ideas to get young builders started.",
+      specs: [["Pieces", "484"], ["Age", "4+ years"]]
+    },
+    {
+      id: "jellycat-bartholomew-bear-medium", name: "Jellycat Bartholomew Bear (Medium)", brand: "Jellycat", category: "toys", type: "Plush toy",
+      price: 899, stock: 8,
+      art: { kind: "teddy", color: "#b45309" },
+      summary: "A super-soft, huggable bear with a cheeky smile.",
+      specs: [["Height", "28 cm"], ["Material", "Polyester plush"], ["Age", "Birth+"], ["Colour", "Brown"]]
+    },
+    {
+      id: "rubiks-cube-3x3", name: "Rubik's Cube 3x3", brand: "Rubik's", category: "toys", type: "Puzzle",
+      price: 249, stock: 30,
+      art: { kind: "cube" },
+      summary: "The original colour-matching puzzle, with a smooth turning mechanism.",
+      specs: [["Age", "8+ years"]]
+    },
+
+    /* ---------- sport & fitness ---------- */
+    {
+      id: "adidas-tiro-league-football", name: "adidas Tiro League Football", brand: "adidas", category: "sport", type: "Football",
+      price: 449, stock: 24,
+      art: { kind: "ball", color: "#1e293b" },
+      summary: "Durable, machine-stitched match and training ball.",
+      specs: [["Ball size", "5"], ["Material", "TPU"], ["Colour", "White"]]
+    },
+    {
+      id: "trojan-20kg-dumbbell-set", name: "Trojan 20kg Adjustable Dumbbell Set", brand: "Trojan", category: "sport", type: "Dumbbells",
+      price: 999, was: 1299, stock: 6,
+      art: { kind: "dumbbell", color: "#dc2626", body: "dark" },
+      summary: "Two handles and plates you can set up for a full home workout.",
+      specs: [["Weight", "20 kg in total"], ["Includes", "2 handles, plates and collars"], ["Colour", "Black"]]
+    },
+    {
+      id: "trojan-yoga-mat-6mm", name: "Trojan Yoga Mat 6mm", brand: "Trojan", category: "sport", type: "Yoga mat",
+      price: 299, stock: 18,
+      art: { kind: "yogamat", color: "#7c3aed" },
+      summary: "Cushioned, non-slip mat for yoga, stretching and floor exercises.",
+      specs: [["Thickness", "6 mm"], ["Material", "TPE"], ["Colour", "Purple"]]
+    },
+
+    /* ---------- office & stationery ---------- */
+    {
+      id: "bic-cristal-pens-10", name: "BIC Cristal Ballpoint Pens (10 pack)", brand: "BIC", category: "office", type: "Pens",
+      price: 59, stock: 80,
+      art: { kind: "pens", color: "#2563eb" },
+      summary: "The classic clear-barrel ballpoint that writes smoothly every time.",
+      specs: [["Point", "1.0 mm medium"], ["Ink", "Blue"], ["Count", "10 pens"], ["Colour", "Blue"]]
+    },
+    {
+      id: "croxley-a4-hardcover-notebook", name: "Croxley A4 Hardcover Notebook (192 pages)", brand: "Croxley", category: "office", type: "Notebook",
+      price: 79, stock: 50,
+      art: { kind: "notebook", color: "#4f46e5" },
+      summary: "A sturdy hardcover notebook for school, work and meeting notes.",
+      specs: [["Paper size", "A4"], ["Pages", "192"], ["Ruling", "Feint and margin"]]
+    },
+
+    /* ---------- DIY & tools ---------- */
+    {
+      id: "bosch-easydrill-1200", name: "Bosch EasyDrill 1200 Cordless Drill Driver 12V", brand: "Bosch", category: "diy", type: "Drill",
+      price: 1599, was: 1899, stock: 7,
+      art: { kind: "drill", color: "#16a34a" },
+      summary: "Light, cordless drill driver for screwing and drilling around the home.",
+      specs: [["Voltage", "12 V"], ["Battery", "1.5 Ah lithium-ion"], ["Includes", "Battery and charger"], ["Colour", "Green"]]
+    },
+    {
+      id: "stanley-19-inch-toolbox", name: "Stanley 19 inch Toolbox", brand: "Stanley", category: "diy", type: "Toolbox",
+      price: 349, stock: 12,
+      art: { kind: "toolbox", color: "#facc15" },
+      summary: "Tough plastic toolbox with a removable tray and metal latches.",
+      specs: [["Length", "48 cm"], ["Material", "Plastic, metal latches"], ["Colour", "Black"]]
     }
   ];
 
@@ -541,14 +738,230 @@
         '<rect x="52" y="88" width="216" height="96" rx="12" fill="' + b + '" stroke="#0f172a" stroke-opacity=".12" stroke-width="2"/>' +
         '<rect x="88" y="150" width="144" height="10" rx="5" fill="#0f172a" opacity=".55"/>' +
         '<rect x="214" y="102" width="36" height="22" rx="4" fill="' + c + '"/>';
+    },
+
+    /* ---- home, fashion, beauty, baby, toys, sport, office, DIY ---- */
+    kettle: function (c, b, s) {
+      return '<path d="M202 80Q248 84 246 132Q244 168 210 178" fill="none" stroke="' + c + '" stroke-width="14" stroke-linecap="round"/>' +
+        '<path d="M118 86L82 66L86 92L116 110Z" fill="' + c + '"/>' +
+        '<path d="M112 192L122 70Q124 58 136 58H188Q200 58 202 70L212 192Z" fill="' + s + '"/>' +
+        '<rect x="128" y="46" width="68" height="16" rx="8" fill="#0f172a" opacity=".8"/>' +
+        '<rect x="132" y="96" width="10" height="72" rx="5" fill="#fff" opacity=".35"/>' +
+        '<rect x="92" y="194" width="140" height="16" rx="8" fill="#0f172a" opacity=".85"/>';
+    },
+    airfryer: function (c, b, s) {
+      return '<rect x="96" y="28" width="128" height="180" rx="34" fill="' + b + '"/>' +
+        '<rect x="114" y="46" width="92" height="32" rx="10" fill="#fff" opacity=".12"/>' +
+        '<circle cx="160" cy="62" r="8" fill="' + c + '"/>' +
+        '<path d="M100 112H220V178Q220 204 194 204H126Q100 204 100 178Z" fill="#000" opacity=".22"/>' +
+        '<rect x="132" y="140" width="56" height="18" rx="9" fill="' + s + '"/>' +
+        '<rect x="110" y="208" width="100" height="8" rx="4" fill="#000" opacity=".14"/>';
+    },
+    microwave: function (c, b, s) {
+      return '<rect x="36" y="54" width="248" height="142" rx="12" fill="' + b + '" stroke="#0f172a" stroke-opacity=".14" stroke-width="2"/>' +
+        '<rect x="52" y="70" width="170" height="110" rx="6" fill="' + s + '"/>' +
+        '<path d="M66 84L110 84" stroke="#fff" stroke-opacity=".35" stroke-width="5" stroke-linecap="round"/>' +
+        '<rect x="234" y="76" width="36" height="12" rx="3" fill="#0f172a" opacity=".75"/>' +
+        '<circle cx="252" cy="118" r="11" fill="#0f172a" opacity=".22"/><circle cx="252" cy="152" r="11" fill="#0f172a" opacity=".22"/>' +
+        '<rect x="48" y="196" width="24" height="7" rx="2" fill="#0f172a" opacity=".3"/><rect x="248" y="196" width="24" height="7" rx="2" fill="#0f172a" opacity=".3"/>';
+    },
+    pan: function (c, b, s) {
+      return '<rect x="198" y="113" width="108" height="16" rx="8" fill="#0f172a"/>' +
+        '<circle cx="292" cy="121" r="3.5" fill="#fff" opacity=".5"/>' +
+        '<circle cx="118" cy="121" r="88" fill="' + b + '"/>' +
+        '<circle cx="118" cy="121" r="75" fill="' + s + '"/>' +
+        '<circle cx="118" cy="121" r="75" fill="#000" opacity=".3"/>' +
+        '<path d="M70 96A54 54 0 0 1 118 67" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="7" stroke-linecap="round"/>';
+    },
+    container: function (c) {
+      var box = function (x, y, w, h) {
+        return '<rect x="' + x + '" y="' + (y + 14) + '" width="' + w + '" height="' + h + '" rx="12" fill="#e2e8f0" fill-opacity=".85" stroke="#94a3b8" stroke-width="2"/>' +
+          '<rect x="' + (x - 6) + '" y="' + y + '" width="' + (w + 12) + '" height="20" rx="8" fill="' + c + '"/>' +
+          '<rect x="' + (x + w / 2 - 14) + '" y="' + (y + 16) + '" width="28" height="12" rx="3" fill="' + c + '"/>';
+      };
+      return box(66, 118, 188, 82) + box(98, 50, 124, 58);
+    },
+    frenchpress: function (c) {
+      return '<path d="M208 84H238V186H208" fill="none" stroke="#0f172a" stroke-width="12" stroke-linejoin="round"/>' +
+        '<rect x="157" y="18" width="6" height="44" fill="#475569"/><circle cx="160" cy="18" r="9" fill="#0f172a"/>' +
+        '<path d="M112 62L96 54L104 72Z" fill="#0f172a"/>' +
+        '<rect x="110" y="54" width="100" height="18" rx="6" fill="#0f172a"/>' +
+        '<rect x="118" y="72" width="84" height="132" rx="6" fill="#bae6fd" fill-opacity=".4" stroke="#94a3b8" stroke-width="2"/>' +
+        '<rect x="121" y="118" width="78" height="84" rx="4" fill="#7c2d12" opacity=".88"/>' +
+        '<rect x="110" y="200" width="100" height="14" rx="5" fill="' + c + '"/>';
+    },
+    sneaker: function (c, b) {
+      return '<path d="M40 172Q36 118 70 104Q98 94 118 70L150 62Q160 60 164 70Q176 102 214 116L268 132Q292 140 290 172Z" fill="' + b + '" stroke="#0f172a" stroke-opacity=".14" stroke-width="2"/>' +
+        '<path d="M40 128Q36 150 40 170H56Q52 148 56 128Z" fill="' + c + '"/>' +
+        '<path d="M62 152Q150 132 236 152" fill="none" stroke="' + c + '" stroke-width="9" stroke-linecap="round"/>' +
+        '<path d="M126 82L150 94M136 74L160 86M118 92L142 104" stroke="#94a3b8" stroke-width="4" stroke-linecap="round"/>' +
+        '<path d="M34 170H286Q296 170 294 182L292 188Q290 196 280 196H44Q30 196 30 184V176Q30 170 34 170Z" fill="#f8fafc" stroke="#0f172a" stroke-opacity=".16" stroke-width="2"/>' +
+        '<path d="M44 184H284" stroke="#0f172a" stroke-opacity=".1" stroke-width="3"/>';
+    },
+    tshirt: function (c, b, s) {
+      return '<path d="M112 34Q160 58 208 34L272 66L248 114L222 102V216H98V102L72 114L48 66Z" fill="' + s + '"/>' +
+        '<path d="M124 38Q160 70 196 38" fill="none" stroke="#000" stroke-opacity=".2" stroke-width="6" stroke-linecap="round"/>' +
+        '<path d="M58 84L80 100M262 84L240 100" stroke="#000" stroke-opacity=".15" stroke-width="4" stroke-linecap="round"/>';
+    },
+    backpack: function (c, b) {
+      return '<path d="M136 48V34Q136 24 146 24H174Q184 24 184 34V48" fill="none" stroke="#0f172a" stroke-width="8"/>' +
+        '<rect x="84" y="72" width="16" height="112" rx="8" fill="#0f172a" opacity=".55"/><rect x="220" y="72" width="16" height="112" rx="8" fill="#0f172a" opacity=".55"/>' +
+        '<rect x="96" y="40" width="128" height="178" rx="36" fill="' + b + '"/>' +
+        '<rect x="146" y="86" width="28" height="18" rx="4" fill="' + c + '"/>' +
+        '<rect x="114" y="132" width="92" height="68" rx="16" fill="#000" opacity=".2"/>' +
+        '<path d="M118 150H202" stroke="' + c + '" stroke-width="4" stroke-linecap="round"/>';
+    },
+    hairdryer: function (c, b, s) {
+      return '<path d="M160 150L184 226Q186 232 194 232H208Q216 232 214 224L198 150Z" fill="' + s + '"/>' +
+        '<rect x="34" y="90" width="32" height="60" rx="6" fill="#0f172a" opacity=".85"/>' +
+        '<path d="M70 70H200A50 50 0 0 1 200 170H70Q58 170 58 158V82Q58 70 70 70Z" fill="' + s + '"/>' +
+        '<circle cx="204" cy="120" r="30" fill="#000" opacity=".16"/>' +
+        '<path d="M190 106H218M190 120H218M190 134H218" stroke="#fff" stroke-opacity=".3" stroke-width="3" stroke-linecap="round"/>' +
+        '<rect x="186" y="180" width="9" height="20" rx="4.5" fill="#fff" opacity=".6"/>';
+    },
+    toothbrush: function (c) {
+      var w = 'fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"';
+      return '<ellipse cx="160" cy="220" rx="48" ry="10" fill="#0f172a" opacity=".12"/>' +
+        '<rect x="154" y="58" width="12" height="34" ' + w + '/>' +
+        '<rect x="146" y="18" width="28" height="46" rx="12" ' + w + '/>' +
+        '<rect x="151" y="24" width="18" height="24" rx="5" fill="' + c + '" opacity=".55"/>' +
+        '<rect x="136" y="86" width="48" height="130" rx="22" ' + w + '/>' +
+        '<rect x="149" y="106" width="22" height="64" rx="11" fill="' + c + '"/>' +
+        '<circle cx="160" cy="126" r="6" fill="#fff"/>';
+    },
+    bottle: function (c, b, s) {
+      return '<path d="M168 22H198" stroke="#0f172a" stroke-width="7" stroke-linecap="round" opacity=".8"/>' +
+        '<rect x="148" y="16" width="24" height="14" rx="3" fill="#0f172a" opacity=".8"/>' +
+        '<rect x="146" y="28" width="28" height="30" rx="4" fill="#e2e8f0"/>' +
+        '<rect x="112" y="54" width="96" height="166" rx="26" fill="' + s + '"/>' +
+        '<rect x="124" y="104" width="72" height="66" rx="8" fill="#fff" opacity=".88"/>' +
+        '<path d="M138 124H182M138 138H172M138 152H178" stroke="' + c + '" stroke-width="4" stroke-linecap="round"/>';
+    },
+    nappies: function (c, b, s) {
+      return '<rect x="70" y="38" width="180" height="174" rx="22" fill="' + s + '"/>' +
+        '<rect x="128" y="52" width="64" height="12" rx="6" fill="#fff" opacity=".4"/>' +
+        '<rect x="96" y="94" width="128" height="94" rx="14" fill="#fff" opacity=".92"/>' +
+        '<path d="M126 118H194V136Q194 170 160 170Q126 170 126 136Z" fill="' + c + '" fill-opacity=".2" stroke="' + c + '" stroke-width="3"/>' +
+        '<path d="M126 126H194" stroke="' + c + '" stroke-width="3"/>';
+    },
+    babybottle: function (c) {
+      return '<path d="M148 52Q148 22 160 22Q172 22 172 52Z" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="2"/>' +
+        '<rect x="130" y="48" width="60" height="24" rx="7" fill="' + c + '"/>' +
+        '<path d="M138 72H182Q198 72 198 88V198Q198 216 180 216H140Q122 216 122 198V88Q122 72 138 72Z" fill="#e0f2fe" fill-opacity=".75" stroke="#94a3b8" stroke-width="2"/>' +
+        '<path d="M124 132H196V198Q196 214 180 214H140Q124 214 124 198Z" fill="#fff"/>' +
+        '<path d="M184 100H196M184 120H196M184 140H196M184 160H196" stroke="' + c + '" stroke-width="2.5"/>';
+    },
+    bricks: function (c) {
+      var brick = function (x, y, n, col) {
+        var studs = "";
+        for (var i = 0; i < n; i++) studs += '<rect x="' + (x + 9 + i * 30) + '" y="' + (y - 11) + '" width="18" height="13" rx="3" fill="' + col + '"/>';
+        return studs + '<rect x="' + x + '" y="' + y + '" width="' + n * 30 + '" height="46" rx="5" fill="' + col + '"/>' +
+          '<rect x="' + x + '" y="' + (y + 34) + '" width="' + n * 30 + '" height="12" rx="5" fill="#000" opacity=".14"/>';
+      };
+      return brick(50, 160, 4, c) + brick(170, 160, 3, "#2563eb") + brick(110, 102, 4, "#dc2626") + brick(140, 44, 2, "#16a34a");
+    },
+    teddy: function (c) {
+      var light = mix(c, 0.45);
+      return '<circle cx="112" cy="62" r="22" fill="' + c + '"/><circle cx="208" cy="62" r="22" fill="' + c + '"/>' +
+        '<circle cx="112" cy="62" r="11" fill="' + light + '"/><circle cx="208" cy="62" r="11" fill="' + light + '"/>' +
+        '<ellipse cx="96" cy="168" rx="20" ry="30" fill="' + c + '"/><ellipse cx="224" cy="168" rx="20" ry="30" fill="' + c + '"/>' +
+        '<ellipse cx="160" cy="180" rx="58" ry="46" fill="' + c + '"/>' +
+        '<ellipse cx="160" cy="186" rx="32" ry="26" fill="' + light + '"/>' +
+        '<circle cx="128" cy="220" r="17" fill="' + c + '"/><circle cx="192" cy="220" r="17" fill="' + c + '"/>' +
+        '<circle cx="160" cy="94" r="50" fill="' + c + '"/>' +
+        '<ellipse cx="160" cy="112" rx="23" ry="17" fill="' + light + '"/>' +
+        '<circle cx="142" cy="86" r="5" fill="#0f172a"/><circle cx="178" cy="86" r="5" fill="#0f172a"/>' +
+        '<ellipse cx="160" cy="105" rx="7" ry="5" fill="#0f172a"/>';
+    },
+    cube: function () {
+      var cols = ["#dc2626", "#f8fafc", "#2563eb", "#facc15", "#16a34a", "#f97316", "#2563eb", "#dc2626", "#facc15"], t = "";
+      for (var i = 0; i < 9; i++) t += '<rect x="' + (91 + (i % 3) * 47) + '" y="' + (51 + Math.floor(i / 3) * 47) + '" width="42" height="42" rx="7" fill="' + cols[i] + '"/>';
+      return '<rect x="82" y="42" width="156" height="156" rx="16" fill="#0f172a"/>' + t;
+    },
+    ball: function (c, b, s) {
+      var clip = s.slice(5, -1) + "b", P = function (cx, cy, r, rot) {
+        var pts = [];
+        for (var k = 0; k < 5; k++) { var a = (rot + k * 72) * Math.PI / 180; pts.push((cx + r * Math.cos(a)).toFixed(1) + "," + (cy + r * Math.sin(a)).toFixed(1)); }
+        return pts.join(" ");
+      };
+      var outer = "", lines = "";
+      for (var k = 0; k < 5; k++) {
+        var a = (-90 + k * 72) * Math.PI / 180, o = (-54 + k * 72) * Math.PI / 180;
+        lines += '<path d="M' + (160 + 26 * Math.cos(a)).toFixed(1) + " " + (120 + 26 * Math.sin(a)).toFixed(1) + "L" + (160 + 62 * Math.cos(a)).toFixed(1) + " " + (120 + 62 * Math.sin(a)).toFixed(1) + '"/>';
+        outer += '<polygon points="' + P(160 + 84 * Math.cos(o), 120 + 84 * Math.sin(o), 24, -54 + k * 72 + 180) + '"/>';
+      }
+      return '<defs><clipPath id="' + clip + '"><circle cx="160" cy="120" r="88"/></clipPath></defs>' +
+        '<circle cx="160" cy="120" r="88" fill="#f8fafc"/>' +
+        '<g clip-path="url(#' + clip + ')" fill="' + c + '">' + outer + "</g>" +
+        '<g stroke="#0f172a" stroke-opacity=".5" stroke-width="3">' + lines + "</g>" +
+        '<polygon points="' + P(160, 120, 26, -90) + '" fill="' + c + '"/>' +
+        '<circle cx="160" cy="120" r="88" fill="none" stroke="#0f172a" stroke-opacity=".18" stroke-width="2"/>';
+    },
+    dumbbell: function (c, b) {
+      return '<rect x="66" y="112" width="188" height="16" rx="6" fill="#94a3b8"/>' +
+        '<rect x="52" y="104" width="16" height="32" rx="4" fill="#64748b"/><rect x="252" y="104" width="16" height="32" rx="4" fill="#64748b"/>' +
+        '<rect x="68" y="64" width="28" height="112" rx="7" fill="' + b + '"/><rect x="98" y="80" width="18" height="80" rx="5" fill="' + b + '"/>' +
+        '<rect x="224" y="64" width="28" height="112" rx="7" fill="' + b + '"/><rect x="204" y="80" width="18" height="80" rx="5" fill="' + b + '"/>' +
+        '<rect x="134" y="109" width="52" height="22" rx="6" fill="' + c + '"/>';
+    },
+    yogamat: function (c, b, s) {
+      return '<rect x="26" y="172" width="200" height="20" rx="4" fill="' + s + '"/>' +
+        '<rect x="26" y="172" width="200" height="20" rx="4" fill="#000" opacity=".12"/>' +
+        '<circle cx="232" cy="140" r="52" fill="' + s + '"/>' +
+        '<circle cx="232" cy="140" r="39" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="3"/>' +
+        '<circle cx="232" cy="140" r="25" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="3"/>' +
+        '<circle cx="232" cy="140" r="11" fill="#000" opacity=".22"/>';
+    },
+    pens: function (c) {
+      var out = "";
+      [0, 1, 2].forEach(function (i) {
+        var x = 112 + i * 38;
+        out += '<path d="M' + (x + 4) + ' 190L' + (x + 11) + ' 216L' + (x + 18) + ' 190Z" fill="#94a3b8"/>' +
+          '<rect x="' + x + '" y="44" width="22" height="148" rx="6" fill="#e0f2fe" fill-opacity=".8" stroke="#94a3b8" stroke-width="2"/>' +
+          '<rect x="' + (x + 9) + '" y="64" width="4" height="122" fill="' + c + '" opacity=".75"/>' +
+          '<rect x="' + (x - 1) + '" y="24" width="24" height="44" rx="6" fill="' + c + '"/>';
+      });
+      return '<g transform="rotate(-10 160 120)">' + out + "</g>";
+    },
+    notebook: function (c, b, s) {
+      return '<rect x="236" y="34" width="10" height="178" rx="3" fill="#e2e8f0"/>' +
+        '<rect x="92" y="28" width="150" height="190" rx="8" fill="' + s + '"/>' +
+        '<rect x="92" y="28" width="24" height="190" rx="6" fill="#000" opacity=".2"/>' +
+        '<rect x="136" y="62" width="84" height="40" rx="5" fill="#fff" opacity=".9"/>' +
+        '<path d="M148 76H208M148 88H190" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>' +
+        '<rect x="214" y="28" width="7" height="190" fill="#0f172a" opacity=".45"/>';
+    },
+    drill: function (c, b, s) {
+      return '<path d="M122 126L104 196H156L168 126Z" fill="' + s + '"/>' +
+        '<path d="M126 140L114 190H146L156 140Z" fill="#0f172a" opacity=".55"/>' +
+        '<rect x="86" y="190" width="96" height="32" rx="8" fill="#0f172a"/>' +
+        '<rect x="160" y="130" width="12" height="24" rx="4" fill="#0f172a"/>' +
+        '<path d="M70 70H214Q234 70 234 90V110Q234 130 214 130H120L70 118Z" fill="' + s + '"/>' +
+        '<path d="M86 86V110M98 86V110M110 86V110" stroke="#000" stroke-opacity=".25" stroke-width="4" stroke-linecap="round"/>' +
+        '<rect x="234" y="86" width="30" height="30" rx="6" fill="#0f172a"/>' +
+        '<rect x="264" y="96" width="38" height="10" rx="3" fill="#94a3b8"/>';
+    },
+    bag: function (c, b, s) {
+      return '<path d="M128 84V62Q128 34 160 34Q192 34 192 62V84" fill="none" stroke="#0f172a" stroke-opacity=".75" stroke-width="9" stroke-linecap="round"/>' +
+        '<path d="M86 74H234L248 206Q249 216 238 216H82Q71 216 72 206Z" fill="' + s + '"/>' +
+        '<circle cx="128" cy="96" r="6" fill="#0f172a" opacity=".5"/><circle cx="192" cy="96" r="6" fill="#0f172a" opacity=".5"/>' +
+        '<path d="M86 74H234L236 92H84Z" fill="#fff" opacity=".18"/>';
+    },
+    toolbox: function (c) {
+      return '<path d="M120 82V58Q120 48 130 48H190Q200 48 200 58V82" fill="none" stroke="#0f172a" stroke-width="12"/>' +
+        '<rect x="50" y="98" width="220" height="114" rx="10" fill="#1e293b"/>' +
+        '<path d="M56 78H264Q272 78 272 86V120H48V86Q48 78 56 78Z" fill="' + c + '"/>' +
+        '<rect x="78" y="110" width="20" height="26" rx="3" fill="' + c + '"/><rect x="222" y="110" width="20" height="26" rx="3" fill="' + c + '"/>' +
+        '<path d="M64 168H256" stroke="#fff" stroke-opacity=".12" stroke-width="3"/>';
     }
   };
 
   MABS.art = function (a) {
+    a = a || {};
     var id = "mg" + (++seq);
     var c = a.color || "#2563eb";
     var b = BODY[a.body || "dark"];
-    var draw = DRAW[a.kind] || DRAW.phone;
+    var draw = DRAW[a.kind] || DRAW.bag; // unknown kinds get a shopping bag
     return '<svg viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
       '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="1" y2="1">' +
       '<stop offset="0" stop-color="' + mix(c, 0.35) + '"/><stop offset="1" stop-color="' + c + '"/></linearGradient></defs>' +

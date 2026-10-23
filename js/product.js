@@ -85,7 +85,9 @@
       (inStock ? "<li>" + M.icon.truck + "<span><b>Courier delivery</b>Arrives " + eta + ". " +
         (p.price >= d.freeOver ? "Free for this item." : money(d.courierFee) + ", free on orders over " + money(d.freeOver) + ".") + "</span></li>" : "") +
       (d.collect ? "<li>" + M.icon.store + "<span><b>Free in-store collection</b>" + esc(svc.collectNote || "") + "</span></li>" : "") +
-      "<li>" + M.icon.shield + "<span><b>Warranty</b>" + esc(specValue("warranty") || svc.warranty || "Manufacturer's warranty") + "</span></li>" +
+      // warranty: the product's own, or the usual one in departments where it applies (not for pens or lotion)
+      (specValue("warranty") || (svc.warrantyDepartments || []).indexOf(p.category) !== -1 ?
+        "<li>" + M.icon.shield + "<span><b>Warranty</b>" + esc(specValue("warranty") || svc.warranty || "Manufacturer's warranty") + "</span></li>" : "") +
       (svc.returns ? "<li>" + ICON_RETURN + "<span><b>Returns</b>" + esc(svc.returns) + "</span></li>" : "") +
     "</ul>";
 

@@ -38,7 +38,7 @@
       "<p>" + esc(svc.returns || "Return unused items in their original packaging within 7 days.") + "</p>" +
       "<p>If an item is faulty, the Consumer Protection Act lets you return it within six months for a repair, replacement or refund. Contact us first so we can arrange the return, and keep your order number handy.</p>" },
     { id: "warranty", icon: I.shield, title: "Warranty", body:
-      "<p>Every product is new and genuine, and comes with the " + esc((svc.warranty || "manufacturer's warranty").replace(/^Manufacturer/, "manufacturer")) + ". Where a product lists its own warranty period, that applies.</p>" +
+      "<p>Every product is new and genuine. Electronics, appliances and tools come with the " + esc((svc.warranty || "manufacturer's warranty").replace(/^Manufacturer/, "manufacturer")) + ". Where a product lists its own warranty period, that applies.</p>" +
       "<p>Your order number is your proof of purchase. For a warranty claim, contact us and we'll help you through the supplier's process.</p>" },
     { id: "orders", icon: I.box, title: "Orders", body:
       "<p>You can see the orders placed on this device under <a href=\"orders.html\">My Account → Orders</a>, with their progress and an <b>Order again</b> button.</p>" +

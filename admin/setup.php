@@ -44,6 +44,14 @@ function run_sql_file(PDO $pdo, string $file): void
     }
 }
 
+/** the starting departments from seed.sql; existing ones keep their name and only gain a picture */
+function seed_categories_sql(): string
+{
+    $sql = preg_replace('/^\s*--.*$/m', '', (string) file_get_contents(MABS_ROOT . '/database/seed.sql'));
+    if (!preg_match('/INSERT IGNORE INTO categories .*?;\s*\n/s', $sql, $m)) throw new RuntimeException('database/seed.sql has no departments');
+    return preg_replace('/^INSERT IGNORE/', 'INSERT', rtrim(trim($m[0]), ';')) . ' ON DUPLICATE KEY UPDATE art = COALESCE(categories.art, VALUES(art))';
+}
+
 $error = '';
 if ($step === 'install' && is_post()) {
     if (!setup_key_ok()) {
@@ -67,8 +75,11 @@ if ($step === 'upgrade' && is_post()) {
     } else {
         try {
             foreach ($upgrades as [$label, $check, $sql]) {
-                if ($sql === 'schema') run_sql_file(db(), MABS_ROOT . '/database/schema.sql'); // creates only missing tables
-                else db()->exec($sql);
+                foreach ((array) $sql as $one) {
+                    if ($one === 'schema') run_sql_file(db(), MABS_ROOT . '/database/schema.sql'); // creates only missing tables
+                    elseif ($one === 'seed:categories') db()->exec(seed_categories_sql());
+                    else db()->exec($one);
+                }
             }
             unset($_SESSION['upgrades']);
             flash('Database updated.');

@@ -47,8 +47,16 @@
     });
     return out;
   }
-  var PLURAL = { Mouse: "Mice", Smartwatch: "Smartwatches", TV: "TVs", Headphones: "Headphones", Earbuds: "Earbuds", Storage: "Storage", Gaming: "Gaming", Networking: "Networking" };
-  function plural(t) { return PLURAL[t] || t + "s"; }
+  // product type → menu heading: "Kettle" → "Kettles", "Smartwatch" → "Smartwatches";
+  // already plural or uncountable types ("Headphones", "Cookware", "Gaming") stay as they are
+  var PLURAL = { Mouse: "Mice", TV: "TVs" };
+  function plural(t) {
+    if (PLURAL[t]) return PLURAL[t];
+    if (/(s|ware|wear|ing|ery|care|age|ment|ure|food)$/i.test(t)) return t;
+    if (/(x|z|ch|sh)$/i.test(t)) return t + "es";
+    if (/[^aeiou]y$/i.test(t)) return t.slice(0, -1) + "ies";
+    return t + "s";
+  }
   function read(key, fallback) {
     try { var v = JSON.parse(localStorage.getItem(key)); return v == null ? fallback : v; } catch (e) { return fallback; }
   }
@@ -324,22 +332,64 @@
       '<span class="mini-price">' + M.priceHtml(p) + "</span></span></a>";
   }
 
-  // "Shop by department" dropdown beside the logo
+  // "Shop by department" dropdown beside the logo: departments down the left,
+  // the one pointed at (or focused) shows its product types and top picks on the right
   function deptMenu() {
     var deals = M.products.filter(function (p) { return p.was && p.was > p.price; }).length;
+    var rail = "", panes = "";
+    M.categories.forEach(function (c, i) {
+      var items = M.products.filter(function (p) { return p.category === c.id; });
+      var href = "index.html?cat=" + encodeURIComponent(c.id) + "#shop";
+      var picks = items.filter(function (p) { return p.stock > 0; })
+        .sort(function (a, b) { return (b.featured ? 1 : 0) - (a.featured ? 1 : 0) || ((b.was || b.price) - b.price) - ((a.was || a.price) - a.price); }).slice(0, 3);
+      rail += '<li><a class="dept-link' + (i ? "" : " is-active") + '" href="' + href + '" data-dept="' + esc(c.id) + '">' +
+        '<span class="dept-ico" aria-hidden="true">' + M.art(c.art || {}) + "</span>" + esc(c.name) + ICON.chevron + "</a></li>";
+      panes += '<section class="dept-pane" data-pane="' + esc(c.id) + '"' + (i ? " hidden" : "") + ">" +
+        '<div class="dept-pane-head"><a class="dept-title" href="' + href + '">' + esc(c.name) + "</a>" +
+          (c.blurb ? "<p>" + esc(c.blurb) + "</p>" : "") + "</div>" +
+        '<div class="dept-pane-body"><ul class="dept-types">' +
+          M.typesOf(c.id).map(function (t) {
+            return '<li><a href="index.html?cat=' + encodeURIComponent(c.id) + "&type=" + encodeURIComponent(t.type) + '#shop">' + esc(M.plural(t.type)) + '<span class="n">' + t.count + "</span></a></li>";
+          }).join("") +
+          '<li><a class="dept-all" href="' + href + '">Shop all ' + items.length + (items.length === 1 ? " product" : " products") + ICON.arrow + "</a></li></ul>" +
+        (picks.length ? '<div class="dept-picks"><p class="dept-picks-title">Popular in ' + esc(c.name) + "</p>" + picks.map(function (p) { return mini(p); }).join("") + "</div>" : "") +
+        "</div></section>";
+    });
     return '<div class="has-mega dept-menu">' +
       '<button type="button" class="mega-toggle dept-btn" aria-expanded="false" aria-controls="mega-dept">Shop by department' + ICON.chevron + "</button>" +
-      '<div class="mega dept-panel" id="mega-dept" hidden><div class="wrap dept-grid">' +
-        M.categories.map(function (c) {
-          var n = M.products.filter(function (p) { return p.category === c.id; }).length;
-          return '<div class="dept-col"><a class="dept-title" href="index.html?cat=' + c.id + '#shop">' + esc(c.name) + '<span class="n">' + n + "</span></a>" +
-            "<ul>" + M.typesOf(c.id).map(function (t) {
-              return '<li><a href="index.html?cat=' + c.id + "&type=" + encodeURIComponent(t.type) + '#shop">' + esc(M.plural(t.type)) + "</a></li>";
-            }).join("") + "</ul></div>";
-        }).join("") +
-        '<div class="dept-col dept-extra"><a class="dept-title" href="index.html#shop">All products<span class="n">' + M.products.length + "</span></a>" +
-          '<a class="deals-link" href="index.html?deals=1#shop">' + ICON.flame + "On sale" + (deals ? '<span class="deals-n">' + deals + "</span>" : "") + "</a></div>" +
+      '<div class="mega dept-panel" id="mega-dept" hidden><div class="wrap dept-wrap">' +
+        '<nav class="dept-rail" aria-label="Departments"><ul>' + rail + "</ul>" +
+          '<div class="dept-rail-foot"><a class="dept-every" href="index.html#shop">All products<span class="n">' + M.products.length + "</span></a>" +
+          '<a class="deals-link" href="index.html?deals=1#shop">' + ICON.flame + "On sale" + (deals ? '<span class="deals-n">' + deals + "</span>" : "") + "</a></div></nav>" +
+        '<div class="dept-panes">' + panes + "</div>" +
       "</div></div></div>";
+  }
+  // pointing at or focusing a department shows its panel
+  function setupDeptMenu(host) {
+    var panel = host.querySelector(".dept-panel");
+    if (!panel) return;
+    var timer;
+    function show(link) {
+      var id = link.getAttribute("data-dept");
+      panel.querySelectorAll(".dept-link").forEach(function (l) { l.classList.toggle("is-active", l === link); });
+      panel.querySelectorAll(".dept-pane").forEach(function (p) { p.hidden = p.getAttribute("data-pane") !== id; });
+    }
+    panel.addEventListener("mouseover", function (e) {
+      var link = e.target.closest(".dept-link");
+      clearTimeout(timer);
+      // a short pause, so moving across to the panel doesn't switch departments on the way
+      if (link && !link.classList.contains("is-active")) timer = setTimeout(function () { show(link); }, 90);
+    });
+    panel.addEventListener("focusin", function (e) { var link = e.target.closest(".dept-link"); if (link) show(link); });
+    panel.addEventListener("keydown", function (e) {
+      var link = e.target.closest(".dept-link");
+      if (!link || ["ArrowDown", "ArrowUp", "ArrowRight"].indexOf(e.key) === -1) return;
+      e.preventDefault();
+      if (e.key === "ArrowRight") { var first = panel.querySelector(".dept-pane:not([hidden]) a"); if (first) first.focus(); return; }
+      var links = Array.prototype.slice.call(panel.querySelectorAll(".dept-link"));
+      var next = links[links.indexOf(link) + (e.key === "ArrowDown" ? 1 : -1)];
+      if (next) next.focus();
+    });
   }
 
   function renderHeader() {
@@ -364,7 +414,7 @@
         '<div class="search-wrap">' +
           '<form class="search" action="index.html" role="search">' +
             '<label class="sr-only" for="q">Search products</label>' +
-            '<input id="q" name="q" type="search" placeholder="Search laptops, phones, chargers…" autocomplete="off" spellcheck="false"' +
+            '<input id="q" name="q" type="search" placeholder="Search for products, brands and more…" autocomplete="off" spellcheck="false"' +
               ' role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggest-list" value="' + esc(params.get("q") || "") + '">' +
             '<button type="submit" aria-label="Search">' + ICON.search + "</button>" +
           "</form>" +
@@ -386,6 +436,7 @@
 
     setupSearch(host);
     setupMega(host);
+    setupDeptMenu(host);
     var mast = host.querySelector(".masthead");
     var onScroll = function () { mast.classList.toggle("is-scrolled", window.scrollY > 40); };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -439,13 +490,14 @@
         html += '<section class="sg-group" role="group" aria-labelledby="sg-h-pop"><div class="sg-head"><h2 id="sg-h-pop">Popular searches</h2></div>' +
           popular.map(function (q) { return termRow(q, ICON.trend, n++); }).join("") + "</section>";
       }
-      html += '<section class="sg-group" role="group" aria-labelledby="sg-h-cat"><div class="sg-head"><h2 id="sg-h-cat">Shop by department</h2></div>' +
+      html += '<section class="sg-group" role="group" aria-labelledby="sg-h-cat"><div class="sg-head"><h2 id="sg-h-cat">Shop by department</h2></div><div class="sg-depts">' +
         M.categories.map(function (c, i) {
           var n = M.products.filter(function (p) { return p.category === c.id; }).length;
-          return '<a class="sg-dept" role="option" id="sg-c' + i + '" aria-selected="false" tabindex="-1" href="index.html?cat=' + c.id + '#shop">' +
-            '<span class="sg-dept-text"><span class="sg-dept-name">' + esc(c.name) + '</span><span class="sg-dept-blurb">' + esc(c.blurb) + "</span></span>" +
-            '<span class="sg-dept-n">' + n + "</span>" + ICON.arrow + "</a>";
-        }).join("") + "</section>";
+          return '<a class="sg-dept" role="option" id="sg-c' + i + '" aria-selected="false" tabindex="-1" href="index.html?cat=' + encodeURIComponent(c.id) + '#shop"' + (c.blurb ? ' title="' + esc(c.blurb) + '"' : "") + ">" +
+            '<span class="sg-dept-ico" aria-hidden="true">' + M.art(c.art || {}) + "</span>" +
+            '<span class="sg-dept-name">' + esc(c.name) + "</span>" +
+            '<span class="sg-dept-n">' + n + "</span></a>";
+        }).join("") + "</div></section>";
       body.innerHTML = html + "</div>";
     }
 
@@ -453,7 +505,7 @@
       var all = M.products.filter(function (p) { return M.matchQuery(p, q); });
       if (!all.length) {
         body.innerHTML = '<div class="sg-none"><p class="sg-none-title">No products match “' + esc(q) + '”</p>' +
-          "<p>Check the spelling, or try a brand or a product type like “laptop” or “charger”.</p></div>";
+          "<p>Check the spelling, or try a brand or a product type like “kettle” or “sneakers”.</p></div>";
         return;
       }
       var top = all.slice().sort(function (a, b) { return (b.stock > 0) - (a.stock > 0) || (b.featured ? 1 : 0) - (a.featured ? 1 : 0); }).slice(0, 8);
@@ -630,7 +682,7 @@
       '<div class="footer-promises"><div class="wrap">' +
         promise(ICON.truck, "Nationwide delivery", "Free on orders over " + money(d.freeOver), "help.html#delivery") +
         (d.collect ? promise(ICON.store, "Free collection", "Collect in store at no cost", "help.html#collection") : "") +
-        promise(ICON.shield, "Genuine products", (svc.warranty || "Manufacturer's warranty") + " on every item", "help.html#warranty") +
+        promise(ICON.shield, "Genuine products", "From brands and suppliers you can trust", "help.html#warranty") +
         promise(RETURN, "Easy returns", "Unused items within 7 days", "help.html#returns") +
       "</div></div>" +
       '<div class="wrap footer-grid">' +

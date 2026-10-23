@@ -1,7 +1,8 @@
 # Mabs Technologies — Online Store
 
-An e-commerce web app for Mabs Technologies, selling computers, phones &
-tablets, accessories and electronics. The shop is HTML/CSS/JS with no build
+An e-commerce web app for Mabs Technologies, a general store in the style
+of Takealot: tech, home appliances, home & kitchen, fashion, beauty, baby,
+toys, sport, office and DIY. The shop is HTML/CSS/JS with no build
 step; the backend (orders, stock, admin panel) is PHP + MySQL, so the live
 shop needs PHP hosting such as Hostinger. Without PHP (e.g. on GitHub
 Pages) the shop still runs from its built-in catalogue.
@@ -52,8 +53,11 @@ each placed order for the Orders page (until customer accounts exist).
   built-in catalogue the shop falls back to without the backend. Once the
   backend is live, products, prices, stock and delivery charges are managed
   in the admin panel instead.
-  Products show a drawn illustration until they have a photo
-  (`assets/products/<file>.jpg`).
+  It starts with 13 departments and 64 sample products (real brands,
+  sample prices) to show how each department looks; replace them with your
+  own stock. Products and departments show a drawn illustration until they
+  have a photo (`assets/products/<file>.jpg`); there are drawings for most
+  kinds of product, and a shopping bag for anything else.
 - `assets/products/demo/` — demo photo galleries (made from the drawings)
   for four products, to show how galleries look: Samsung Galaxy S24 Ultra
   (7), Apple MacBook Air (5), Lenovo IdeaPad Slim 3 (4), JBL Flip 6 (3).
@@ -64,7 +68,9 @@ each placed order for the Orders page (until customer accounts exist).
   (the shop's API), `_store.php` (order rules and emails), `_reviews.php`, `_bootstrap.php` (database
   connection), `config.sample.php` (settings template).
 - `database/schema.sql`, `database/seed.sql` — the MySQL tables and the
-  starting catalogue (installed for you by `admin/setup.php`).
+  starting catalogue (installed for you by `admin/setup.php`). `seed.sql`
+  is built from `js/catalog.js` with `node database/build-seed.js >
+  database/seed.sql`, so the two always match.
 - `js/app.js` — cart, wishlist, header ("Shop by department" menu, live
   search, mobile menu), footer, cart drawer, product cards.
 - `js/shop.js`, `js/product.js`, `js/checkout.js`, `js/orders.js`,
@@ -127,6 +133,10 @@ each placed order for the Orders page (until customer accounts exist).
     for that product. Star ratings
     show under the product title and on product cards. Limits: one review
     per email per product, 5 per visitor per hour
+  - **Departments**: add, rename, reorder and remove departments (each with
+    a short description and a drawing for its tile), and add or rename
+    brands. A department appears in the shop once it has a product; one
+    with products, or a brand in use, can't be removed
   - **Settings**: courier fee, free-delivery threshold, in-store collection,
     and your password
 - If the backend can't be reached, the shop falls back to the built-in

@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS categories (
   id    VARCHAR(40)  NOT NULL,
   name  VARCHAR(80)  NOT NULL,
   blurb VARCHAR(160) NULL,
+  art   TEXT         NULL,              -- JSON: drawing for the department tile, e.g. {"kind":"kettle","color":"#dc2626"}
   sort  INT          NOT NULL DEFAULT 0,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

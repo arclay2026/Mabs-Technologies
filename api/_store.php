@@ -43,8 +43,10 @@ function delivery_fee(float $subtotal, string $fulfilment, array $settings): flo
 function catalogue(): array
 {
     $pdo = db();
-    $categories = array_map(fn ($c) => ['id' => $c['id'], 'name' => $c['name'], 'blurb' => $c['blurb'] ?? ''],
-        $pdo->query('SELECT id, name, blurb FROM categories ORDER BY sort, name')->fetchAll());
+    // SELECT *: shops that haven't run the "Department pictures" update yet have no art column
+    $categories = array_map(fn ($c) => ['id' => $c['id'], 'name' => $c['name'], 'blurb' => $c['blurb'] ?? '',
+        'art' => json_decode((string) ($c['art'] ?? ''), true) ?: null],
+        $pdo->query('SELECT * FROM categories ORDER BY sort, name')->fetchAll());
     $brandRows = $pdo->query('SELECT id, name, logo_url, logo_height FROM brands ORDER BY sort, name')->fetchAll();
     $brandName = array_column($brandRows, 'name', 'id');
     $brands = [];

@@ -113,9 +113,40 @@ function installed(): bool
     }
 }
 
+/* ---------- placeholder drawings (js/catalog.js) for products and departments without a photo ---------- */
+const ART_KINDS = [
+    'laptop' => 'Laptop', 'desktop' => 'Desktop', 'monitor' => 'Monitor', 'phone' => 'Phone', 'tablet' => 'Tablet', 'watch' => 'Watch',
+    'headphones' => 'Headphones', 'earbuds' => 'Earbuds', 'speaker' => 'Speaker', 'tv' => 'TV', 'console' => 'Games console',
+    'mouse' => 'Mouse', 'keyboard' => 'Keyboard', 'charger' => 'Charger', 'cable' => 'Cable', 'powerbank' => 'Power bank',
+    'flash' => 'Flash drive', 'ssd' => 'Portable drive', 'router' => 'Router', 'printer' => 'Printer', 'calculator' => 'Calculator',
+    'kettle' => 'Kettle', 'airfryer' => 'Air fryer', 'microwave' => 'Microwave', 'pan' => 'Frying pan', 'container' => 'Food containers',
+    'frenchpress' => 'French press', 'sneaker' => 'Sneaker', 'tshirt' => 'T-shirt', 'backpack' => 'Backpack', 'hairdryer' => 'Hair dryer',
+    'toothbrush' => 'Toothbrush', 'bottle' => 'Bottle (lotion, shampoo)', 'nappies' => 'Nappies', 'babybottle' => 'Baby bottle',
+    'bricks' => 'Building bricks', 'teddy' => 'Teddy bear', 'cube' => 'Puzzle cube', 'ball' => 'Ball', 'dumbbell' => 'Dumbbell',
+    'yogamat' => 'Yoga mat', 'pens' => 'Pens', 'notebook' => 'Notebook', 'drill' => 'Drill', 'toolbox' => 'Toolbox', 'bag' => 'Shopping bag (anything else)',
+];
+const ART_BODIES = ['dark' => 'Dark', 'silver' => 'Silver', 'light' => 'Light grey', 'white' => 'White'];
+
+function art_kind_select(string $name, string $value, string $label = ''): string
+{
+    $out = '<select name="' . h($name) . '"' . ($label !== '' ? ' aria-label="' . h($label) . '"' : '') . '>';
+    foreach (ART_KINDS as $k => $text) $out .= '<option value="' . h($k) . '"' . ($k === $value ? ' selected' : '') . '>' . h($text) . '</option>';
+    return $out . '</select>';
+}
+
+/** web-address form of a name: "Home & Kitchen" → "home-kitchen", "Levi's" → "levis", "Crème" → "creme" */
+function slugify(string $s, int $max = 80): string
+{
+    $s = str_replace(["'", '’'], '', $s);
+    $s = strtolower(trim((string) preg_replace('/[^A-Za-z0-9]+/', '-', iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $s) ?: $s), '-'));
+    return trim(substr($s, 0, $max), '-');
+}
+
 /* ---------- database updates for shops installed before a change ----------
    Each entry: what it adds, an SQL check that returns 0 when it's missing,
-   and the SQL that adds it. setup.php runs the missing ones. */
+   and the SQL that adds it (one statement, a list of them, 'schema' for
+   missing tables, or 'seed:categories' for the starting departments in
+   database/seed.sql). setup.php runs the missing ones, in this order. */
 const UPGRADES = [
     ['Product photo galleries',
      "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'products' AND column_name = 'images'",
@@ -124,6 +155,14 @@ const UPGRADES = [
     ['Faster review checks',
      "SELECT COUNT(*) FROM information_schema.statistics WHERE table_schema = DATABASE() AND table_name = 'orders' AND index_name = 'orders_email'",
      'ALTER TABLE orders ADD KEY orders_email (customer_email)'],
+    ['Department pictures',
+     "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'categories' AND column_name = 'art'",
+     'ALTER TABLE categories ADD COLUMN art TEXT NULL AFTER blurb'],
+    ['Departments for every kind of product (home, fashion, beauty, baby, toys, sport, office, DIY)',
+     "SELECT COUNT(*) FROM categories WHERE id = 'appliances'",
+     ['seed:categories',
+      "UPDATE categories SET name = 'TV, Audio & Gaming', blurb = 'TVs, speakers, wearables, printers & gaming' WHERE id = 'electronics' AND name = 'Electronics'",
+      "UPDATE categories SET name = 'Tech Accessories', blurb = 'Chargers, headphones, storage & more' WHERE id = 'accessories' AND name = 'Accessories'"]],
 ];
 
 function pending_upgrades(): array
@@ -243,6 +282,7 @@ function page_start(string $title, string $active = ''): void
     if ($admin) {
         echo '<nav class="nav" aria-label="Admin">',
              nav_link('orders.php', 'Orders', $active), nav_link('products.php', 'Products', $active),
+             nav_link('departments.php', 'Departments', $active),
              nav_link('reviews.php', 'Reviews', $active, pending_reviews()), nav_link('settings.php', 'Settings', $active),
              '</nav><div class="who"><a href="../index.html" target="_blank" rel="noopener">View shop</a>',
              '<form method="post" action="logout.php">', csrf_field(), '<button type="submit" class="link">Sign out</button></form></div>';

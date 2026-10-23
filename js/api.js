@@ -55,9 +55,13 @@
 
   function apply(d) {
     var art = {};
-    M.categories.forEach(function (c) { art[c.id] = c.art; }); // department drawings stay in catalog.js
-    M.categories = d.categories.map(function (c) {
-      return { id: c.id, name: c.name, blurb: c.blurb || "", art: art[c.id] || { kind: "laptop", color: "#64748b" } };
+    M.categories.forEach(function (c) { art[c.id] = c.art; });
+    // a department's drawing: the one chosen in the admin panel, else the built-in one, else a shopping bag
+    // departments without products yet stay out of the shop's menus and tiles
+    var stocked = {};
+    d.products.forEach(function (p) { stocked[p.category] = 1; });
+    M.categories = d.categories.filter(function (c) { return stocked[c.id]; }).map(function (c) {
+      return { id: c.id, name: c.name, blurb: c.blurb || "", art: c.art || art[c.id] || { kind: "bag", color: "#64748b" } };
     });
     M.brands = d.brands;
     M.products = d.products;
@@ -112,7 +116,7 @@
     fill("grid", '<p class="sr-only" role="status">Loading products…</p>' + repeat(12, function () { return skCard(searching); }));
     fill("brand-track", repeat(9, function () { return sk("sk-logo"); }));
     fill("deal-rail", repeat(6, function () { return skCard(false); }));
-    fill("cat-grid", repeat(4, function () { return '<div class="sk-tile" aria-hidden="true">' + sk("sk-tile-art") + '<div class="sk-body">' + sk("sk-line sk-w50") + sk("sk-line sk-w70") + "</div></div>"; }));
+    fill("cat-grid", repeat(7, function () { return '<div class="sk-tile" aria-hidden="true">' + sk("sk-tile-art") + '<div class="sk-body">' + sk("sk-line sk-w70") + sk("sk-line sk-w50") + "</div></div>"; }));
     fill("product", '<p class="sr-only" role="status">Loading product…</p><div class="sk-crumbs">' + sk("sk-line sk-w20") + "</div>" +
       '<div class="pdp" aria-hidden="true"><section class="pdp-panel pdp-hero">' + sk("sk-square") +
         '<div class="sk-stack">' + sk("sk-line sk-w20") + sk("sk-title") + sk("sk-line sk-w70") + sk("sk-gap") +

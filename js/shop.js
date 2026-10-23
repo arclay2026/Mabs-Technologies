@@ -57,15 +57,15 @@
         '<div class="wrap hero-in">' +
           '<div class="hero-copy">' +
             '<p class="hero-kicker">' + esc(M.store.name) + "</p>" +
-            '<p class="hero-title">Technology you can count on.</p>' +
-            '<p class="hero-text">Laptops, phones, audio and electronics from the brands you trust. Delivered across South Africa, or collect in store.</p>' +
+            '<p class="hero-title">Everything you need, in one place.</p>' +
+            '<p class="hero-text">Tech, home and kitchen, fashion, beauty, toys and more from the brands you trust. Delivered across South Africa, or collect in store.</p>' +
             '<div class="hero-cta"><a class="btn btn-primary btn-lg" href="#deals">Shop the deals</a>' +
-              '<a class="btn btn-outline-light btn-lg" href="?cat=computers#shop">Browse computers</a></div>' +
+              '<a class="btn btn-outline-light btn-lg" href="#departments">Browse departments</a></div>' +
           "</div>" +
           '<div class="hero-art" aria-hidden="true">' +
             '<span class="hero-a1">' + M.art(pick("apple-macbook-air-13-m2").art) + "</span>" +
-            '<span class="hero-a2">' + M.art(pick("samsung-galaxy-s24-ultra").art) + "</span>" +
-            '<span class="hero-a3">' + M.art(pick("sony-wh-ch520").art) + "</span>" +
+            '<span class="hero-a2">' + M.art(pick("adidas-grand-court-2-sneakers").art) + "</span>" +
+            '<span class="hero-a3">' + M.art(pick("russell-hobbs-cordless-kettle").art) + "</span>" +
           "</div>" +
         "</div>");
       return;
@@ -128,17 +128,23 @@
   /* ---------- categories, deals ---------- */
   $("cat-grid").innerHTML = M.categories.map(function (c) {
     var n = M.products.filter(function (p) { return p.category === c.id; }).length;
-    return '<a class="cat-tile" href="?cat=' + c.id + '#shop">' +
-      '<span class="cat-art" aria-hidden="true">' + M.art(c.art) + "</span>" +
-      '<span class="cat-text"><b>' + esc(c.name) + "</b><span>" + esc(c.blurb) + "</span>" +
-      '<span class="cat-count">' + n + " products</span>" +
-      '<span class="cat-go" aria-hidden="true">' + M.icon.arrow + "</span></span></a>";
+    return '<a class="cat-tile" href="?cat=' + encodeURIComponent(c.id) + '#shop"' + (c.blurb ? ' title="' + esc(c.blurb) + '"' : "") + ">" +
+      '<span class="cat-art" aria-hidden="true">' + M.art(c.art || {}) + "</span>" +
+      '<span class="cat-name">' + esc(c.name) + "</span>" +
+      '<span class="cat-count">' + n + (n === 1 ? " product" : " products") + "</span></a>";
   }).join("");
 
   function renderDeals() {
+    var off = function (p) { return (p.was - p.price) / p.was; };
     var deals = M.products.filter(function (p) { return p.was && p.was > p.price && p.stock > 0; })
-      .sort(function (a, b) { return (b.was - b.price) - (a.was - a.price); });
-    $("deal-rail").innerHTML = deals.slice(0, 12).map(M.card).join(""); // two rows; "View all deals" shows the rest
+      .sort(function (a, b) { return off(b) - off(a); });
+    // take turns between departments, best deal first in each, so the rail shows the whole shop
+    var byCat = {}, order = [], mixed = [];
+    deals.forEach(function (p) { if (!byCat[p.category]) { byCat[p.category] = []; order.push(p.category); } byCat[p.category].push(p); });
+    for (var round = 0; mixed.length < deals.length; round++) {
+      order.forEach(function (c) { if (byCat[c][round]) mixed.push(byCat[c][round]); });
+    }
+    $("deal-rail").innerHTML = mixed.slice(0, 12).map(M.card).join(""); // two rows; "View all deals" shows the rest
   }
 
   /* ---------- shop state ---------- */
@@ -215,12 +221,26 @@
   function capacity(v) { var m = CAP.exec(v); return m ? [+m[1] + " " + m[2].toUpperCase()] : []; }
   function gb(v) { var m = CAP.exec(v); return m ? +m[1] * (/t/i.test(m[2]) ? 1024 : 1) : 0; }
   function first(v) { return [v]; }
+  var VOL = /(\d+(?:[.,]\d+)?)\s*(ml|l|litres?|liters?)\b/i;
+  function volume(v) { var m = VOL.exec(v); return m ? [m[1].replace(",", ".") + " " + (/^m/i.test(m[2]) ? "ml" : "L")] : []; }
+  function ml(v) { var m = VOL.exec(v); return m ? parseFloat(m[1]) * (/^m/i.test(m[2]) ? 1 : 1000) : 0; }
+  var SIZES = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL"];
+  function sizeOrder(v) {
+    var i = SIZES.indexOf(v.toUpperCase());
+    return i !== -1 ? i : 100 + (parseFloat(v.replace(/^[^\d]+/, "")) || 0);
+  }
+  function months(v) { var n = parseFloat(v) || 0; return /birth/i.test(v) ? 0 : /month/i.test(v) ? n : n * 12; }
   var SWATCH = { black: "#1d1d1f", white: "#fff", silver: "#c7cbd1", grey: "#8a9099", gray: "#8a9099", blue: "#2f6fd6", navy: "#1e3a6e",
     green: "#3aa66a", teal: "#0f9488", mint: "#9ee0c5", red: "#d0312d", pink: "#f2a7c3", purple: "#8b5cf6", lavender: "#c4b5fd",
-    yellow: "#f5cf3b", gold: "#d4b36a", orange: "#f28c28", brown: "#8a5a3b", beige: "#e6d5b8", titanium: "#a8a195", graphite: "#45474d" };
+    yellow: "#f5cf3b", gold: "#d4b36a", orange: "#f28c28", brown: "#8a5a3b", beige: "#e6d5b8", titanium: "#a8a195", graphite: "#45474d",
+    clear: "repeating-conic-gradient(#e3e6ea 0 25%, #fff 0 50%) 50% / 8px 8px", multicolour: "conic-gradient(#f87171,#facc15,#4ade80,#60a5fa,#c084fc,#f87171)" };
   var FACETS = [
     { key: "colour", label: "Colour", specs: ["colour", "color"], swatch: true,
       values: function (v) { return v.split(/\s*[,\/&]\s*|\s+and\s+/i).filter(Boolean).map(function (c) { return c.charAt(0).toUpperCase() + c.slice(1).toLowerCase(); }); } },
+    { key: "size", label: "Size", prefix: "Size ", specs: ["size", "clothing size", "shoe size"], order: sizeOrder,
+      // sizes the item comes in; a screen size like 24" belongs to Screen size instead
+      values: function (v) { return /\d\s*("|\u201d|\u2033|inch)/i.test(v) ? [] : v.split(/\s*[,\/]\s*/).filter(Boolean); } },
+    { key: "volume", label: "Capacity", specs: ["capacity", "volume"], values: volume, order: ml },
     { key: "storage", label: "Storage capacity", chip: " storage", specs: ["storage", "capacity", "storage capacity"], values: capacity, order: gb },
     { key: "ram", label: "Memory (RAM)", chip: " RAM", specs: ["memory", "ram"], values: capacity, order: gb },
     { key: "cpu", label: "Processor", specs: ["processor", "chip", "cpu"], values: first },
@@ -230,6 +250,8 @@
       values: function (v) { return /5G/i.test(v) ? ["5G"] : /4G|LTE/i.test(v) ? ["4G"] : []; } },
     { key: "jack", label: "Audio jack", specs: ["headphone jack", "audio jack"],
       values: function (v) { return [/^(no|none)\b/i.test(v) ? "No headphone jack" : "3.5 mm headphone jack"]; } },
+    { key: "material", label: "Material", specs: ["material", "fabric", "upper"], values: function (v) { return [v.split(/\s*,\s*/)[0]]; } },
+    { key: "age", label: "Age", specs: ["age", "suitable for"], values: first, order: months },
     { key: "lens", label: "Lens type", specs: ["lens type", "lens"], values: first },
     { key: "condition", label: "Product condition", specs: ["condition", "product condition"], values: first, fallback: "New",
       order: function (v) { return v === "New" ? 0 : 1; } }
@@ -325,7 +347,7 @@
     if (state.cat) chips.push(["cat", M.catName(state.cat)]);
     if (state.type) chips.push(["type", M.plural(state.type)]);
     state.brands.forEach(function (b) { chips.push(["brand:" + b, b]); });
-    FACETS.forEach(function (f) { (state.f[f.key] || []).forEach(function (v) { chips.push(["f:" + f.key + ":" + v, v + (f.chip || "")]); }); });
+    FACETS.forEach(function (f) { (state.f[f.key] || []).forEach(function (v) { chips.push(["f:" + f.key + ":" + v, (f.prefix || "") + v + (f.chip || "")]); }); });
     if (state.min !== "" || state.max !== "") {
       chips.push(["price", state.min !== "" && state.max !== "" ? money(state.min) + " – " + money(state.max) :
         state.min !== "" ? "From " + money(state.min) : "Up to " + money(state.max)]);

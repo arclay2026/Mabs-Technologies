@@ -88,7 +88,7 @@
         "<li>" + I.card + "<span><b>Flexible payment</b>EFT, or card or cash on delivery</span></li>" +
         "<li>" + I.truck + "<span><b>Nationwide delivery</b>Free over " + money(d.freeOver) + (d.collect ? ", or collect in store" : "") + "</span></li>" +
         "<li>" + RETURN + "<span><b>Easy returns</b>Unused items within 7 days</span></li>" +
-        "<li>" + I.shield + "<span><b>Genuine products</b>With the manufacturer's warranty</span></li>" +
+        "<li>" + I.shield + "<span><b>Genuine products</b>From brands and suppliers you can trust</span></li>" +
       "</ul>" +
       // phones: total and checkout stay in reach at the bottom of the screen
       '<div class="cart-bar"><div><span>Total</span><b>' + money(total) + "</b></div>" +

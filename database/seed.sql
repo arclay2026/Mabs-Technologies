@@ -1,14 +1,23 @@
 -- =====================================================================
 -- Mabs Technologies — starting catalogue
--- Generated from js/catalog.js: 4 categories, 12 brands, 40 products.
+-- Generated from js/catalog.js: 13 departments, 32 brands, 64 products.
 -- Prices in rand (VAT inclusive). Manage them in the admin panel from here on.
 -- =====================================================================
 
-INSERT IGNORE INTO categories (id, name, blurb, sort) VALUES
-  ('computers', 'Computers', 'Laptops, desktops & monitors', 0),
-  ('phones', 'Phones & Tablets', 'Smartphones & tablets', 1),
-  ('accessories', 'Accessories', 'Chargers, audio, storage & more', 2),
-  ('electronics', 'Electronics', 'TVs, speakers, wearables & gaming', 3);
+INSERT IGNORE INTO categories (id, name, blurb, art, sort) VALUES
+  ('computers', 'Computers', 'Laptops, desktops & monitors', '{"kind":"laptop","color":"#2563eb","body":"silver"}', 0),
+  ('phones', 'Phones & Tablets', 'Smartphones & tablets', '{"kind":"phone","color":"#7c3aed"}', 1),
+  ('electronics', 'TV, Audio & Gaming', 'TVs, speakers, wearables, printers & gaming', '{"kind":"tv","color":"#ea580c"}', 2),
+  ('accessories', 'Tech Accessories', 'Chargers, headphones, storage & more', '{"kind":"headphones","color":"#0d9488"}', 3),
+  ('appliances', 'Home Appliances', 'Kettles, air fryers, microwaves & more', '{"kind":"kettle","color":"#dc2626"}', 4),
+  ('home', 'Home & Kitchen', 'Cookware, coffee & food storage', '{"kind":"pan","color":"#f97316"}', 5),
+  ('fashion', 'Fashion', 'Clothing, shoes & bags', '{"kind":"tshirt","color":"#2563eb"}', 6),
+  ('beauty', 'Beauty & Personal Care', 'Hair care, oral care & skincare', '{"kind":"hairdryer","color":"#db2777"}', 7),
+  ('baby', 'Baby & Toddler', 'Nappies, feeding & baby care', '{"kind":"babybottle","color":"#0ea5e9"}', 8),
+  ('toys', 'Toys & Games', 'Building sets, plush toys & puzzles', '{"kind":"teddy","color":"#b45309"}', 9),
+  ('sport', 'Sport & Fitness', 'Training, balls & yoga', '{"kind":"ball","color":"#16a34a"}', 10),
+  ('office', 'Office & Stationery', 'Notebooks, pens & calculators', '{"kind":"notebook","color":"#4f46e5"}', 11),
+  ('diy', 'DIY & Tools', 'Power tools & tool storage', '{"kind":"drill","color":"#16a34a"}', 12);
 
 INSERT IGNORE INTO brands (id, name, logo_url, logo_height, sort) VALUES
   ('samsung', 'Samsung', 'assets/brands/samsung.svg', 16, 0),
@@ -22,7 +31,27 @@ INSERT IGNORE INTO brands (id, name, logo_url, logo_height, sort) VALUES
   ('dell', 'Dell', 'assets/brands/dell.svg', 30, 8),
   ('xiaomi', 'Xiaomi', 'assets/brands/xiaomi.svg', 30, 9),
   ('asus', 'ASUS', 'assets/brands/asus.svg', 18, 10),
-  ('huawei', 'Huawei', 'assets/brands/huawei.svg', 27, 11);
+  ('huawei', 'Huawei', 'assets/brands/huawei.svg', 27, 11),
+  ('russell-hobbs', 'Russell Hobbs', NULL, NULL, 12),
+  ('philips', 'Philips', NULL, NULL, 13),
+  ('defy', 'Defy', NULL, NULL, 14),
+  ('tefal', 'Tefal', NULL, NULL, 15),
+  ('locknlock', 'LocknLock', NULL, NULL, 16),
+  ('bodum', 'Bodum', NULL, NULL, 17),
+  ('adidas', 'adidas', NULL, NULL, 18),
+  ('levis', 'Levi''s', NULL, NULL, 19),
+  ('herschel', 'Herschel', NULL, NULL, 20),
+  ('oral-b', 'Oral-B', NULL, NULL, 21),
+  ('nivea', 'NIVEA', NULL, NULL, 22),
+  ('pampers', 'Pampers', NULL, NULL, 23),
+  ('lego', 'LEGO', NULL, NULL, 24),
+  ('jellycat', 'Jellycat', NULL, NULL, 25),
+  ('rubiks', 'Rubik''s', NULL, NULL, 26),
+  ('trojan', 'Trojan', NULL, NULL, 27),
+  ('bic', 'BIC', NULL, NULL, 28),
+  ('croxley', 'Croxley', NULL, NULL, 29),
+  ('bosch', 'Bosch', NULL, NULL, 30),
+  ('stanley', 'Stanley', NULL, NULL, 31);
 
 INSERT IGNORE INTO products (id, name, brand_id, category_id, type, price, was_price, stock, featured, badge, summary, specs, image_url, art, sort) VALUES
   ('lenovo-ideapad-slim-3', 'Lenovo IdeaPad Slim 3 15"', 'lenovo', 'computers', 'Laptop', 8999, 10499, 14, true, NULL, 'A thin, light everyday laptop for study, office work and streaming.', '[["Processor","Intel Core i5"],["Memory","8 GB RAM"],["Storage","512 GB SSD"],["Display","15.6\\" Full HD"],["OS","Windows 11 Home"],["Colour","Grey"]]', NULL, '{"kind":"laptop","color":"#2563eb","body":"silver"}', 0),
@@ -64,12 +93,36 @@ INSERT IGNORE INTO products (id, name, brand_id, category_id, type, price, was_p
   ('jbl-charge-5', 'JBL Charge 5 Bluetooth Speaker', 'jbl', 'electronics', 'Speaker', 2999, 3499, 10, false, NULL, 'Powerful, waterproof sound that also charges your phone.', '[["Connection","Bluetooth"],["Battery","Up to 20 hours"],["Water resistance","IP67"],["Colour","Black"]]', NULL, '{"kind":"speaker","color":"#f97316"}', 36),
   ('apple-watch-se-40mm', 'Apple Watch SE (2nd gen) 40mm', 'apple', 'electronics', 'Smartwatch', 5499, 5999, 8, false, NULL, 'Fitness, sleep and safety features in a light, comfortable watch.', '[["Case","40 mm aluminium"],["Connectivity","GPS"],["Tracking","Heart rate, sleep, workouts"],["Colour","Silver"]]', NULL, '{"kind":"watch","color":"#0ea5e9","body":"silver"}', 37),
   ('canon-pixma-g3430', 'Canon PIXMA G3430 Ink Tank Printer', 'canon', 'electronics', 'Printer', 3299, 3699, 7, false, NULL, 'Refillable MegaTank printing, scanning and copying over Wi-Fi.', '[["Functions","Print, scan, copy"],["Connectivity","Wi-Fi, USB"],["Ink","Refillable MegaTank"],["Colour","Black"]]', NULL, '{"kind":"printer","color":"#dc2626","body":"light"}', 38),
-  ('deli-scientific-calculator', 'Deli Scientific Calculator (240 functions)', 'deli', 'accessories', 'Calculator', 229, NULL, 45, false, NULL, 'Exam-friendly scientific calculator for high school and university.', '[["Functions","240"],["Display","2-line"],["Power","Battery"],["Colour","Black"]]', NULL, '{"kind":"calculator","color":"#cb0a3d","body":"dark"}', 39);
+  ('deli-scientific-calculator', 'Deli Scientific Calculator (240 functions)', 'deli', 'office', 'Calculator', 229, NULL, 45, false, NULL, 'Exam-friendly scientific calculator for high school and university.', '[["Functions","240"],["Display","2-line"],["Power","Battery"],["Colour","Black"]]', NULL, '{"kind":"calculator","color":"#cb0a3d","body":"dark"}', 39),
+  ('russell-hobbs-cordless-kettle', 'Russell Hobbs 1.7L Cordless Kettle', 'russell-hobbs', 'appliances', 'Kettle', 449, 549, 25, true, NULL, 'Fast-boiling cordless kettle with a 360° base and automatic shut-off.', '[["Capacity","1.7 L"],["Power","2200 W"],["Features","360° cordless base, auto shut-off, water window"],["Colour","Black"]]', NULL, '{"kind":"kettle","color":"#334155"}', 40),
+  ('philips-essential-airfryer', 'Philips Essential Airfryer 4.1L', 'philips', 'appliances', 'Air fryer', 1799, 2199, 12, true, NULL, 'Crispy results with little or no oil, and a basket that goes in the dishwasher.', '[["Capacity","4.1 L"],["Power","1400 W"],["Features","Rapid Air, timer, dishwasher-safe basket"],["Colour","Black"]]', NULL, '{"kind":"airfryer","color":"#e11d48","body":"dark"}', 41),
+  ('defy-20l-manual-microwave', 'Defy 20L Manual Microwave', 'defy', 'appliances', 'Microwave', 1199, NULL, 9, false, NULL, 'Simple dial controls and five power levels for everyday heating and defrosting.', '[["Capacity","20 L"],["Power","700 W"],["Controls","Manual dials, 5 power levels"],["Colour","White"]]', NULL, '{"kind":"microwave","color":"#475569","body":"white"}', 42),
+  ('tefal-easy-cook-clean-pan-28', 'Tefal Easy Cook & Clean Frying Pan 28cm', 'tefal', 'home', 'Frying pan', 399, 499, 30, false, NULL, 'Non-stick frying pan that heats evenly and wipes clean in seconds.', '[["Diameter","28 cm"],["Material","Aluminium, non-stick coating"],["Hob","Gas, electric and ceramic"],["Colour","Black"]]', NULL, '{"kind":"pan","color":"#475569"}', 43),
+  ('locknlock-6-piece-storage-set', 'LocknLock 6-Piece Food Storage Set', 'locknlock', 'home', 'Food storage', 349, NULL, 22, false, NULL, 'Airtight, leak-proof containers with four-sided locking lids.', '[["Pieces","6 (3 containers, 3 lids)"],["Material","BPA-free plastic"],["Care","Microwave, freezer and dishwasher safe"],["Colour","Clear"]]', NULL, '{"kind":"container","color":"#0ea5e9"}', 44),
+  ('bodum-chambord-french-press-1l', 'Bodum Chambord French Press 1L', 'bodum', 'home', 'Coffee maker', 699, 799, 10, false, NULL, 'The classic French press: eight cups of rich coffee in four minutes.', '[["Capacity","1 L (8 cups)"],["Material","Borosilicate glass, stainless steel"],["Colour","Silver"]]', NULL, '{"kind":"frenchpress","color":"#94a3b8"}', 45),
+  ('adidas-grand-court-2-sneakers', 'adidas Grand Court 2.0 Sneakers', 'adidas', 'fashion', 'Sneakers', 1199, 1499, 20, true, NULL, 'Clean, court-inspired sneakers with a cushioned sole for all-day wear.', '[["Size","UK 6, UK 7, UK 8, UK 9, UK 10, UK 11"],["Upper","Synthetic leather"],["Sole","Rubber"],["Colour","White"]]', NULL, '{"kind":"sneaker","color":"#1e293b","body":"white"}', 46),
+  ('levis-original-housemark-tee', 'Levi''s Original Housemark T-Shirt', 'levis', 'fashion', 'T-shirt', 499, NULL, 35, false, NULL, 'A soft, everyday cotton tee with the small Housemark logo on the chest.', '[["Size","S, M, L, XL, XXL"],["Material","100% cotton"],["Fit","Regular"],["Colour","Navy"]]', NULL, '{"kind":"tshirt","color":"#1e3a8a"}', 47),
+  ('herschel-classic-backpack', 'Herschel Classic Backpack 24L', 'herschel', 'fashion', 'Backpack', 899, NULL, 14, false, NULL, 'A simple, durable everyday backpack with a padded laptop sleeve.', '[["Capacity","24 L"],["Laptop sleeve","Fits up to 15 inch"],["Material","Polyester"],["Colour","Black"]]', NULL, '{"kind":"backpack","color":"#b91c1c","body":"dark"}', 48),
+  ('philips-3000-hair-dryer', 'Philips 3000 Series Hair Dryer', 'philips', 'beauty', 'Hair dryer', 499, 599, 18, false, NULL, 'Fast drying with three heat and speed settings and a styling nozzle.', '[["Power","1600 W"],["Settings","3 heat and speed"],["Includes","Concentrator nozzle"],["Colour","Purple"]]', NULL, '{"kind":"hairdryer","color":"#7c3aed"}', 49),
+  ('oral-b-vitality-pro', 'Oral-B Vitality Pro Electric Toothbrush', 'oral-b', 'beauty', 'Electric toothbrush', 599, 749, 16, false, NULL, 'Round-head cleaning with three modes and a two-minute timer.', '[["Modes","Daily clean, sensitive, whitening"],["Timer","2 minutes"],["Battery","Rechargeable"],["Colour","Blue"]]', NULL, '{"kind":"toothbrush","color":"#0ea5e9"}', 50),
+  ('nivea-express-hydration-lotion-400', 'NIVEA Express Hydration Body Lotion 400ml', 'nivea', 'beauty', 'Body lotion', 109, NULL, 60, false, NULL, 'Light, quick-absorbing lotion that keeps normal skin moisturised for 48 hours.', '[["Volume","400 ml"],["Skin type","Normal skin"]]', NULL, '{"kind":"bottle","color":"#1d4ed8"}', 51),
+  ('pampers-premium-care-size-3', 'Pampers Premium Care Nappies Size 3 (60 pack)', 'pampers', 'baby', 'Nappies', 349, 399, 40, false, NULL, 'Soft, breathable nappies with up to 12 hours of dryness.', '[["Nappy size","Size 3 (6–10 kg)"],["Count","60 nappies"]]', NULL, '{"kind":"nappies","color":"#0d9488"}', 52),
+  ('philips-avent-natural-bottle-260', 'Philips Avent Natural Baby Bottle 260ml (2 pack)', 'philips', 'baby', 'Baby bottle', 329, NULL, 20, false, NULL, 'A wide, breast-shaped teat makes it easy to combine breast and bottle feeding.', '[["Volume","260 ml"],["Age","1 month+"],["Material","BPA-free polypropylene"]]', NULL, '{"kind":"babybottle","color":"#38bdf8"}', 53),
+  ('lego-classic-medium-brick-box', 'LEGO Classic Medium Creative Brick Box 10696', 'lego', 'toys', 'Building set', 699, 799, 15, true, NULL, '484 bricks in 35 colours, with ideas to get young builders started.', '[["Pieces","484"],["Age","4+ years"]]', NULL, '{"kind":"bricks","color":"#f59e0b"}', 54),
+  ('jellycat-bartholomew-bear-medium', 'Jellycat Bartholomew Bear (Medium)', 'jellycat', 'toys', 'Plush toy', 899, NULL, 8, false, NULL, 'A super-soft, huggable bear with a cheeky smile.', '[["Height","28 cm"],["Material","Polyester plush"],["Age","Birth+"],["Colour","Brown"]]', NULL, '{"kind":"teddy","color":"#b45309"}', 55),
+  ('rubiks-cube-3x3', 'Rubik''s Cube 3x3', 'rubiks', 'toys', 'Puzzle', 249, NULL, 30, false, NULL, 'The original colour-matching puzzle, with a smooth turning mechanism.', '[["Age","8+ years"]]', NULL, '{"kind":"cube"}', 56),
+  ('adidas-tiro-league-football', 'adidas Tiro League Football', 'adidas', 'sport', 'Football', 449, NULL, 24, false, NULL, 'Durable, machine-stitched match and training ball.', '[["Ball size","5"],["Material","TPU"],["Colour","White"]]', NULL, '{"kind":"ball","color":"#1e293b"}', 57),
+  ('trojan-20kg-dumbbell-set', 'Trojan 20kg Adjustable Dumbbell Set', 'trojan', 'sport', 'Dumbbells', 999, 1299, 6, false, NULL, 'Two handles and plates you can set up for a full home workout.', '[["Weight","20 kg in total"],["Includes","2 handles, plates and collars"],["Colour","Black"]]', NULL, '{"kind":"dumbbell","color":"#dc2626","body":"dark"}', 58),
+  ('trojan-yoga-mat-6mm', 'Trojan Yoga Mat 6mm', 'trojan', 'sport', 'Yoga mat', 299, NULL, 18, false, NULL, 'Cushioned, non-slip mat for yoga, stretching and floor exercises.', '[["Thickness","6 mm"],["Material","TPE"],["Colour","Purple"]]', NULL, '{"kind":"yogamat","color":"#7c3aed"}', 59),
+  ('bic-cristal-pens-10', 'BIC Cristal Ballpoint Pens (10 pack)', 'bic', 'office', 'Pens', 59, NULL, 80, false, NULL, 'The classic clear-barrel ballpoint that writes smoothly every time.', '[["Point","1.0 mm medium"],["Ink","Blue"],["Count","10 pens"],["Colour","Blue"]]', NULL, '{"kind":"pens","color":"#2563eb"}', 60),
+  ('croxley-a4-hardcover-notebook', 'Croxley A4 Hardcover Notebook (192 pages)', 'croxley', 'office', 'Notebook', 79, NULL, 50, false, NULL, 'A sturdy hardcover notebook for school, work and meeting notes.', '[["Paper size","A4"],["Pages","192"],["Ruling","Feint and margin"]]', NULL, '{"kind":"notebook","color":"#4f46e5"}', 61),
+  ('bosch-easydrill-1200', 'Bosch EasyDrill 1200 Cordless Drill Driver 12V', 'bosch', 'diy', 'Drill', 1599, 1899, 7, false, NULL, 'Light, cordless drill driver for screwing and drilling around the home.', '[["Voltage","12 V"],["Battery","1.5 Ah lithium-ion"],["Includes","Battery and charger"],["Colour","Green"]]', NULL, '{"kind":"drill","color":"#16a34a"}', 62),
+  ('stanley-19-inch-toolbox', 'Stanley 19 inch Toolbox', 'stanley', 'diy', 'Toolbox', 349, NULL, 12, false, NULL, 'Tough plastic toolbox with a removable tray and metal latches.', '[["Length","48 cm"],["Material","Plastic, metal latches"],["Colour","Black"]]', NULL, '{"kind":"toolbox","color":"#facc15"}', 63);
 
 UPDATE store_settings SET courier_fee = 120, free_over = 1500, collect = 1 WHERE id = 1;
 
 -- demo photo galleries (made from the drawings) for four products; replace with real photos in the admin panel
-UPDATE products SET image_url = 'assets/products/demo/samsung-galaxy-s24-ultra-1.jpg', images = '["assets/products/demo/samsung-galaxy-s24-ultra-1.jpg","assets/products/demo/samsung-galaxy-s24-ultra-2.jpg","assets/products/demo/samsung-galaxy-s24-ultra-3.jpg","assets/products/demo/samsung-galaxy-s24-ultra-4.jpg","assets/products/demo/samsung-galaxy-s24-ultra-5.jpg","assets/products/demo/samsung-galaxy-s24-ultra-6.jpg","assets/products/demo/samsung-galaxy-s24-ultra-7.jpg"]' WHERE id = 'samsung-galaxy-s24-ultra' AND image_url IS NULL;
-UPDATE products SET image_url = 'assets/products/demo/apple-macbook-air-13-m2-1.jpg', images = '["assets/products/demo/apple-macbook-air-13-m2-1.jpg","assets/products/demo/apple-macbook-air-13-m2-2.jpg","assets/products/demo/apple-macbook-air-13-m2-3.jpg","assets/products/demo/apple-macbook-air-13-m2-4.jpg","assets/products/demo/apple-macbook-air-13-m2-5.jpg"]' WHERE id = 'apple-macbook-air-13-m2' AND image_url IS NULL;
 UPDATE products SET image_url = 'assets/products/demo/lenovo-ideapad-slim-3-1.jpg', images = '["assets/products/demo/lenovo-ideapad-slim-3-1.jpg","assets/products/demo/lenovo-ideapad-slim-3-2.jpg","assets/products/demo/lenovo-ideapad-slim-3-3.jpg","assets/products/demo/lenovo-ideapad-slim-3-4.jpg"]' WHERE id = 'lenovo-ideapad-slim-3' AND image_url IS NULL;
+UPDATE products SET image_url = 'assets/products/demo/apple-macbook-air-13-m2-1.jpg', images = '["assets/products/demo/apple-macbook-air-13-m2-1.jpg","assets/products/demo/apple-macbook-air-13-m2-2.jpg","assets/products/demo/apple-macbook-air-13-m2-3.jpg","assets/products/demo/apple-macbook-air-13-m2-4.jpg","assets/products/demo/apple-macbook-air-13-m2-5.jpg"]' WHERE id = 'apple-macbook-air-13-m2' AND image_url IS NULL;
 UPDATE products SET image_url = 'assets/products/demo/jbl-flip-6-1.jpg', images = '["assets/products/demo/jbl-flip-6-1.jpg","assets/products/demo/jbl-flip-6-2.jpg","assets/products/demo/jbl-flip-6-3.jpg"]' WHERE id = 'jbl-flip-6' AND image_url IS NULL;
+UPDATE products SET image_url = 'assets/products/demo/samsung-galaxy-s24-ultra-1.jpg', images = '["assets/products/demo/samsung-galaxy-s24-ultra-1.jpg","assets/products/demo/samsung-galaxy-s24-ultra-2.jpg","assets/products/demo/samsung-galaxy-s24-ultra-3.jpg","assets/products/demo/samsung-galaxy-s24-ultra-4.jpg","assets/products/demo/samsung-galaxy-s24-ultra-5.jpg","assets/products/demo/samsung-galaxy-s24-ultra-6.jpg","assets/products/demo/samsung-galaxy-s24-ultra-7.jpg"]' WHERE id = 'samsung-galaxy-s24-ultra' AND image_url IS NULL;

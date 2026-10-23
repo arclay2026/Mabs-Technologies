@@ -4,11 +4,6 @@ declare(strict_types=1);
 require __DIR__ . '/_admin.php';
 require_admin();
 
-// placeholder drawings (js/catalog.js) used until a product has a photo
-const ART_KINDS = ['laptop', 'desktop', 'monitor', 'phone', 'tablet', 'watch', 'headphones', 'earbuds', 'speaker', 'mouse', 'keyboard',
-                   'charger', 'cable', 'powerbank', 'flash', 'ssd', 'tv', 'console', 'router', 'calculator', 'printer'];
-const ART_BODIES = ['dark' => 'Dark', 'silver' => 'Silver', 'light' => 'Light grey', 'white' => 'White'];
-
 $pdo = db();
 $id = q('id');
 $p = null;
@@ -21,12 +16,6 @@ if ($id !== '') {
 $cats = $pdo->query('SELECT id, name FROM categories ORDER BY sort')->fetchAll();
 $brands = $pdo->query('SELECT id, name FROM brands ORDER BY name')->fetchAll();
 $types = $pdo->query('SELECT DISTINCT type FROM products ORDER BY type')->fetchAll(PDO::FETCH_COLUMN);
-
-function slugify(string $s): string
-{
-    $s = strtolower(trim(preg_replace('/[^A-Za-z0-9]+/', '-', iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $s) ?: $s), '-'));
-    return substr($s, 0, 80);
-}
 
 function specs_text(?string $json): string
 {
@@ -100,7 +89,7 @@ if (is_post()) {
     $v['photos'] = implode("\n", $photos); // keep new uploads if the form is shown again
     if ($uploadProblems) $errors['upload'] = implode(' ', $uploadProblems);
     if (count($photos) > 12) $errors['photos'] = 'Use up to 12 photos.';
-    if (!in_array($v['art_kind'], ART_KINDS, true)) $v['art_kind'] = 'phone';
+    if (!isset(ART_KINDS[$v['art_kind']])) $v['art_kind'] = 'bag';
     if (!preg_match('/^#[0-9a-f]{6}$/i', $v['art_color'])) $v['art_color'] = '#2563eb';
     if (!isset(ART_BODIES[$v['art_body']])) $v['art_body'] = 'dark';
     if (!$p) {
@@ -207,7 +196,7 @@ page_start($p ? $p['name'] : 'Add product', 'products');
         <textarea name="photos" rows="<?= max(2, count($list) + 1) ?>" placeholder="assets/products/galaxy-a15-front.jpg&#10;https://…"<?= invalid($errors, 'photos') ?>><?= h($v['photos']) ?></textarea></label>
       <p class="span2 muted">Without a photo, the shop draws an illustration:</p>
       <label>Drawing
-        <select name="art_kind"><?php foreach (ART_KINDS as $k): ?><option value="<?= h($k) ?>"<?= $k === $v['art_kind'] ? ' selected' : '' ?>><?= h(ucfirst($k)) ?></option><?php endforeach; ?></select></label>
+        <?= art_kind_select('art_kind', $v['art_kind']) ?></label>
       <div class="grid2 tight">
         <label>Colour <input type="color" name="art_color" value="<?= h($v['art_color']) ?>"></label>
         <label>Body

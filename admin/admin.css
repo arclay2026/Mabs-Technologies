@@ -203,6 +203,10 @@ details.card.danger { margin-top: 0; }
   .top-in { flex-wrap: wrap; gap: 6px 18px; padding-top: 10px; padding-bottom: 10px; }
   .who { margin-left: 0; }
   .filters input[type=search] { width: 100%; }
+  /* the menu gets its own row and slides sideways when it doesn't fit */
+  .nav { order: 3; width: calc(100% + 28px); margin: 0 -14px; padding: 0 14px 2px; overflow-x: auto; scrollbar-width: none; }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav a { white-space: nowrap; }
 }
 @media (max-width: 560px) {
   .wrap { padding-left: 14px; padding-right: 14px; }
@@ -235,3 +239,12 @@ label > .dd { margin-top: 6px; }
 .danger.inline { margin: 0 0 0 auto; display: flex; align-items: center; gap: 10px; }
 .danger.inline form { margin: 0; }
 .danger.inline[open] { flex-direction: row-reverse; }
+
+/* departments & brands */
+.table .link-danger { color: var(--red); font-weight: 600; font-size: 13px; }
+.table .link-danger:hover { color: #991b1b; text-decoration: underline; }
+.in-num.in-order { width: 70px !important; }
+.table-edit input[type=color] { width: 52px; height: 32px; }
+.form-inline { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; }
+.form-inline label { flex: 1 1 180px; }
+.form-inline .span-all { flex-basis: 100%; }
