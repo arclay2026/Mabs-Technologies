@@ -180,7 +180,7 @@ page_start($p ? $p['name'] : 'Add product', 'products');
         <textarea name="specs" rows="6" placeholder="Processor: Intel Core i5&#10;Memory: 8 GB RAM"<?= invalid($errors, 'specs') ?>><?= h($v['specs']) ?></textarea></label>
     </section>
 
-    <section class="card grid2">
+    <section class="card grid2" data-art-row>
       <h2 class="span2">Photos</h2>
       <?php $list = array_values(array_filter(array_map('trim', preg_split('/\R/', $v['photos'])))); ?>
       <?php if ($list): ?>
@@ -194,7 +194,8 @@ page_start($p ? $p['name'] : 'Add product', 'products');
         <input type="file" name="upload[]" accept="image/jpeg,image/png,image/webp" multiple<?= invalid($errors, 'upload') ?>></label>
       <label class="span2">Photo order <span class="hint">one per line; the first is the main photo. Delete a line to remove a photo.</span> <?= field_error($errors, 'photos') ?>
         <textarea name="photos" rows="<?= max(2, count($list) + 1) ?>" placeholder="assets/products/galaxy-a15-front.jpg&#10;https://…"<?= invalid($errors, 'photos') ?>><?= h($v['photos']) ?></textarea></label>
-      <p class="span2 muted">Without a photo, the shop draws an illustration:</p>
+      <div class="span2 art-note"><span class="art art-lg" data-art data-kind="<?= h($v['art_kind']) ?>" data-color="<?= h($v['art_color']) ?>" data-body="<?= h($v['art_body']) ?>"></span>
+        <p class="muted">Without a photo, the shop shows this drawing. Choose what it shows and its colours below.</p></div>
       <label>Drawing
         <?= art_kind_select('art_kind', $v['art_kind']) ?></label>
       <div class="grid2 tight">

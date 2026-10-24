@@ -250,11 +250,53 @@ function when(string $datetime): string
     return date('j M Y, H:i', strtotime($datetime));
 }
 
+/** line icons for the admin panel (24 × 24, drawn with currentColor) */
+function icon(string $name): string
+{
+    static $paths = [
+        'orders' => '<path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 016 0"/>',
+        'products' => '<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/>',
+        'departments' => '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
+        'customers' => '<circle cx="9" cy="8.5" r="3.5"/><path d="M2.5 20c1-3.6 3.6-5.5 6.5-5.5s5.5 1.9 6.5 5.5"/><path d="M16 5.2a3.4 3.4 0 010 6.6M18.5 14.8c1.5.8 2.5 2.5 3 4.7"/>',
+        'reviews' => '<path d="M12 3.8l2.5 5.1 5.6.8-4 3.9 1 5.6-5.1-2.7-5 2.7 1-5.6-4.1-3.9 5.6-.8L12 3.8z"/>',
+        'settings' => '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/>',
+        'shop' => '<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v4a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2h4"/>',
+        'logout' => '<path d="M15 4h3a2 2 0 012 2v12a2 2 0 01-2 2h-3"/><path d="M10 16l-4-4 4-4M6 12h10"/>',
+        'money' => '<rect x="3" y="6" width="18" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.5"/><path d="M6.5 9.5v.01M17.5 14.5v.01"/>',
+        'calendar' => '<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+        'alert' => '<path d="M12 4l9 16H3l9-16z"/><path d="M12 10v4M12 17.2v.01"/>',
+        'mail' => '<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 6.5L12 13l8.5-6.5"/>',
+        'check' => '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+        'new' => '<path d="M12 5v14M5 12h14"/>',
+        'search' => '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',
+    ];
+    return '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+        . ($paths[$name] ?? '') . '</svg>';
+}
+
 function nav_link(string $href, string $label, string $active, int $count = 0): string
 {
-    $on = basename($href, '.php') === $active;
-    return '<a href="' . h($href) . '"' . ($on ? ' aria-current="page"' : '') . '>' . h($label)
-        . ($count ? ' <span class="nav-count" title="' . $count . ' waiting">' . $count . '</span>' : '') . '</a>';
+    $key = basename($href, '.php');
+    return '<a href="' . h($href) . '"' . ($key === $active ? ' aria-current="page"' : '') . '>' . icon($key) . '<span>' . h($label) . '</span>'
+        . ($count ? '<span class="nav-count" title="' . $count . ' waiting">' . $count . '</span>' : '') . '</a>';
+}
+
+function new_orders(): int
+{
+    try {
+        return (int) db()->query("SELECT COUNT(*) FROM orders WHERE status = 'placed'")->fetchColumn();
+    } catch (PDOException $e) {
+        return 0;
+    }
+}
+
+/** two-letter badge for a person or brand, coloured from its name */
+function monogram(string $name, string $class = 'mono'): string
+{
+    $words = preg_split('/\s+/', trim($name)) ?: [''];
+    $letters = mb_strtoupper(mb_substr($words[0], 0, 1) . (count($words) > 1 ? mb_substr(end($words), 0, 1) : mb_substr($words[0], 1, 1)));
+    $hue = hexdec(substr(md5(strtolower($name)), 0, 2)) % 6;
+    return '<span class="' . h($class) . ' mono-' . $hue . '" aria-hidden="true">' . h($letters) . '</span>';
 }
 
 function pending_reviews(): int
@@ -282,20 +324,27 @@ function page_start(string $title, string $active = ''): void
          '<title>', h($title), ' · Mabs Admin</title>',
          '<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">',
          '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
-         '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">',
-         '<link rel="stylesheet" href="../css/select.css"><link rel="stylesheet" href="admin.css">',
-         '<script src="../js/select.js" defer></script></head><body>';
-    echo '<header class="top"><div class="wrap top-in">',
-         '<a class="brand" href="', $admin ? 'orders.php' : 'index.php', '"><img src="../assets/logo-light.svg" alt="Mabs Technologies" height="26"><span>Admin</span></a>';
+         '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">',
+         '<link rel="stylesheet" href="../css/select.css"><link rel="stylesheet" href="admin.css?v=2">',
+         // the shop's product drawings, for picture previews (departments, products)
+         '<script src="../js/catalog.js" defer></script><script src="../js/select.js" defer></script><script src="admin.js?v=2" defer></script></head>';
     if ($admin) {
-        echo '<nav class="nav" aria-label="Admin">',
-             nav_link('orders.php', 'Orders', $active), nav_link('products.php', 'Products', $active),
+        // signed in: a sidebar with the sections, then the page
+        echo '<body class="has-side"><aside class="side">',
+             '<a class="brand" href="orders.php"><img src="../assets/logo-light.svg" alt="Mabs Technologies" height="26"><span>Admin</span></a>',
+             '<nav class="nav" aria-label="Admin"><p class="nav-label">Store</p>',
+             nav_link('orders.php', 'Orders', $active, new_orders()), nav_link('products.php', 'Products', $active),
              nav_link('departments.php', 'Departments', $active), nav_link('customers.php', 'Customers', $active),
-             nav_link('reviews.php', 'Reviews', $active, pending_reviews()), nav_link('settings.php', 'Settings', $active),
-             '</nav><div class="who"><a href="../index.html" target="_blank" rel="noopener">View shop</a>',
-             '<form method="post" action="logout.php">', csrf_field(), '<button type="submit" class="link">Sign out</button></form></div>';
+             nav_link('reviews.php', 'Reviews', $active, pending_reviews()),
+             '<p class="nav-label">Account</p>', nav_link('settings.php', 'Settings', $active),
+             '<a href="../index.html" target="_blank" rel="noopener">', icon('shop'), '<span>View shop</span></a></nav>',
+             '<div class="who">', monogram($admin['email'], 'avatar'), '<span class="who-text"><b>Store owner</b><small>', h($admin['email']), '</small></span>',
+             '<form method="post" action="logout.php">', csrf_field(), '<button type="submit" class="who-out" title="Sign out" aria-label="Sign out">', icon('logout'), '</button></form></div>',
+             '</aside><main class="main"><div class="main-in">', flashes();
+    } else {
+        echo '<body class="is-public"><header class="top"><a class="brand" href="index.php"><img src="../assets/logo-light.svg" alt="Mabs Technologies" height="28"><span>Admin</span></a></header>',
+             '<main class="main"><div class="main-in">', flashes();
     }
-    echo '</div></header><main class="wrap main">', flashes();
     if ($admin) {
         // checked once per sign-in: tell the admin if the database needs an update
         if (!isset($_SESSION['upgrades'])) {
@@ -309,7 +358,7 @@ function page_start(string $title, string $active = ''): void
 
 function page_end(): void
 {
-    echo '</main></body></html>';
+    echo '</div></main></body></html>';
 }
 
 /* ---------- form values ---------- */

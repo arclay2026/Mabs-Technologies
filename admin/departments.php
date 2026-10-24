@@ -138,9 +138,14 @@ if (is_post()) {
 $depts = $pdo->query('SELECT c.*, (SELECT COUNT(*) FROM products p WHERE p.category_id = c.id) AS n FROM categories c ORDER BY c.sort, c.name')->fetchAll();
 $brands = $pdo->query('SELECT b.*, (SELECT COUNT(*) FROM products p WHERE p.brand_id = b.id) AS n FROM brands b ORDER BY b.name')->fetchAll();
 
+$deptCount = count($depts);
 page_start('Departments & brands', 'departments');
 ?>
-<div class="head"><h1>Departments &amp; brands</h1></div>
+<div class="head">
+  <div><h1>Departments &amp; brands</h1>
+    <p class="head-sub"><?= $deptCount ?> department<?= $deptCount === 1 ? '' : 's' ?> · <?= count($brands) ?> brand<?= count($brands) === 1 ? '' : 's' ?> · a department appears in the shop once it has a product</p></div>
+  <div class="head-actions"><a class="btn btn-ghost" href="#add-dept"><?= icon('new') ?>Department</a><a class="btn btn-ghost" href="#brands"><?= icon('new') ?>Brand</a></div>
+</div>
 <?php if (!$hasArt): ?>
   <p class="note note-info">Update the database to choose a picture for each department. <a href="setup.php">Update it now</a></p>
 <?php endif; ?>
@@ -149,70 +154,72 @@ page_start('Departments & brands', 'departments');
   <form method="post">
     <?= csrf_field() ?><input type="hidden" name="action" value="departments">
     <table class="table table-edit">
-      <thead><tr><th>Department</th><th>Description <span class="hint">under the name in menus</span></th><?php if ($hasArt): ?><th>Picture</th><th>Colour</th><?php endif; ?><th class="num">Order</th><th class="num">Products</th><th></th></tr></thead>
+      <thead><tr><th>Department</th><?php if ($hasArt): ?><th>Picture &amp; colour</th><?php endif; ?><th class="num">Order</th><th class="num">Products</th><th></th></tr></thead>
       <tbody>
       <?php foreach ($depts as $d): $k = 'rows[' . h($d['id']) . ']'; $art = json_decode((string) ($d['art'] ?? ''), true) ?: []; ?>
-        <tr>
-          <td><input name="<?= $k ?>[name]" value="<?= h($d['name']) ?>" required maxlength="80" aria-label="Name"></td>
-          <td><input name="<?= $k ?>[blurb]" value="<?= h($d['blurb']) ?>" maxlength="160" aria-label="Description of <?= h($d['name']) ?>"></td>
+        <tr data-art-row>
+          <td><div class="dept-cell">
+            <?php if ($hasArt): ?><span class="art" data-art data-kind="<?= h($art['kind'] ?? 'bag') ?>" data-color="<?= h($art['color'] ?? '#2563eb') ?>"></span><?php endif; ?>
+            <div class="dept-fields">
+              <input class="in-name" name="<?= $k ?>[name]" value="<?= h($d['name']) ?>" required maxlength="80" aria-label="Name">
+              <input class="in-blurb" name="<?= $k ?>[blurb]" value="<?= h($d['blurb']) ?>" maxlength="160" placeholder="Short description, shown in menus" aria-label="Description of <?= h($d['name']) ?>">
+            </div></div></td>
           <?php if ($hasArt): ?>
-          <td><?= art_kind_select($k . '[kind]', (string) ($art['kind'] ?? 'bag'), 'Picture for ' . $d['name']) ?></td>
-          <td><input type="color" name="<?= $k ?>[color]" value="<?= h($art['color'] ?? '#2563eb') ?>" aria-label="Colour for <?= h($d['name']) ?>"></td>
+          <td><div class="kind-cell"><?= art_kind_select($k . '[kind]', (string) ($art['kind'] ?? 'bag'), 'Picture for ' . $d['name']) ?>
+            <input type="color" name="<?= $k ?>[color]" value="<?= h($art['color'] ?? '#2563eb') ?>" aria-label="Colour for <?= h($d['name']) ?>"></div></td>
           <?php endif; ?>
           <td class="num"><input class="in-num in-order" name="<?= $k ?>[sort]" value="<?= (int) $d['sort'] ?>" inputmode="numeric" aria-label="Position of <?= h($d['name']) ?>"></td>
-          <td class="num"><a href="products.php?cat=<?= h(rawurlencode($d['id'])) ?>&amp;show=all"><?= (int) $d['n'] ?></a></td>
+          <td class="num"><a class="n-link<?= (int) $d['n'] ? '' : ' n-zero' ?>" href="products.php?cat=<?= h(rawurlencode($d['id'])) ?>&amp;show=all" title="See its products"><?= (int) $d['n'] ?></a></td>
           <td class="nowrap"><?php if ((int) $d['n'] === 0): ?><button class="link link-danger" name="delete" value="<?= h($d['id']) ?>" formnovalidate>Remove</button><?php endif; ?></td>
         </tr>
       <?php endforeach; ?>
       </tbody>
     </table>
-    <div class="savebar"><span class="muted">Lower numbers come first. A department shows in the shop once it has a product.</span><button class="btn" type="submit">Save departments</button></div>
+    <div class="savebar"><span class="muted">Lower order numbers come first in menus and on the homepage.</span><button class="btn" type="submit"><?= icon('check') ?>Save departments</button></div>
   </form>
 </section>
 
-<section class="card">
+<section class="card" id="add-dept">
   <h2>Add a department</h2>
-  <form method="post" class="form form-inline">
-    <?= csrf_field() ?><input type="hidden" name="action" value="add-department">
-    <?= isset($errors['dept']) ? '<span class="field-error span-all">' . h($errors['dept']) . '</span>' : '' ?>
-    <label>Name <input name="name" value="<?= h($newDept['name']) ?>" required maxlength="80" placeholder="e.g. Pets"></label>
-    <label>Description <input name="blurb" value="<?= h($newDept['blurb']) ?>" maxlength="160" placeholder="e.g. Food, beds & toys"></label>
-    <?php if ($hasArt): ?>
-    <label>Picture <?= art_kind_select('kind', $newDept['kind']) ?></label>
-    <label>Colour <input type="color" name="color" value="<?= h($newDept['color']) ?>"></label>
-    <?php endif; ?>
-    <button class="btn" type="submit">Add department</button>
-  </form>
+  <div class="add-dept" data-art-row>
+    <?php if ($hasArt): ?><span class="art art-lg" data-art data-kind="<?= h($newDept['kind']) ?>" data-color="<?= h($newDept['color']) ?>"></span><?php endif; ?>
+    <form method="post" class="form form-inline">
+      <?= csrf_field() ?><input type="hidden" name="action" value="add-department">
+      <?= isset($errors['dept']) ? '<span class="field-error span-all">' . h($errors['dept']) . '</span>' : '' ?>
+      <label>Name <input name="name" value="<?= h($newDept['name']) ?>" required maxlength="80" placeholder="e.g. Pets"></label>
+      <label>Description <input name="blurb" value="<?= h($newDept['blurb']) ?>" maxlength="160" placeholder="e.g. Food, beds & toys"></label>
+      <?php if ($hasArt): ?>
+      <label>Picture <?= art_kind_select('kind', $newDept['kind']) ?></label>
+      <label class="color-label">Colour <input type="color" name="color" value="<?= h($newDept['color']) ?>"></label>
+      <?php endif; ?>
+      <button class="btn" type="submit"><?= icon('new') ?>Add department</button>
+    </form>
+  </div>
 </section>
 
-<div class="cols cols-even" id="brands">
-  <section class="card table-wrap">
-    <form method="post">
-      <?= csrf_field() ?><input type="hidden" name="action" value="brands">
-      <table class="table table-edit">
-        <thead><tr><th>Brand</th><th class="num">Products</th><th></th></tr></thead>
-        <tbody>
-        <?php foreach ($brands as $b): ?>
-          <tr>
-            <td><input name="brands[<?= h($b['id']) ?>]" value="<?= h($b['name']) ?>" required maxlength="80" aria-label="Brand name"></td>
-            <td class="num"><a href="products.php?brand=<?= h(rawurlencode($b['id'])) ?>&amp;show=all"><?= (int) $b['n'] ?></a></td>
-            <td class="nowrap"><?php if ((int) $b['n'] === 0): ?><button class="link link-danger" name="delete" value="<?= h($b['id']) ?>" formnovalidate>Remove</button><?php endif; ?></td>
-          </tr>
-        <?php endforeach; ?>
-        </tbody>
-      </table>
-      <div class="savebar"><span class="muted"><?= count($brands) ?> brands</span><button class="btn" type="submit">Save brands</button></div>
-    </form>
-  </section>
-  <section class="card">
-    <h2>Add a brand</h2>
-    <form method="post" class="form">
+<section class="card table-wrap" id="brands">
+  <div class="card-head card-head-pad">
+    <h2>Brands <span class="count"><?= count($brands) ?></span></h2>
+    <form method="post" class="add-brand">
       <?= csrf_field() ?><input type="hidden" name="action" value="add-brand">
-      <label>Brand name <?= isset($errors['brand']) ? '<span class="field-error">' . h($errors['brand']) . '</span>' : '' ?>
-        <input name="name" value="<?= h($newBrand) ?>" required maxlength="80" placeholder="e.g. Russell Hobbs"></label>
-      <button class="btn" type="submit">Add brand</button>
-      <p class="muted">Logos in the homepage’s “Featured brands” strip are set up separately; ask your web developer to add one.</p>
+      <input name="name" value="<?= h($newBrand) ?>" required maxlength="80" placeholder="New brand, e.g. Russell Hobbs" aria-label="New brand name"<?= isset($errors['brand']) ? ' aria-invalid="true"' : '' ?>>
+      <button class="btn" type="submit"><?= icon('new') ?>Add brand</button>
     </form>
-  </section>
-</div>
+  </div>
+  <?= isset($errors['brand']) ? '<p class="field-error brand-error">' . h($errors['brand']) . '</p>' : '' ?>
+  <form method="post">
+    <?= csrf_field() ?><input type="hidden" name="action" value="brands">
+    <div class="brand-list">
+    <?php foreach ($brands as $b): ?>
+      <div class="brand-row">
+        <?= monogram($b['name']) ?>
+        <input name="brands[<?= h($b['id']) ?>]" value="<?= h($b['name']) ?>" required maxlength="80" aria-label="Brand name">
+        <a class="n-link<?= (int) $b['n'] ? '' : ' n-zero' ?>" href="products.php?brand=<?= h(rawurlencode($b['id'])) ?>&amp;show=all" title="<?= (int) $b['n'] ?> product<?= (int) $b['n'] === 1 ? '' : 's' ?>"><?= (int) $b['n'] ?></a>
+        <?php if ((int) $b['n'] === 0): ?><button class="link link-x" name="delete" value="<?= h($b['id']) ?>" formnovalidate title="Remove <?= h($b['name']) ?>" aria-label="Remove <?= h($b['name']) ?>">×</button><?php endif; ?>
+      </div>
+    <?php endforeach; ?>
+    </div>
+    <div class="savebar"><span class="muted">Click a name to rename it. Brands without products can be removed.</span><button class="btn" type="submit"><?= icon('check') ?>Save brands</button></div>
+  </form>
+</section>
 <?php page_end();

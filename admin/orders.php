@@ -65,10 +65,10 @@ page_start('Orders', 'orders');
 </div>
 
 <div class="stats">
-  <div class="stat"><span>New orders</span><b><?= (int) ($counts['placed'] ?? 0) ?></b></div>
-  <div class="stat"><span>Today</span><b><?= h(money((float) $today['t'])) ?></b><small><?= (int) $today['n'] ?> order<?= $today['n'] == 1 ? '' : 's' ?></small></div>
-  <div class="stat"><span>This month</span><b><?= h(money((float) $month['t'])) ?></b><small><?= (int) $month['n'] ?> order<?= $month['n'] == 1 ? '' : 's' ?></small></div>
-  <a class="stat<?= $low ? ' stat-warn' : '' ?>" href="products.php?stock=low"><span>Low on stock</span><b><?= $low ?></b><small>products with 2 or fewer</small></a>
+  <a class="stat" href="orders.php?tab=placed"><?= icon('orders') ?><span>New orders</span><b><?= (int) ($counts['placed'] ?? 0) ?></b><small>waiting to be confirmed</small></a>
+  <div class="stat stat-green"><?= icon('money') ?><span>Today</span><b><?= h(money((float) $today['t'])) ?></b><small><?= (int) $today['n'] ?> order<?= $today['n'] == 1 ? '' : 's' ?></small></div>
+  <div class="stat stat-violet"><?= icon('calendar') ?><span>This month</span><b><?= h(money((float) $month['t'])) ?></b><small><?= (int) $month['n'] ?> order<?= $month['n'] == 1 ? '' : 's' ?></small></div>
+  <a class="stat<?= $low ? ' stat-warn' : '' ?>" href="products.php?stock=low"><?= icon('alert') ?><span>Low on stock</span><b><?= $low ?></b><small>products with 2 or fewer</small></a>
 </div>
 
 <nav class="tabs" aria-label="Order status">
