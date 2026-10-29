@@ -331,7 +331,7 @@ function page_start(string $title, string $active = '', string $layout = ''): vo
          '<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">',
          '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
          '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">',
-         '<link rel="stylesheet" href="../css/select.css"><link rel="stylesheet" href="admin.css?v=4">',
+         '<link rel="stylesheet" href="../css/select.css"><link rel="stylesheet" href="admin.css?v=5">',
          // the shop's product drawings, for picture previews (departments, products)
          '<script src="../js/catalog.js" defer></script><script src="../js/select.js" defer></script><script src="admin.js?v=3" defer></script></head>';
     if ($admin) {

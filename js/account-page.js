@@ -37,11 +37,13 @@
   function errorText(e) { return ERRORS[e && e.code] || "Something went wrong. Please check your connection and try again."; }
 
   /* ---------- form pieces ---------- */
+  // opts.icon: a line icon inside the field (the login and register forms)
   function field(id, label, input, opts) {
     opts = opts || {};
+    var eye = opts.password ? '<button type="button" class="pw-show" data-show="' + id + '" aria-label="Show password" aria-pressed="false">' + EYE + "</button>" : "";
     return '<div class="field' + (opts.wide ? " field-wide" : "") + '">' +
       '<label for="' + id + '">' + label + (opts.optional ? ' <span class="opt">(optional)</span>' : "") + "</label>" +
-      (opts.password ? '<div class="pw-wrap">' + input + '<button type="button" class="pw-show" data-show="' + id + '" aria-label="Show password" aria-pressed="false">' + EYE + "</button></div>" : input) +
+      (opts.password || opts.icon ? '<div class="pw-wrap' + (opts.icon ? " has-icon" : "") + '">' + (opts.icon ? '<span class="in-icon" aria-hidden="true">' + opts.icon + "</span>" : "") + input + eye + "</div>" : input) +
       (opts.hint ? '<p class="hint" id="' + id + '-hint">' + opts.hint + "</p>" : "") +
       '<p class="err" id="' + id + '-err"></p></div>';
   }
@@ -77,9 +79,10 @@
     if (bad) bad.focus();
     return !bad;
   }
+  // "Logging in…" while a request runs; afterwards the label comes back with its icon
   function busy(btn, on, text) {
-    if (on) { btn.setAttribute("data-label", btn.textContent); btn.textContent = text; btn.disabled = true; }
-    else { btn.textContent = btn.getAttribute("data-label"); btn.disabled = false; }
+    if (on) { btn._label = btn.innerHTML; btn.textContent = text; btn.disabled = true; }
+    else { btn.innerHTML = btn._label; btn.disabled = false; }
   }
   root.addEventListener("input", function (e) { if (e.target.getAttribute("aria-invalid") === "true") check(e.target); });
   root.addEventListener("blur", function (e) { if (e.target.matches && e.target.matches("[data-msg]") && e.target.value) check(e.target); }, true);
@@ -98,49 +101,55 @@
   });
 
   /* ---------- signed out: login, register, forgot password ---------- */
-  var PERKS = '<aside class="auth-perks" aria-label="Why create an account">' +
-    "<h2>Why create an account?</h2><ul>" +
+  var PHONE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg>';
+  // brand panel beside the form: why an account is worth it
+  var SIDE = '<aside class="auth-side" aria-label="Why create an account">' +
+    '<img class="auth-side-logo" src="assets/logo-light.svg" alt="" height="28">' +
+    '<div class="auth-side-copy"><p class="auth-eyebrow">Your ' + esc(M.store.name.split(" ")[0]) + " account</p>" +
+      '<p class="auth-headline">Shop faster and follow every order.</p><ul class="auth-points">' +
       "<li>" + I.cart + "<span><b>Faster checkout</b>Your name, email and number are filled in for you.</span></li>" +
       "<li>" + I.box + "<span><b>All your orders in one place</b>See what you ordered and where it is, on any device.</span></li>" +
       "<li>" + MAIL + "<span><b>Deals in your inbox</b>Hear about sales and new arrivals first, if you’d like to.</span></li>" +
-      "<li>" + LOCK + "<span><b>Safe and private</b>Your password is stored encrypted, and we never share your details.</span></li>" +
-    "</ul></aside>";
+    "</ul></div>" +
+    '<p class="auth-side-foot">' + LOCK + "Your password is stored encrypted. We never share your details.</p></aside>";
+  var SECURE = '<p class="auth-secure">' + I.shield + "<span>Protected login. After 5 wrong passwords, logging in pauses for 15 minutes.</span></p>";
 
   function authShell(tab, body) {
     var tabs = tab === "forgot" ? "" :
       '<div class="auth-tabs" role="tablist">' +
         '<a role="tab" href="?tab=signin" data-tab="signin" aria-selected="' + (tab === "signin") + '">Login</a>' +
         '<a role="tab" href="?tab=register" data-tab="register" aria-selected="' + (tab === "register") + '">Register</a></div>';
-    return '<div class="auth">' +
-      '<section class="auth-card" aria-labelledby="auth-title">' + tabs + body + "</section>" + PERKS + "</div>";
+    return '<div class="auth">' + SIDE +
+      '<section class="auth-card" aria-labelledby="auth-title"><div class="auth-form-box">' + tabs + body + "</div></section></div>";
   }
 
   function signinHtml() {
-    return '<h1 id="auth-title">Log in to your account</h1>' +
+    return '<span class="auth-badge" aria-hidden="true">' + LOCK + "</span>" +
+      '<h1 id="auth-title">Welcome back</h1><p class="auth-sub">Log in to your ' + esc(M.store.name) + " account.</p>" +
       (params.get("out") ? '<p class="form-alert is-ok" role="status">You’ve been logged out.</p>' : "") +
       '<form id="signin-form" novalidate>' + alertBox() +
-        field("si-email", "Email address", '<input id="si-email" name="email" type="email" autocomplete="username" required data-msg="email" maxlength="190">', { wide: true }) +
-        field("si-pass", "Password", '<input id="si-pass" name="password" type="password" autocomplete="current-password" required data-msg="current" maxlength="72">', { wide: true, password: true }) +
+        field("si-email", "Email address", '<input id="si-email" name="email" type="email" autocomplete="username" required data-msg="email" maxlength="190" placeholder="you@example.com">', { wide: true, icon: MAIL }) +
+        field("si-pass", "Password", '<input id="si-pass" name="password" type="password" autocomplete="current-password" required data-msg="current" maxlength="72" placeholder="Your password">', { wide: true, password: true, icon: LOCK }) +
         '<div class="auth-row"><label class="check"><input type="checkbox" name="remember" checked> Keep me logged in</label>' +
           '<a href="?tab=forgot" data-tab="forgot">Forgot your password?</a></div>' +
-        '<button type="submit" class="btn btn-primary btn-block btn-lg">Login</button>' +
-      "</form>" +
+        '<button type="submit" class="btn btn-primary btn-block btn-lg">Login' + I.arrow + "</button>" +
+      "</form>" + SECURE +
       '<p class="auth-switch">New to ' + esc(M.store.name) + '? <a href="?tab=register" data-tab="register">Create an account</a></p>';
   }
 
   function registerHtml() {
-    return '<h1 id="auth-title">Create your account</h1>' +
+    return '<h1 id="auth-title">Create your account</h1><p class="auth-sub">It takes less than a minute.</p>' +
       '<form id="register-form" novalidate>' + alertBox() +
         '<div class="field-grid">' +
-          field("rg-first", "First name", '<input id="rg-first" name="firstName" autocomplete="given-name" required data-msg="first" maxlength="60">') +
-          field("rg-last", "Surname", '<input id="rg-last" name="lastName" autocomplete="family-name" required data-msg="last" maxlength="60">') +
-          field("rg-email", "Email address", '<input id="rg-email" name="email" type="email" autocomplete="email" required data-msg="email" maxlength="190">', { wide: true }) +
-          field("rg-phone", "Cellphone number", '<input id="rg-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" pattern="\\+?[0-9][0-9 ]{8,}" data-msg="phone" maxlength="30" placeholder="e.g. 082 123 4567">', { wide: true, optional: true }) +
-          field("rg-pass", "Password", '<input id="rg-pass" name="password" type="password" autocomplete="new-password" required minlength="' + MIN + '" maxlength="72" data-msg="password">', { wide: true, password: true, hint: "At least " + MIN + " characters. A short sentence is easy to remember and hard to guess." }) +
+          field("rg-first", "First name", '<input id="rg-first" name="firstName" autocomplete="given-name" required data-msg="first" maxlength="60">', { icon: I.user }) +
+          field("rg-last", "Surname", '<input id="rg-last" name="lastName" autocomplete="family-name" required data-msg="last" maxlength="60">', { icon: I.user }) +
+          field("rg-email", "Email address", '<input id="rg-email" name="email" type="email" autocomplete="email" required data-msg="email" maxlength="190" placeholder="you@example.com">', { wide: true, icon: MAIL }) +
+          field("rg-phone", "Cellphone number", '<input id="rg-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" pattern="\\+?[0-9][0-9 ]{8,}" data-msg="phone" maxlength="30" placeholder="e.g. 082 123 4567">', { wide: true, optional: true, icon: PHONE }) +
+          field("rg-pass", "Password", '<input id="rg-pass" name="password" type="password" autocomplete="new-password" required minlength="' + MIN + '" maxlength="72" data-msg="password">', { wide: true, password: true, icon: LOCK, hint: "At least " + MIN + " characters. A short sentence is easy to remember and hard to guess." }) +
         "</div>" +
         '<label class="check auth-check"><input type="checkbox" name="newsletter"> Email me about deals and new arrivals</label>' +
         '<label class="check auth-check"><input type="checkbox" name="remember" checked> Keep me logged in</label>' +
-        '<button type="submit" class="btn btn-primary btn-block btn-lg">Create account</button>' +
+        '<button type="submit" class="btn btn-primary btn-block btn-lg">Create account' + I.arrow + "</button>" +
       "</form>" +
       '<p class="auth-switch">Already have an account? <a href="?tab=signin" data-tab="signin">Log in</a></p>';
   }
@@ -150,7 +159,7 @@
       '<h1 id="auth-title">Reset your password</h1>' +
       '<p class="auth-lead">Enter the email address of your account and we’ll email you a link to choose a new password.</p>' +
       '<form id="forgot-form" novalidate>' + alertBox() +
-        field("fg-email", "Email address", '<input id="fg-email" name="email" type="email" autocomplete="email" required data-msg="email" maxlength="190">', { wide: true }) +
+        field("fg-email", "Email address", '<input id="fg-email" name="email" type="email" autocomplete="email" required data-msg="email" maxlength="190" placeholder="you@example.com">', { wide: true, icon: MAIL }) +
         '<button type="submit" class="btn btn-primary btn-block btn-lg">Email me a link</button>' +
       "</form>";
   }

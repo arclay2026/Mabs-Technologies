@@ -93,8 +93,8 @@ small { font-size: 12px; }
 
 /* ---------- buttons ---------- */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 38px; padding: 0 16px; border: 1px solid var(--blue); border-radius: var(--radius);
-  background: linear-gradient(180deg, #1a82ee, var(--blue)); color: var(--white); font: 600 13.5px Inter, system-ui, sans-serif; white-space: nowrap; cursor: pointer;
-  box-shadow: 0 1px 2px rgba(0, 113, 227, .3), inset 0 1px 0 rgba(255, 255, 255, .16); transition: background .15s, box-shadow .15s, transform .15s; }
+  background: var(--blue); color: var(--white); font: 600 13.5px Inter, system-ui, sans-serif; white-space: nowrap; cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 113, 227, .3); transition: background .15s, box-shadow .15s, transform .15s; }
 .btn:hover { background: var(--blue-hover); border-color: var(--blue-hover); text-decoration: none; box-shadow: 0 4px 12px -2px rgba(0, 113, 227, .45); }
 .btn:active { transform: translateY(1px); }
 .btn .ico { width: 16px; height: 16px; }
@@ -371,9 +371,7 @@ label > .dd { margin-top: 7px; }
 .auth-split { display: grid; grid-template-columns: minmax(380px, 46%) 1fr; min-height: 100vh; }
 .auth-brand { position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: 40px; padding: 44px clamp(32px, 4.5vw, 64px); overflow: hidden; color: #c3ccd3;
   background: radial-gradient(700px 420px at 110% 0%, rgba(0, 113, 227, .38), transparent 60%), radial-gradient(520px 380px at -10% 105%, rgba(0, 113, 227, .2), transparent 60%), linear-gradient(160deg, #1f2f39 0%, #142028 100%); }
-/* fine grid and the logo's slanted bars, faint, for depth */
-.auth-brand::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgba(255, 255, 255, .035) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .035) 1px, transparent 1px);
-  background-size: 44px 44px; -webkit-mask-image: linear-gradient(180deg, #000, transparent 85%); mask-image: linear-gradient(180deg, #000, transparent 85%); }
+/* the logo's slanted bars, faint, for depth */
 .auth-brand::after { content: ""; position: absolute; right: -60px; bottom: -40px; width: 380px; height: 270px; opacity: .03;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 150'%3E%3Cg fill='%23fff'%3E%3Cpolygon points='92 6 74 62 44 150 0 150 31 54 92 6'/%3E%3Cpolygon points='150 0 107 150 63 150 103 26 150 0'/%3E%3Cpolygon points='208 0 162 150 118 150 161 12 208 0'/%3E%3C/g%3E%3C/svg%3E") no-repeat right bottom / contain; }
 .auth-brand > * { position: relative; z-index: 1; }
