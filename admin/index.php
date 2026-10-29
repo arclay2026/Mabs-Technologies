@@ -47,17 +47,41 @@ if (is_post()) {
     }
 }
 
-page_start('Sign in');
+page_start('Sign in', '', 'auth');
 ?>
-<section class="card narrow signin">
-  <h1>Sign in</h1>
-  <p class="muted">Manage orders, prices and stock for Mabs Technologies.</p>
-  <?php if ($error): ?><p class="note note-error" role="alert"><?= h($error) ?></p><?php endif; ?>
-  <form method="post" class="form">
-    <?= csrf_field() ?>
-    <label>Email <input type="email" name="email" required autocomplete="username" value="<?= h($email) ?>" autofocus></label>
-    <label>Password <input type="password" name="password" required autocomplete="current-password"></label>
-    <button class="btn" type="submit">Sign in</button>
-  </form>
+<aside class="auth-brand" aria-hidden="true">
+  <img class="auth-logo" src="../assets/logo-light.svg" alt="" height="30">
+  <div class="auth-brand-copy">
+    <p class="auth-eyebrow">Store management</p>
+    <p class="auth-headline">Everything behind your shop, in one place.</p>
+    <ul class="auth-points">
+      <li><?= icon('orders') ?><span><b>Orders</b>Confirm, track and update every order.</span></li>
+      <li><?= icon('products') ?><span><b>Products &amp; stock</b>Prices, specials, photos and stock levels.</span></li>
+      <li><?= icon('customers') ?><span><b>Customers &amp; reviews</b>Accounts, spend and what shoppers say.</span></li>
+    </ul>
+  </div>
+  <p class="auth-foot">&copy; <?= date('Y') ?> Mabs Technologies</p>
+</aside>
+
+<section class="auth-panel" aria-labelledby="signin-title">
+  <div class="auth-box">
+    <img class="auth-logo-mobile" src="../assets/logo.svg" alt="Mabs Technologies" height="28">
+    <span class="auth-badge"><?= icon('lock') ?></span>
+    <h1 id="signin-title">Welcome back</h1>
+    <p class="auth-sub">Sign in to manage your store.</p>
+    <?= flashes() ?>
+    <?php if ($error): ?><p class="note note-error" role="alert"><?= h($error) ?></p><?php endif; ?>
+    <form method="post" class="form auth-form">
+      <?= csrf_field() ?>
+      <label>Email address
+        <span class="field-icon"><?= icon('mail') ?><input type="email" name="email" required autocomplete="username" value="<?= h($email) ?>" placeholder="you@example.com" autofocus></span></label>
+      <label>Password
+        <span class="field-icon"><?= icon('lock') ?><input type="password" name="password" id="admin-pw" required autocomplete="current-password" placeholder="Your password">
+          <button type="button" class="pw-toggle" data-pw-toggle="admin-pw" aria-label="Show password" aria-pressed="false"><?= icon('eye') ?></button></span></label>
+      <button class="btn btn-lg btn-block" type="submit">Sign in <?= icon('arrow') ?></button>
+    </form>
+    <p class="auth-secure"><?= icon('shield') ?><span>Private area for the store owner. After 5 wrong passwords, sign-in pauses for 15 minutes.</span></p>
+  </div>
+  <a class="auth-back" href="../index.html"><?= icon('back') ?>Back to the shop</a>
 </section>
 <?php page_end();

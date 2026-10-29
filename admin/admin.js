@@ -29,3 +29,14 @@
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
 })();
+
+/* show / hide a password (the admin sign-in) */
+document.addEventListener("click", function (e) {
+  var b = e.target.closest && e.target.closest("[data-pw-toggle]");
+  if (!b) return;
+  var input = document.getElementById(b.getAttribute("data-pw-toggle")), show = input.type === "password";
+  input.type = show ? "text" : "password";
+  b.setAttribute("aria-pressed", show);
+  b.setAttribute("aria-label", show ? "Hide password" : "Show password");
+  input.focus();
+});

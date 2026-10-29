@@ -269,6 +269,11 @@ function icon(string $name): string
         'check' => '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
         'new' => '<path d="M12 5v14M5 12h14"/>',
         'search' => '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',
+        'lock' => '<rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 018 0v3"/>',
+        'eye' => '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+        'shield' => '<path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.3-7.5 9.5-4.3-1.2-7.5-4.9-7.5-9.5V6L12 3z"/><path d="M9 12l2.2 2.2L15.5 10"/>',
+        'arrow' => '<path d="M5 12h14M13 6l6 6-6 6"/>',
+        'back' => '<path d="M19 12H5M11 6l-6 6 6 6"/>',
     ];
     return '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
         . ($paths[$name] ?? '') . '</svg>';
@@ -315,7 +320,8 @@ function stars(int $rating): string
 
 /* ---------- layout ---------- */
 
-function page_start(string $title, string $active = ''): void
+/** $layout 'auth': the full-screen sign-in layout (admin/index.php draws the page and its messages) */
+function page_start(string $title, string $active = '', string $layout = ''): void
 {
     $admin = $active !== '' ? current_admin() : null;
     echo '<!doctype html><html lang="en-ZA"><head><meta charset="utf-8">',
@@ -325,9 +331,9 @@ function page_start(string $title, string $active = ''): void
          '<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">',
          '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
          '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">',
-         '<link rel="stylesheet" href="../css/select.css"><link rel="stylesheet" href="admin.css?v=2">',
+         '<link rel="stylesheet" href="../css/select.css"><link rel="stylesheet" href="admin.css?v=4">',
          // the shop's product drawings, for picture previews (departments, products)
-         '<script src="../js/catalog.js" defer></script><script src="../js/select.js" defer></script><script src="admin.js?v=2" defer></script></head>';
+         '<script src="../js/catalog.js" defer></script><script src="../js/select.js" defer></script><script src="admin.js?v=3" defer></script></head>';
     if ($admin) {
         // signed in: a sidebar with the sections, then the page
         echo '<body class="has-side"><aside class="side">',
@@ -341,6 +347,8 @@ function page_start(string $title, string $active = ''): void
              '<div class="who">', monogram($admin['email'], 'avatar'), '<span class="who-text"><b>Store owner</b><small>', h($admin['email']), '</small></span>',
              '<form method="post" action="logout.php">', csrf_field(), '<button type="submit" class="who-out" title="Sign out" aria-label="Sign out">', icon('logout'), '</button></form></div>',
              '</aside><main class="main"><div class="main-in">', flashes();
+    } elseif ($layout === 'auth') {
+        echo '<body class="is-auth"><main class="auth-main"><div class="auth-split">';
     } else {
         echo '<body class="is-public"><header class="top"><a class="brand" href="index.php"><img src="../assets/logo-light.svg" alt="Mabs Technologies" height="28"><span>Admin</span></a></header>',
              '<main class="main"><div class="main-in">', flashes();
